@@ -9,7 +9,7 @@ $password = '';
 
 try {
     // Connect to MySQL database using PDO
-    $pdo = new PDO("mysql:host=$host", $username, $password);
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
     
     // Set PDO error mode to exception
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -61,15 +61,22 @@ try {
         description TEXT,
         facility VARCHAR(100) NOT NULL,
         duration INT NOT NULL,
-        status ENUM('pending', 'accepted', 'declined') NOT NULL,
+        status ENUM('pending', 'active', 'denied', 'ongoing', 'completed') NOT NULL,
         date_requested TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        event_start DATETIME,
+        event_end DATETIME,
+        likes INT DEFAULT 0,
+        dislikes INT DEFAULT 0,
         FOREIGN KEY (user_id) REFERENCES users(id)
     )";
     $pdo->exec($createEventTableQuery);
 
     // Alter events table to add missing columns or modify structure
     $alterEventTableQuery = "ALTER TABLE events
-        ADD COLUMN IF NOT EXISTS date_requested TIMESTAMP DEFAULT CURRENT_TIMESTAMP";
+        ADD COLUMN IF NOT EXISTS event_start DATETIME,
+        ADD COLUMN IF NOT EXISTS event_end DATETIME,
+        ADD COLUMN IF NOT EXISTS likes INT DEFAULT 0,
+        ADD COLUMN IF NOT EXISTS dislikes INT DEFAULT 0";
     $pdo->exec($alterEventTableQuery);
 
     // Create comments table if it doesn't exist
