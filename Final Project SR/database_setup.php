@@ -136,7 +136,7 @@ function isAdmin() {
 // Logout function
 function logout() {
     session_destroy();
-    header("Location: login.php"); // Redirect to login page
+    header("Location: EMS/login.php"); // Redirect to login page
     exit();
 }
 ?>
