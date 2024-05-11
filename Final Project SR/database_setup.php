@@ -32,6 +32,30 @@ try {
     // Switch to the created database
     $pdo->exec("USE $dbname");
 
+    // Create comment_votes table if it doesn't exist
+    $createCommentVotesTableQuery = "CREATE TABLE IF NOT EXISTS comment_votes (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        event_id INT NOT NULL,
+        comment_id INT NOT NULL,
+        vote_type ENUM('like', 'dislike') NOT NULL,
+        UNIQUE KEY user_comment_unique (user_id, comment_id),
+        FOREIGN KEY (user_id) REFERENCES users(id),
+        FOREIGN KEY (comment_id) REFERENCES comments(id)
+    )";
+    $pdo->exec($createCommentVotesTableQuery);
+
+    // Alter comment_votes table to add missing columns or modify structure
+    $alterCommentVotesTableQuery = "ALTER TABLE comment_votes
+        ADD COLUMN IF NOT EXISTS id INT AUTO_INCREMENT PRIMARY KEY,
+        ADD COLUMN IF NOT EXISTS user_id INT NOT NULL,
+        ADD COLUMN IF NOT EXISTS event_id INT NOT NULL,
+        ADD COLUMN IF NOT EXISTS comment_id INT NOT NULL,
+        ADD COLUMN IF NOT EXISTS vote_type ENUM('like', 'dislike') NOT NULL,
+        ADD FOREIGN KEY (user_id) REFERENCES users(id),
+        ADD FOREIGN KEY (comment_id) REFERENCES comments(id)";
+    $pdo->exec($alterCommentVotesTableQuery);
+
     // Create event_votes table if it doesn't exist
     $createEventVotesTableQuery = "CREATE TABLE IF NOT EXISTS event_votes (
         id INT AUTO_INCREMENT PRIMARY KEY,

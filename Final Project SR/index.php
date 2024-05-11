@@ -139,7 +139,7 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
                         echo '<img src="SVG/hand-thumbs-down-fill.svg" alt="Dislikes" width="16" height="16" class="text-danger ms-3 me-1">';
                         echo '<span>' . $event['dislikes'] . '</span>';
                         echo '</div>';
-                        echo '<a href="#" class="btn btn-primary mt-3">View</a>';
+                        echo '<a href="EMS/event_details.php?event_id=' . $event['id'] . '" class="btn btn-primary mt-3">View</a>';
                         echo '</div>';
                         echo '</div>';
                         echo '</div>';
@@ -207,7 +207,7 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
                     echo '<img src="SVG/hand-thumbs-down-fill.svg" alt="Dislikes" width="16" height="16" class="text-danger ms-3 me-1">';
                     echo '<span>' . $event['dislikes'] . '</span>';
                     echo '</div>';
-                    echo '<a href="#" class="btn btn-primary mt-3">View</a>';
+                    echo '<a href="EMS/event_details.php?event_id=' . $event['id'] . '" class="btn btn-primary mt-3">View</a>';
                     echo '</div>';
                     echo '</div>';
                     echo '</div>';
@@ -278,7 +278,7 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
                     echo '<img src="SVG/hand-thumbs-down-fill.svg" alt="Dislikes" width="16" height="16" class="text-danger ms-3 me-1">';
                     echo '<span>' . $event['dislikes'] . '</span>';
                     echo '</div>';
-                    echo '<a href="#" class="btn btn-primary mt-3">View</a>';
+                    echo '<a href="EMS/event_details.php?event_id=' . $event['id'] . '" class="btn btn-primary mt-3">View</a>';
                     echo '</div>';
                     echo '</div>';
                     echo '</div>';
