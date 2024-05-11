@@ -52,11 +52,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['username']) && isset($
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Event Management System</title>
 
-    <!-- Bootstrap CSS -->
-    <link href="../CSS/bootstrap.min.css" rel="stylesheet">
+    <!-- CSS.PHP -->
+    <?php
+    require_once '../PARTS/CSS.php';
+    ?>
 
-    <!-- Custom CSS -->
-    <link href="../CSS/custom_style.css" rel="stylesheet">
 </head>
 <body>
 <!-- Header -->
@@ -97,13 +97,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['username']) && isset($
 </main>
 <!-- End Main Content -->
 
-<!-- Bootstrap JS -->
-<script src="../JS/jquery.slim.min.js"></script>
-<script src="../JS/popper.min.js"></script>
-<script src="../JS/bootstrap.min.js"></script>
-
-<!-- Custom JS -->
-<script src="../JS/custom_script.js"></script>
-
+<!-- JS.PHP -->
+<?php
+require_once '../PARTS/js.php';
+?>
 </body>
 </html>

@@ -32,6 +32,28 @@ try {
     // Switch to the created database
     $pdo->exec("USE $dbname");
 
+    // Create event_votes table if it doesn't exist
+    $createEventVotesTableQuery = "CREATE TABLE IF NOT EXISTS event_votes (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        event_id INT NOT NULL,
+        vote_type ENUM('like', 'dislike') NOT NULL,
+        UNIQUE KEY user_event_unique (user_id, event_id),
+        FOREIGN KEY (user_id) REFERENCES users(id),
+        FOREIGN KEY (event_id) REFERENCES events(id)
+    )";
+    $pdo->exec($createEventVotesTableQuery);
+
+    // Alter event_votes table to add missing columns or modify structure
+    $alterEventVotesTableQuery = "ALTER TABLE event_votes
+        ADD COLUMN IF NOT EXISTS id INT AUTO_INCREMENT PRIMARY KEY,
+        ADD COLUMN IF NOT EXISTS user_id INT NOT NULL,
+        ADD COLUMN IF NOT EXISTS event_id INT NOT NULL,
+        ADD COLUMN IF NOT EXISTS vote_type ENUM('like', 'dislike') NOT NULL,
+        ADD FOREIGN KEY (user_id) REFERENCES users(id),
+        ADD FOREIGN KEY (event_id) REFERENCES events(id)";
+    $pdo->exec($alterEventVotesTableQuery);
+
     // Create users table if it doesn't exist
     $createUserTableQuery = "CREATE TABLE IF NOT EXISTS users (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -47,6 +69,10 @@ try {
 
     // Alter users table to add missing columns or modify structure
     $alterUserTableQuery = "ALTER TABLE users
+        ADD COLUMN IF NOT EXISTS id INT AUTO_INCREMENT PRIMARY KEY,
+        ADD COLUMN IF NOT EXISTS username VARCHAR(50) NOT NULL,
+        ADD COLUMN IF NOT EXISTS password VARCHAR(255) NOT NULL,
+        ADD COLUMN IF NOT EXISTS role ENUM('user', 'admin') NOT NULL,
         ADD COLUMN IF NOT EXISTS can_request_event BOOLEAN DEFAULT TRUE,
         ADD COLUMN IF NOT EXISTS can_review_request BOOLEAN DEFAULT FALSE,
         ADD COLUMN IF NOT EXISTS can_delete_user BOOLEAN DEFAULT FALSE,
@@ -67,16 +93,26 @@ try {
         event_end DATETIME,
         likes INT DEFAULT 0,
         dislikes INT DEFAULT 0,
+        remarks VARCHAR(255),
         FOREIGN KEY (user_id) REFERENCES users(id)
     )";
     $pdo->exec($createEventTableQuery);
 
     // Alter events table to add missing columns or modify structure
     $alterEventTableQuery = "ALTER TABLE events
+        ADD COLUMN IF NOT EXISTS id INT AUTO_INCREMENT PRIMARY KEY,
+        ADD COLUMN IF NOT EXISTS user_id INT NOT NULL,
+        ADD COLUMN IF NOT EXISTS title VARCHAR(100) NOT NULL,
+        ADD COLUMN IF NOT EXISTS description TEXT,
+        ADD COLUMN IF NOT EXISTS facility VARCHAR(100) NOT NULL,
+        ADD COLUMN IF NOT EXISTS duration INT NOT NULL,
+        ADD COLUMN IF NOT EXISTS status ENUM('pending', 'active', 'denied', 'ongoing', 'completed') NOT NULL,
+        ADD COLUMN IF NOT EXISTS date_requested TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         ADD COLUMN IF NOT EXISTS event_start DATETIME,
         ADD COLUMN IF NOT EXISTS event_end DATETIME,
         ADD COLUMN IF NOT EXISTS likes INT DEFAULT 0,
-        ADD COLUMN IF NOT EXISTS dislikes INT DEFAULT 0";
+        ADD COLUMN IF NOT EXISTS dislikes INT DEFAULT 0,
+        ADD COLUMN IF NOT EXISTS remarks VARCHAR(255)";
     $pdo->exec($alterEventTableQuery);
 
     // Create comments table if it doesn't exist
@@ -95,6 +131,12 @@ try {
 
     // Alter comments table to add missing columns or modify structure
     $alterCommentTableQuery = "ALTER TABLE comments
+        ADD COLUMN IF NOT EXISTS id INT AUTO_INCREMENT PRIMARY KEY,
+        ADD COLUMN IF NOT EXISTS event_id INT NOT NULL,
+        ADD COLUMN IF NOT EXISTS user_id INT NOT NULL,
+        ADD COLUMN IF NOT EXISTS comment TEXT,
+        ADD COLUMN IF NOT EXISTS likes INT DEFAULT 0,
+        ADD COLUMN IF NOT EXISTS dislikes INT DEFAULT 0,
         ADD COLUMN IF NOT EXISTS date_commented TIMESTAMP DEFAULT CURRENT_TIMESTAMP";
     $pdo->exec($alterCommentTableQuery);
 

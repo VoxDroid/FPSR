@@ -62,3 +62,12 @@
     pointer-events: none;
 }
 
+.btn-liked {
+    background-color: green !important;
+    color: white;
+}
+.btn-disliked {
+    background-color: red !important;
+    color: white;
+}
+

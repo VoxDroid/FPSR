@@ -1,42 +1,6 @@
 <?php
-// Database connection settings
-$host = 'localhost';
-$dbname = 'event_management_system';
-$username = 'root';
-$password = '';
-
-try {
-    // Connect to MySQL database using PDO
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-    
-    // Set PDO error mode to exception
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-    // Start session
-    session_start();
-} catch(PDOException $e) {
-    die("Error: " . $e->getMessage());
-}
-
-// Check if user is logged in
-$loggedIn = isset($_SESSION['user_id']);
-$username = $loggedIn ? $_SESSION['username'] : '';
-
-// Check if user is an admin
-$isAdmin = isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
-
-// Logout function
-function logout() {
-    session_destroy();
-    // Refresh the page after logout
-    echo "<script>window.location.href = 'index.php';</script>";
-    exit();
-}
-
-// Check if logout button is clicked
-if (isset($_POST['logout'])) {
-    logout();
-}
+require_once 'PARTS/background_worker.php';
+require_once 'PARTS/config.php';
 
 // Function to calculate total number of pages
 function getTotalPages($totalItems, $itemsPerPage) {
@@ -72,118 +36,81 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Event Management System</title>
 
-    <!-- Bootstrap CSS -->
-    <link href="CSS/bootstrap.min.css" rel="stylesheet">
-    <link href="CSS/bootstrap-icons.css" rel="stylesheet">
+    <!-- CSS.PHP -->
+    <?php
+    require_once 'PARTS/CSS.php';
+    ?>
 
-    <!-- Custom CSS -->
-    <link href="CSS/custom_style.css" rel="stylesheet">
 </head>
 <body>
 <!-- Header -->
-<header class="bg-dark py-3">
-    <div class="container">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <?php if ($loggedIn): ?>
-                    <span class="text-light">Welcome, <?php echo $username; ?></span>
-                <?php endif; ?>
-            </div>
-            <div>
-                <?php if ($loggedIn): ?>
-                    <div class="dropdown">
-                        <button class="btn btn-light dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <?php echo $username; ?>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
-                            <?php if ($isAdmin): ?>
-                                <!-- UI for Admin -->
-                                <li><a class="dropdown-item" href="ADMIN/view_requests.php">View Requests</a></li>
-                                <li><a class="dropdown-item" href="ADMIN/admin_page_settings.php">Admin Page Settings</a></li>
-                            <?php else: ?>
-                                <!-- UI for Regular User -->
-                                <li><a class="dropdown-item" href="#">Request Event</a></li>
-                                <li><a class="dropdown-item" href="#">View My Requests</a></li>
-                            <?php endif; ?>
-                            <li><a class="dropdown-item" href="EMS/profile.php">Profile</a></li>
-                            <form method="post">
-                                <li><button type="submit" name="logout" class="dropdown-item btn btn-link">Logout</button></li>
-                            </form>
-                        </ul>
-                    </div>
-                <?php else: ?>
-                    <a href="EMS/login.php" class="btn btn-light">Log In</a>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>
-</header>
+<?php
+    require_once 'PARTS/header_index.php';
+?>
 <!-- End Header -->
 
 <!-- Main Content -->
 <main class="py-5">
     <div class="container">
         <!-- Ongoing Events -->
-<!-- Ongoing Events -->
-<h2>Ongoing Events</h2>
-<div id="ongoingEventsCarousel" class="carousel slide mb-5" data-ride="carousel">
-    <div class="carousel-inner">
-        <?php
-        // Fetch ongoing events from the database
-        $queryOngoingEvents = "SELECT * FROM events WHERE status = 'ongoing' ORDER BY date_requested ASC LIMIT 20";
-        $stmtOngoingEvents = $pdo->query($queryOngoingEvents);
-        $ongoingEventCount = $stmtOngoingEvents->rowCount();
+        <h2>Ongoing Events</h2>
+        <div id="ongoingEventsCarousel" class="carousel slide mb-5" data-ride="carousel">
+            <div class="carousel-inner">
+                <?php
+                // Fetch ongoing events from the database
+                $queryOngoingEvents = "SELECT * FROM events WHERE status = 'ongoing' ORDER BY date_requested ASC LIMIT 20";
+                $stmtOngoingEvents = $pdo->query($queryOngoingEvents);
+                $ongoingEventCount = $stmtOngoingEvents->rowCount();
 
-        if ($ongoingEventCount > 0) {
-            $first = true;
-            $slideIndex = 0;
-            while ($event = $stmtOngoingEvents->fetch(PDO::FETCH_ASSOC)) {
-                echo '<div class="carousel-item' . ($first ? ' active' : '') . '">';
-                echo '<div class="card">';
-                echo '<div class="card-body">';
-                echo '<h5 class="card-title">' . $event['title'] . '</h5>';
-                echo '<p class="card-text">' . $event['description'] . '</p>';
-                echo '<p class="card-text">Date: ' . $event['date_requested'] . '</p>';
-                // Likes and dislikes icons and numbers
-                echo '<div class="d-flex align-items-center">';
-                echo '<img src="SVG/hand-thumbs-up-fill.svg" alt="Likes" width="16" height="16" class="text-success me-1">';
-                echo '<span>' . $event['likes'] . '</span>';
-                echo '<img src="SVG/hand-thumbs-down-fill.svg" alt="Dislikes" width="16" height="16" class="text-danger ms-3 me-1">';
-                echo '<span>' . $event['dislikes'] . '</span>';
-                echo '</div>';
-                echo '<a href="#" class="btn btn-primary mt-3">View</a>';
-                echo '</div>';
-                echo '</div>';
-                echo '</div>';
-                $first = false;
-            }
-        } else {
-            echo '<p>No ongoing events found.</p>';
-        }
-        ?>
-    </div>
-    <?php if ($ongoingEventCount > 1): ?>
-        <ol class="carousel-indicators">
-            <?php
-            // Resetting the statement cursor
-            $stmtOngoingEvents->execute();
-            $first = true;
-            while ($event = $stmtOngoingEvents->fetch(PDO::FETCH_ASSOC)) {
-                echo '<li data-target="#ongoingEventsCarousel" data-slide-to="' . $slideIndex . '" class="' . ($first ? 'active' : '') . '"></li>';
-                $first = false;
-                $slideIndex++;
-            }
-            ?>
-        </ol>
-        <a class="carousel-control-prev" href="#ongoingEventsCarousel" role="button" data-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        </a>
-        <a class="carousel-control-next" href="#ongoingEventsCarousel" role="button" data-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        </a>
-    <?php endif; ?>
-</div>
-
+                if ($ongoingEventCount > 0) {
+                    $first = true;
+                    $slideIndex = 0;
+                    while ($event = $stmtOngoingEvents->fetch(PDO::FETCH_ASSOC)) {
+                        echo '<div class="carousel-item' . ($first ? ' active' : '') . '">';
+                        echo '<div class="card">';
+                        echo '<div class="card-body">';
+                        echo '<h5 class="card-title">' . $event['title'] . '</h5>';
+                        echo '<p class="card-text">' . $event['description'] . '</p>';
+                        echo '<p class="card-text">Date: ' . $event['date_requested'] . '</p>';
+                        // Likes and dislikes icons and numbers
+                        echo '<div class="d-flex align-items-center">';
+                        echo '<img src="SVG/hand-thumbs-up-fill.svg" alt="Likes" width="16" height="16" class="text-success me-1">';
+                        echo '<span>' . $event['likes'] . '</span>';
+                        echo '<img src="SVG/hand-thumbs-down-fill.svg" alt="Dislikes" width="16" height="16" class="text-danger ms-3 me-1">';
+                        echo '<span>' . $event['dislikes'] . '</span>';
+                        echo '</div>';
+                        echo '<a href="EMS/event_details.php?event_id=' . $event['id'] . '" class="btn btn-primary mt-3">View</a>';
+                        echo '</div>';
+                        echo '</div>';
+                        echo '</div>';
+                        $first = false;
+                    }
+                } else {
+                    echo '<p>No ongoing events found.</p>';
+                }
+                ?>
+            </div>
+            <?php if ($ongoingEventCount > 1): ?>
+                <ol class="carousel-indicators">
+                    <?php
+                    // Resetting the statement cursor
+                    $stmtOngoingEvents->execute();
+                    $first = true;
+                    while ($event = $stmtOngoingEvents->fetch(PDO::FETCH_ASSOC)) {
+                        echo '<li data-target="#ongoingEventsCarousel" data-slide-to="' . $slideIndex . '" class="' . ($first ? 'active' : '') . '"></li>';
+                        $first = false;
+                        $slideIndex++;
+                    }
+                    ?>
+                </ol>
+                <a class="carousel-control-prev" href="#ongoingEventsCarousel" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                </a>
+                <a class="carousel-control-next" href="#ongoingEventsCarousel" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                </a>
+            <?php endif; ?>
+        </div>
 
         <!-- Approved Events -->
         <h2>Approved Events</h2>
@@ -391,13 +318,10 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
 </main>
 <!-- End Main Content -->
 
-<!-- Bootstrap JS -->
-<script src="JS/jquery.slim.min.js"></script>
-<script src="JS/popper.min.js"></script>
-<script src="JS/bootstrap.min.js"></script>
-
-<!-- Custom JS -->
-<script src="JS/custom_script.js"></script>
+<!-- JS.PHP -->
+<?php
+require_once 'PARTS/js.php';
+?>
 
 </body>
 </html>
