@@ -55,10 +55,7 @@ try {
                 $user_id = $_SESSION['user_id'];
                 $comment_limit = 5; // Maximum number of comments per hour
                 $hour_limit = 1; // Hour limit
-            } else {
-                // User is not logged in
-                echo '<p class="alert alert-warning">Please log in to post a comment.</p>';
-            }
+            } 
 
             // Existing code to display existing comments
         } else {
@@ -276,6 +273,11 @@ try {
 <!-- Comment Section -->
 <div class="container mt-5">
     <h5>Comments</h5>
+    <?php
+    if(!isset($_SESSION['user_id'])) {
+        echo '<p class="alert alert-warning">Please log in to post a comment.</p>';
+    } 
+    ?>
     <!-- Comment Form -->
     <?php if(isset($_SESSION['user_id'])): ?>
         <?php
@@ -354,22 +356,21 @@ try {
         });
         </script>';
 
-
-// Handle comment edit submission
-if (isset($_POST['submit_edit_comment'])) {
-    $edit_comment_id = $_POST['edit_comment_id'];
-    $edited_comment = $_POST['edited_comment'];
-    try {
-        $queryUpdateComment = "UPDATE comments SET comment = :edited_comment WHERE id = :comment_id";
-        $stmtUpdateComment = $pdo->prepare($queryUpdateComment);
-        $stmtUpdateComment->execute(['edited_comment' => $edited_comment, 'comment_id' => $edit_comment_id]);
-        // Redirect to prevent form resubmission
-        header("Location: {$_SERVER['REQUEST_URI']}");
-        exit();
-    } catch (PDOException $e) {
-        echo '<p class="alert alert-danger">Error updating comment: ' . $e->getMessage() . '</p>';
-    }
-}
+        // Handle comment edit submission
+        if (isset($_POST['submit_edit_comment'])) {
+            $edit_comment_id = $_POST['edit_comment_id'];
+            $edited_comment = $_POST['edited_comment'];
+            try {
+                $queryUpdateComment = "UPDATE comments SET comment = :edited_comment WHERE id = :comment_id";
+                $stmtUpdateComment = $pdo->prepare($queryUpdateComment);
+                $stmtUpdateComment->execute(['edited_comment' => $edited_comment, 'comment_id' => $edit_comment_id]);
+                // Redirect to prevent form resubmission
+                header("Location: {$_SERVER['REQUEST_URI']}");
+                exit();
+            } catch (PDOException $e) {
+                echo '<p class="alert alert-danger">Error updating comment: ' . $e->getMessage() . '</p>';
+            }
+        }
 
         // Handle comment deletion
         if(isset($_POST['delete_comment'])) {
@@ -411,7 +412,6 @@ if (isset($_POST['submit_edit_comment'])) {
                 echo '<p class="alert alert-warning">Please log in to delete this comment.</p>';
             }
         }
-
 
         // Handle like/dislike button actions for comments
         if(isset($_POST['like_comment']) || isset($_POST['dislike_comment'])) {
@@ -463,15 +463,29 @@ if (isset($_POST['submit_edit_comment'])) {
         }
 
         // Retrieve comments for this event ordered by date in descending order
+        $queryCountComments = "SELECT COUNT(*) as total_comments FROM comments WHERE event_id = :event_id";
+        $stmtCountComments = $pdo->prepare($queryCountComments);
+        $stmtCountComments->execute(['event_id' => $event_id]);
+        $total_comments = $stmtCountComments->fetch(PDO::FETCH_ASSOC)['total_comments'];
+
+        $comments_per_page = 10;
+        $total_pages = ceil($total_comments / $comments_per_page);
+
+        $current_page = isset($_GET['page']) ? $_GET['page'] : 1;
+        $offset = ($current_page - 1) * $comments_per_page;
+
         $queryComments = "SELECT c.*, u.username AS commenter_username, 
         (SELECT COUNT(*) FROM comment_votes WHERE comment_id = c.id AND vote_type = 'like') AS likes,
         (SELECT COUNT(*) FROM comment_votes WHERE comment_id = c.id AND vote_type = 'dislike') AS dislikes
         FROM comments c 
         JOIN users u ON c.user_id = u.id 
         WHERE c.event_id = :event_id
-        ORDER BY c.date_commented DESC"; // Order by date in descending order
+        ORDER BY c.date_commented DESC LIMIT :offset, :comments_per_page"; // Order by date in descending order
         $stmtComments = $pdo->prepare($queryComments);
-        $stmtComments->execute(['event_id' => $event_id]);
+        $stmtComments->bindParam(':event_id', $event_id, PDO::PARAM_INT);
+        $stmtComments->bindParam(':offset', $offset, PDO::PARAM_INT);
+        $stmtComments->bindParam(':comments_per_page', $comments_per_page, PDO::PARAM_INT);
+        $stmtComments->execute();
         $comments = $stmtComments->fetchAll(PDO::FETCH_ASSOC);
 
         // Display comments
@@ -513,13 +527,26 @@ if (isset($_POST['submit_edit_comment'])) {
             echo '</div>';
             echo '</div>';
         }
+        
         ?>
     </div>
+    <!-- Pagination -->
+    <nav aria-label="Page navigation example">
+    <ul class="pagination justify-content-center">
+        <li class="page-item <?php echo ($current_page == 1) ? 'disabled' : ''; ?>">
+            <a class="page-link" href="?event_id=<?php echo $event_id; ?>&page=<?php echo ($current_page - 1); ?>" tabindex="-1" aria-disabled="true">Previous</a>
+        </li>
+        <?php for($i = 1; $i <= $total_pages; $i++): ?>
+            <li class="page-item <?php echo ($current_page == $i) ? 'active' : ''; ?>"><a class="page-link" href="?event_id=<?php echo $event_id; ?>&page=<?php echo $i; ?>"><?php echo $i; ?></a></li>
+        <?php endfor; ?>
+        <li class="page-item <?php echo ($current_page == $total_pages) ? 'disabled' : ''; ?>">
+            <a class="page-link" href="?event_id=<?php echo $event_id; ?>&page=<?php echo ($current_page + 1); ?>">Next</a>
+        </li>
+    </ul>
+</nav>
+    <!-- End Pagination -->
 </div>
 <!-- End Comment Section -->
-
-
-
 
 
     <!-- JS.PHP -->
