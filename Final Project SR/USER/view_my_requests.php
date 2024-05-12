@@ -137,49 +137,57 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
 <h2>Ongoing Events</h2>
 <div class="row">
     <?php
-    // Pagination variables
-    $ongoingItemsPerPage = 6; // Define the number of ongoing events per page
-    $ongoingTotalItems = $stmtOngoingEvents->rowCount(); // Total number of ongoing events
-    $ongoingTotalPages = ceil($ongoingTotalItems / $ongoingItemsPerPage); // Total number of pages
+    // Ongoing Events Pagination
+$currentPageOngoing = isset($_GET['page_ongoing']) ? max(1, intval($_GET['page_ongoing'])) : 1; // Current page for ongoing events
+$ongoingItemsPerPage = 6; // Define the number of ongoing events per page
 
-    // Calculate the offset
-    $ongoingOffset = ($currentPage - 1) * $ongoingItemsPerPage;
+// Fetch total ongoing events
+$queryOngoingTotal = "SELECT COUNT(*) AS total FROM events WHERE user_id = :userID AND status = 'ongoing'";
+$stmtOngoingTotal = $pdo->prepare($queryOngoingTotal);
+$stmtOngoingTotal->execute(['userID' => $userID]);
+$ongoingTotalItems = $stmtOngoingTotal->fetch(PDO::FETCH_ASSOC)['total'];
 
-    // Fetch ongoing events with pagination
-    $queryOngoingEvents .= " LIMIT $ongoingOffset, $ongoingItemsPerPage";
-    $stmtOngoingEvents = $pdo->prepare($queryOngoingEvents);
-    $stmtOngoingEvents->execute(['userID' => $userID]);
+// Calculate total pages for ongoing events
+$ongoingTotalPages = ceil($ongoingTotalItems / $ongoingItemsPerPage);
 
-    // Display ongoing events
-    if ($stmtOngoingEvents->rowCount() > 0) {
-        while ($event = $stmtOngoingEvents->fetch(PDO::FETCH_ASSOC)) {
-            // Output ongoing event card
-            echo '<div class="col-md-6 mb-4">';
-            echo '<div class="card">';
-            echo '<div class="card-body">';
-            echo '<h5 class="card-title">' . $event['title'] . '</h5>';
-            echo '<p class="card-text">' . $event['description'] . '</p>';
-            echo '<p class="card-text">Date: ' . $event['date_requested'] . '</p>';
-            echo '<a href="../EMS/event_details.php?event_id=' . $event['id'] . '" class="btn btn-primary mt-3">View</a>';
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
-        }
-    } else {
-        // No ongoing events to show
-        echo '<p>No ongoing events to show.</p>';
+// Calculate the offset
+$ongoingOffset = ($currentPageOngoing - 1) * $ongoingItemsPerPage;
+
+// Fetch ongoing events with pagination
+$queryOngoingEvents .= " LIMIT $ongoingOffset, $ongoingItemsPerPage";
+$stmtOngoingEvents = $pdo->prepare($queryOngoingEvents);
+$stmtOngoingEvents->execute(['userID' => $userID]);
+
+// Display ongoing events
+if ($stmtOngoingEvents->rowCount() > 0) {
+    while ($event = $stmtOngoingEvents->fetch(PDO::FETCH_ASSOC)) {
+        // Output ongoing event card
+        echo '<div class="col-md-6 mb-4">';
+        echo '<div class="card">';
+        echo '<div class="card-body">';
+        echo '<h5 class="card-title">' . $event['title'] . '</h5>';
+        echo '<p class="card-text">' . $event['description'] . '</p>';
+        echo '<p class="card-text">Date: ' . $event['date_requested'] . '</p>';
+        echo '<a href="../EMS/event_details.php?event_id=' . $event['id'] . '" class="btn btn-primary mt-3">View</a>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
+} else {
+    // No ongoing events to show
+    echo '<p>No ongoing events to show.</p>';
+}
 
-    // Display pagination controls
+// Display pagination controls for ongoing events
 if ($ongoingTotalPages > 1) {
     echo '<div class="col-md-12">';
     echo '<nav aria-label="Page navigation example">';
     echo '<ul class="pagination justify-content-center">';
     
     // Previous button
-    $prevPage = $currentPage - 1;
-    echo '<li class="page-item ' . ($currentPage == 1 ? 'disabled' : '') . '">';
-    echo '<a class="page-link" href="?page=' . $prevPage . '" aria-label="Previous">';
+    $prevPageOngoing = $currentPageOngoing - 1;
+    echo '<li class="page-item ' . ($currentPageOngoing == 1 ? 'disabled' : '') . '">';
+    echo '<a class="page-link" href="?page_ongoing=' . $prevPageOngoing . '" aria-label="Previous">';
     echo '<span aria-hidden="true">&laquo;</span>';
     echo '<span class="sr-only">Previous</span>';
     echo '</a>';
@@ -187,15 +195,15 @@ if ($ongoingTotalPages > 1) {
     
     // Page numbers
     for ($i = 1; $i <= $ongoingTotalPages; $i++) {
-        echo '<li class="page-item ' . ($currentPage == $i ? 'active' : '') . '">';
-        echo '<a class="page-link" href="?page=' . $i . '">' . $i . '</a>';
+        echo '<li class="page-item ' . ($currentPageOngoing == $i ? 'active' : '') . '">';
+        echo '<a class="page-link" href="?page_ongoing=' . $i . '">' . $i . '</a>';
         echo '</li>';
     }
     
     // Next button
-    $nextPage = $currentPage + 1;
-    echo '<li class="page-item ' . ($currentPage == $ongoingTotalPages ? 'disabled' : '') . '">';
-    echo '<a class="page-link" href="?page=' . $nextPage . '" aria-label="Next">';
+    $nextPageOngoing = $currentPageOngoing + 1;
+    echo '<li class="page-item ' . ($currentPageOngoing == $ongoingTotalPages ? 'disabled' : '') . '">';
+    echo '<a class="page-link" href="?page_ongoing=' . $nextPageOngoing . '" aria-label="Next">';
     echo '<span aria-hidden="true">&raquo;</span>';
     echo '<span class="sr-only">Next</span>';
     echo '</a>';
@@ -205,19 +213,23 @@ if ($ongoingTotalPages > 1) {
     echo '</nav>';
     echo '</div>';
 }
+
     ?>
 </div>
 
 <h2>Approved Events</h2>
 <div class="row">
     <?php
-    // Pagination variables
+    // Approved Events Pagination
+    $currentPageApproved = isset($_GET['page_approved']) ? max(1, intval($_GET['page_approved'])) : 1; // Current page for approved events
     $approvedItemsPerPage = 6; // Define the number of approved events per page
+
+    // Pagination variables
     $approvedTotalItems = $stmtApprovedEvents->rowCount(); // Total number of approved events
     $approvedTotalPages = ceil($approvedTotalItems / $approvedItemsPerPage); // Total number of pages
 
     // Calculate the offset
-    $approvedOffset = ($currentPage - 1) * $approvedItemsPerPage;
+    $approvedOffset = ($currentPageApproved - 1) * $approvedItemsPerPage;
 
     // Fetch approved events with pagination
     $queryApprovedEvents .= " LIMIT $approvedOffset, $approvedItemsPerPage";
@@ -244,16 +256,16 @@ if ($ongoingTotalPages > 1) {
         echo '<p>No approved events to show.</p>';
     }
 
-    // Display pagination controls
+    // Display pagination controls for approved events
     if ($approvedTotalPages > 1) {
         echo '<div class="col-md-12">';
         echo '<nav aria-label="Page navigation example">';
         echo '<ul class="pagination justify-content-center">';
         
         // Previous button
-        $prevPage = $currentPage - 1;
-        echo '<li class="page-item ' . ($currentPage == 1 ? 'disabled' : '') . '">';
-        echo '<a class="page-link" href="?page=' . $prevPage . '" aria-label="Previous">';
+        $prevPageApproved = $currentPageApproved - 1;
+        echo '<li class="page-item ' . ($currentPageApproved == 1 ? 'disabled' : '') . '">';
+        echo '<a class="page-link" href="?page_approved=' . $prevPageApproved . '" aria-label="Previous">';
         echo '<span aria-hidden="true">&laquo;</span>';
         echo '<span class="sr-only">Previous</span>';
         echo '</a>';
@@ -261,15 +273,15 @@ if ($ongoingTotalPages > 1) {
         
         // Page numbers
         for ($i = 1; $i <= $approvedTotalPages; $i++) {
-            echo '<li class="page-item ' . ($currentPage == $i ? 'active' : '') . '">';
-            echo '<a class="page-link" href="?page=' . $i . '">' . $i . '</a>';
+            echo '<li class="page-item ' . ($currentPageApproved == $i ? 'active' : '') . '">';
+            echo '<a class="page-link" href="?page_approved=' . $i . '">' . $i . '</a>';
             echo '</li>';
         }
         
         // Next button
-        $nextPage = $currentPage + 1;
-        echo '<li class="page-item ' . ($currentPage == $approvedTotalPages ? 'disabled' : '') . '">';
-        echo '<a class="page-link" href="?page=' . $nextPage . '" aria-label="Next">';
+        $nextPageApproved = $currentPageApproved + 1;
+        echo '<li class="page-item ' . ($currentPageApproved == $approvedTotalPages ? 'disabled' : '') . '">';
+        echo '<a class="page-link" href="?page_approved=' . $nextPageApproved . '" aria-label="Next">';
         echo '<span aria-hidden="true">&raquo;</span>';
         echo '<span class="sr-only">Next</span>';
         echo '</a>';
@@ -287,13 +299,16 @@ if ($ongoingTotalPages > 1) {
 <h2>Pending Events</h2>
 <div class="row">
     <?php
-    // Pagination variables
+    // Pending Events Pagination
+    $currentPagePending = isset($_GET['page_pending']) ? max(1, intval($_GET['page_pending'])) : 1; // Current page for pending events
     $pendingItemsPerPage = 6; // Define the number of pending events per page
+
+    // Pagination variables
     $pendingTotalItems = $stmtPendingEvents->rowCount(); // Total number of pending events
     $pendingTotalPages = ceil($pendingTotalItems / $pendingItemsPerPage); // Total number of pages
 
     // Calculate the offset
-    $pendingOffset = ($currentPage - 1) * $pendingItemsPerPage;
+    $pendingOffset = ($currentPagePending - 1) * $pendingItemsPerPage;
 
     // Fetch pending events with pagination
     $queryPendingEvents .= " LIMIT $pendingOffset, $pendingItemsPerPage";
@@ -317,11 +332,11 @@ if ($ongoingTotalPages > 1) {
             echo '</div>';
             
             // Withdraw Modal
-            echo '<div class="modal fade" id="withdrawModal' . $event['id'] . '" tabindex="-1" aria-labelledby="withdrawModalLabel" aria-hidden="true">';
+            echo '<div class="modal fade" id="withdrawModal' . $event['id'] . '" tabindex="-1" aria-labelledby="withdrawModalLabel' . $event['id'] . '" aria-hidden="true">';
             echo '<div class="modal-dialog">';
             echo '<div class="modal-content">';
             echo '<div class="modal-header">';
-            echo '<h5 class="modal-title" id="withdrawModalLabel">Withdraw Request</h5>';
+            echo '<h5 class="modal-title" id="withdrawModalLabel' . $event['id'] . '">Withdraw Request</h5>';
             echo '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
             echo '</div>';
             echo '<div class="modal-body">';
@@ -344,16 +359,16 @@ if ($ongoingTotalPages > 1) {
         echo '<p>No pending events to show.</p>';
     }
 
-    // Display pagination controls
+    // Display pagination controls for pending events
     if ($pendingTotalPages > 1) {
         echo '<div class="col-md-12">';
         echo '<nav aria-label="Page navigation example">';
         echo '<ul class="pagination justify-content-center">';
         
         // Previous button
-        $prevPage = $currentPage - 1;
-        echo '<li class="page-item ' . ($currentPage == 1 ? 'disabled' : '') . '">';
-        echo '<a class="page-link" href="?page=' . $prevPage . '" aria-label="Previous">';
+        $prevPagePending = $currentPagePending - 1;
+        echo '<li class="page-item ' . ($currentPagePending == 1 ? 'disabled' : '') . '">';
+        echo '<a class="page-link" href="?page_pending=' . $prevPagePending . '" aria-label="Previous">';
         echo '<span aria-hidden="true">&laquo;</span>';
         echo '<span class="sr-only">Previous</span>';
         echo '</a>';
@@ -361,15 +376,15 @@ if ($ongoingTotalPages > 1) {
         
         // Page numbers
         for ($i = 1; $i <= $pendingTotalPages; $i++) {
-            echo '<li class="page-item ' . ($currentPage == $i ? 'active' : '') . '">';
-            echo '<a class="page-link" href="?page=' . $i . '">' . $i . '</a>';
+            echo '<li class="page-item ' . ($currentPagePending == $i ? 'active' : '') . '">';
+            echo '<a class="page-link" href="?page_pending=' . $i . '">' . $i . '</a>';
             echo '</li>';
         }
         
         // Next button
-        $nextPage = $currentPage + 1;
-        echo '<li class="page-item ' . ($currentPage == $pendingTotalPages ? 'disabled' : '') . '">';
-        echo '<a class="page-link" href="?page=' . $nextPage . '" aria-label="Next">';
+        $nextPagePending = $currentPagePending + 1;
+        echo '<li class="page-item ' . ($currentPagePending == $pendingTotalPages ? 'disabled' : '') . '">';
+        echo '<a class="page-link" href="?page_pending=' . $nextPagePending . '" aria-label="Next">';
         echo '<span aria-hidden="true">&raquo;</span>';
         echo '<span class="sr-only">Next</span>';
         echo '</a>';
@@ -382,17 +397,19 @@ if ($ongoingTotalPages > 1) {
     ?>
 </div>
 
-
 <h2>Completed Events</h2>
 <div class="row">
     <?php
-    // Pagination variables
+    // Completed Events Pagination
+    $currentPageCompleted = isset($_GET['page_completed']) ? max(1, intval($_GET['page_completed'])) : 1; // Current page for completed events
     $completedItemsPerPage = 6; // Define the number of completed events per page
+
+    // Pagination variables
     $completedTotalItems = $stmtCompletedEvents->rowCount(); // Total number of completed events
     $completedTotalPages = ceil($completedTotalItems / $completedItemsPerPage); // Total number of pages
 
     // Calculate the offset
-    $completedOffset = ($currentPage - 1) * $completedItemsPerPage;
+    $completedOffset = ($currentPageCompleted - 1) * $completedItemsPerPage;
 
     // Fetch completed events with pagination
     $queryCompletedEvents .= " LIMIT $completedOffset, $completedItemsPerPage";
@@ -419,16 +436,16 @@ if ($ongoingTotalPages > 1) {
         echo '<p>No completed events to show.</p>';
     }
 
-    // Display pagination controls
+    // Display pagination controls for completed events
     if ($completedTotalPages > 1) {
         echo '<div class="col-md-12">';
         echo '<nav aria-label="Page navigation example">';
         echo '<ul class="pagination justify-content-center">';
         
         // Previous button
-        $prevPage = $currentPage - 1;
-        echo '<li class="page-item ' . ($currentPage == 1 ? 'disabled' : '') . '">';
-        echo '<a class="page-link" href="?page=' . $prevPage . '" aria-label="Previous">';
+        $prevPageCompleted = $currentPageCompleted - 1;
+        echo '<li class="page-item ' . ($currentPageCompleted == 1 ? 'disabled' : '') . '">';
+        echo '<a class="page-link" href="?page_completed=' . $prevPageCompleted . '" aria-label="Previous">';
         echo '<span aria-hidden="true">&laquo;</span>';
         echo '<span class="sr-only">Previous</span>';
         echo '</a>';
@@ -436,15 +453,15 @@ if ($ongoingTotalPages > 1) {
         
         // Page numbers
         for ($i = 1; $i <= $completedTotalPages; $i++) {
-            echo '<li class="page-item ' . ($currentPage == $i ? 'active' : '') . '">';
-            echo '<a class="page-link" href="?page=' . $i . '">' . $i . '</a>';
+            echo '<li class="page-item ' . ($currentPageCompleted == $i ? 'active' : '') . '">';
+            echo '<a class="page-link" href="?page_completed=' . $i . '">' . $i . '</a>';
             echo '</li>';
         }
         
         // Next button
-        $nextPage = $currentPage + 1;
-        echo '<li class="page-item ' . ($currentPage == $completedTotalPages ? 'disabled' : '') . '">';
-        echo '<a class="page-link" href="?page=' . $nextPage . '" aria-label="Next">';
+        $nextPageCompleted = $currentPageCompleted + 1;
+        echo '<li class="page-item ' . ($currentPageCompleted == $completedTotalPages ? 'disabled' : '') . '">';
+        echo '<a class="page-link" href="?page_completed=' . $nextPageCompleted . '" aria-label="Next">';
         echo '<span aria-hidden="true">&raquo;</span>';
         echo '<span class="sr-only">Next</span>';
         echo '</a>';
@@ -457,17 +474,19 @@ if ($ongoingTotalPages > 1) {
     ?>
 </div>
 
-
 <h2>Denied Events</h2>
 <div class="row">
     <?php
-    // Pagination variables
+    // Denied Events Pagination
+    $currentPageDenied = isset($_GET['page_denied']) ? max(1, intval($_GET['page_denied'])) : 1; // Current page for denied events
     $deniedItemsPerPage = 6; // Define the number of denied events per page
+
+    // Pagination variables
     $deniedTotalItems = $stmtDeniedEvents->rowCount(); // Total number of denied events
     $deniedTotalPages = ceil($deniedTotalItems / $deniedItemsPerPage); // Total number of pages
 
     // Calculate the offset
-    $deniedOffset = ($currentPage - 1) * $deniedItemsPerPage;
+    $deniedOffset = ($currentPageDenied - 1) * $deniedItemsPerPage;
 
     // Fetch denied events with pagination
     $queryDeniedEvents .= " LIMIT $deniedOffset, $deniedItemsPerPage";
@@ -494,16 +513,16 @@ if ($ongoingTotalPages > 1) {
         echo '<p>No denied events to show.</p>';
     }
 
-    // Display pagination controls
+    // Display pagination controls for denied events
     if ($deniedTotalPages > 1) {
         echo '<div class="col-md-12">';
         echo '<nav aria-label="Page navigation example">';
         echo '<ul class="pagination justify-content-center">';
         
         // Previous button
-        $prevPage = $currentPage - 1;
-        echo '<li class="page-item ' . ($currentPage == 1 ? 'disabled' : '') . '">';
-        echo '<a class="page-link" href="?page=' . $prevPage . '" aria-label="Previous">';
+        $prevPageDenied = $currentPageDenied - 1;
+        echo '<li class="page-item ' . ($currentPageDenied == 1 ? 'disabled' : '') . '">';
+        echo '<a class="page-link" href="?page_denied=' . $prevPageDenied . '" aria-label="Previous">';
         echo '<span aria-hidden="true">&laquo;</span>';
         echo '<span class="sr-only">Previous</span>';
         echo '</a>';
@@ -511,15 +530,15 @@ if ($ongoingTotalPages > 1) {
         
         // Page numbers
         for ($i = 1; $i <= $deniedTotalPages; $i++) {
-            echo '<li class="page-item ' . ($currentPage == $i ? 'active' : '') . '">';
-            echo '<a class="page-link" href="?page=' . $i . '">' . $i . '</a>';
+            echo '<li class="page-item ' . ($currentPageDenied == $i ? 'active' : '') . '">';
+            echo '<a class="page-link" href="?page_denied=' . $i . '">' . $i . '</a>';
             echo '</li>';
         }
         
         // Next button
-        $nextPage = $currentPage + 1;
-        echo '<li class="page-item ' . ($currentPage == $deniedTotalPages ? 'disabled' : '') . '">';
-        echo '<a class="page-link" href="?page=' . $nextPage . '" aria-label="Next">';
+        $nextPageDenied = $currentPageDenied + 1;
+        echo '<li class="page-item ' . ($currentPageDenied == $deniedTotalPages ? 'disabled' : '') . '">';
+        echo '<a class="page-link" href="?page_denied=' . $nextPageDenied . '" aria-label="Next">';
         echo '<span aria-hidden="true">&raquo;</span>';
         echo '<span class="sr-only">Next</span>';
         echo '</a>';
@@ -531,6 +550,7 @@ if ($ongoingTotalPages > 1) {
     }
     ?>
 </div>
+
 
     </div>
 </main>

@@ -153,18 +153,18 @@ try {
                         echo '<form method="post" style="display: inline-block; margin-right: 10px;">'; // Style added here
                         echo '<input type="hidden" name="event_id" value="' . $event_id . '">';
                         if ($voteType === 'like') {
-                            echo '<button type="submit" name="unlike" class="btn btn-success ' . $likeClass . '" style="width: 100px;">Unlike</button>'; // Fixed width added here
+                            echo '<button type="submit" name="unlike" class="btn btn-success ' . $likeClass . '" style="width: 120px;">Unlike</button>'; // Fixed width added here
                         } else {
-                            echo '<button type="submit" name="like" class="btn btn-success ' . $likeClass . '" style="width: 100px;">Like</button>'; // Fixed width added here
+                            echo '<button type="submit" name="like" class="btn btn-success ' . $likeClass . '" style="width: 120px;">Like</button>'; // Fixed width added here
                         }
                         echo '</form>';
 
                         echo '<form method="post" style="display: inline-block;">'; // Style added here
                         echo '<input type="hidden" name="event_id" value="' . $event_id . '">';
                         if ($voteType === 'dislike') {
-                            echo '<button type="submit" name="undislike" class="btn btn-danger ' . $dislikeClass . '" style="width: 100px;">Undislike</button>'; // Fixed width added here
+                            echo '<button type="submit" name="undislike" class="btn btn-danger ' . $dislikeClass . '" style="width: 120px;">Undislike</button>'; // Fixed width added here
                         } else {
-                            echo '<button type="submit" name="dislike" class="btn btn-danger ' . $dislikeClass . '" style="width: 100px;">Dislike</button>'; // Fixed width added here
+                            echo '<button type="submit" name="dislike" class="btn btn-danger ' . $dislikeClass . '" style="width: 120px;">Dislike</button>'; // Fixed width added here
                         }
                         echo '</form>';
                         echo '</div>';
@@ -373,45 +373,49 @@ try {
         }
 
         // Handle comment deletion
-        if(isset($_POST['delete_comment'])) {
-            if(isset($_SESSION['user_id'])) {
-                // User is logged in
-                $user_id = $_SESSION['user_id'];
-                $comment_id = $_POST['comment_id'];
+if(isset($_POST['confirm_delete'])) {
+    if(isset($_SESSION['user_id'])) {
+        // User is logged in
+        $user_id = $_SESSION['user_id'];
+        $comment_id = $_POST['comment_id'];
 
-                try {
-                    // Check if the user owns the comment
-                    $queryCheckOwnership = "SELECT * FROM comments WHERE id = :comment_id AND user_id = :user_id";
-                    $stmtCheckOwnership = $pdo->prepare($queryCheckOwnership);
-                    $stmtCheckOwnership->execute(['comment_id' => $comment_id, 'user_id' => $user_id]);
-                    $comment = $stmtCheckOwnership->fetch(PDO::FETCH_ASSOC);
+        try {
+            // Check if the user owns the comment
+            $queryCheckOwnership = "SELECT * FROM comments WHERE id = :comment_id AND user_id = :user_id";
+            $stmtCheckOwnership = $pdo->prepare($queryCheckOwnership);
+            $stmtCheckOwnership->execute(['comment_id' => $comment_id, 'user_id' => $user_id]);
+            $comment = $stmtCheckOwnership->fetch(PDO::FETCH_ASSOC);
 
-                    if($comment) {
-                        // User owns the comment, proceed with deletion of associated votes
-                        $queryDeleteVotes = "DELETE FROM comment_votes WHERE comment_id = :comment_id";
-                        $stmtDeleteVotes = $pdo->prepare($queryDeleteVotes);
-                        $stmtDeleteVotes->execute(['comment_id' => $comment_id]);
+            if($comment) {
+                // User owns the comment, proceed with deletion of associated votes
+                $queryDeleteVotes = "DELETE FROM comment_votes WHERE comment_id = :comment_id";
+                $stmtDeleteVotes = $pdo->prepare($queryDeleteVotes);
+                $stmtDeleteVotes->execute(['comment_id' => $comment_id]);
 
-                        // Then delete the comment itself
-                        $queryDeleteComment = "DELETE FROM comments WHERE id = :comment_id";
-                        $stmtDeleteComment = $pdo->prepare($queryDeleteComment);
-                        $stmtDeleteComment->execute(['comment_id' => $comment_id]);
+                // Then delete the comment itself
+                $queryDeleteComment = "DELETE FROM comments WHERE id = :comment_id";
+                $stmtDeleteComment = $pdo->prepare($queryDeleteComment);
+                $stmtDeleteComment->execute(['comment_id' => $comment_id]);
 
-                        // Redirect to prevent form resubmission
-                        header("Location: {$_SERVER['REQUEST_URI']}");
-                        exit();
-                    } else {
-                        // User does not own the comment
-                        echo '<p class="alert alert-danger">You do not have permission to delete this comment.</p>';
-                    }
-                } catch(PDOException $e) {
-                    echo '<p class="alert alert-danger">Error: ' . $e->getMessage() . '</p>';
-                }
+                // Show success message
+                echo '<div class="alert alert-success" role="alert">Comment Deleted Successfully!</div>';
+                
+                // Redirect to prevent form resubmission
+                header("Location: {$_SERVER['REQUEST_URI']}");
+                exit();
             } else {
-                // User is not logged in
-                echo '<p class="alert alert-warning">Please log in to delete this comment.</p>';
+                // User does not own the comment
+                echo '<p class="alert alert-danger">You do not have permission to delete this comment.</p>';
             }
+        } catch(PDOException $e) {
+            echo '<p class="alert alert-danger">Error: ' . $e->getMessage() . '</p>';
         }
+    } else {
+        // User is not logged in
+        echo '<p class="alert alert-warning">Please log in to delete this comment.</p>';
+    }
+}
+
 
         // Handle like/dislike button actions for comments
         if(isset($_POST['like_comment']) || isset($_POST['dislike_comment'])) {
@@ -512,7 +516,7 @@ try {
             if(isset($_SESSION['user_id']) && $comment['user_id'] === $_SESSION['user_id']) {
                 echo '<div class="ms-auto">';
                 echo '<form method="post" style="display: inline-block;">';
-                echo '<button type="submit" name="delete_comment" class="btn btn-outline-danger me-2">Delete</button>';
+                echo '<button type="button" class="btn btn-outline-danger delete-comment-btn me-2" data-comment-id="' . $comment['id'] . '">Delete</button>';
                 echo '<input type="hidden" name="comment_id" value="' . $comment['id'] . '">';
                 echo '</form>';
                 echo '<form method="post" style="display: inline-block;">';
@@ -530,24 +534,65 @@ try {
         
         ?>
     </div>
+    <?php if (!empty($comments)): ?>
     <!-- Pagination -->
     <nav aria-label="Page navigation example">
-    <ul class="pagination justify-content-center">
-        <li class="page-item <?php echo ($current_page == 1) ? 'disabled' : ''; ?>">
-            <a class="page-link" href="?event_id=<?php echo $event_id; ?>&page=<?php echo ($current_page - 1); ?>" tabindex="-1" aria-disabled="true">Previous</a>
-        </li>
-        <?php for($i = 1; $i <= $total_pages; $i++): ?>
-            <li class="page-item <?php echo ($current_page == $i) ? 'active' : ''; ?>"><a class="page-link" href="?event_id=<?php echo $event_id; ?>&page=<?php echo $i; ?>"><?php echo $i; ?></a></li>
-        <?php endfor; ?>
-        <li class="page-item <?php echo ($current_page == $total_pages) ? 'disabled' : ''; ?>">
-            <a class="page-link" href="?event_id=<?php echo $event_id; ?>&page=<?php echo ($current_page + 1); ?>">Next</a>
-        </li>
-    </ul>
-</nav>
+        <ul class="pagination justify-content-center">
+            <li class="page-item <?php echo ($current_page == 1) ? 'disabled' : ''; ?>">
+                <a class="page-link" href="?event_id=<?php echo $event_id; ?>&page=<?php echo ($current_page - 1); ?>" tabindex="-1" aria-disabled="true">Previous</a>
+            </li>
+            <?php for($i = 1; $i <= $total_pages; $i++): ?>
+                <li class="page-item <?php echo ($current_page == $i) ? 'active' : ''; ?>"><a class="page-link" href="?event_id=<?php echo $event_id; ?>&page=<?php echo $i; ?>"><?php echo $i; ?></a></li>
+            <?php endfor; ?>
+            <li class="page-item <?php echo ($current_page == $total_pages) ? 'disabled' : ''; ?>">
+                <a class="page-link" href="?event_id=<?php echo $event_id; ?>&page=<?php echo ($current_page + 1); ?>">Next</a>
+            </li>
+        </ul>
+    </nav>
     <!-- End Pagination -->
+<?php endif; ?>
+
+
 </div>
 <!-- End Comment Section -->
 
+<!-- Add this HTML code at the end of your body tag -->
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteCommentModal" tabindex="-1" aria-labelledby="deleteCommentModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteCommentModalLabel">Confirm Delete</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete this comment?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <form id="deleteCommentForm" method="post">
+          <button type="submit" name="confirm_delete" class="btn btn-danger">Delete</button>
+          <input type="hidden" id="commentIdToDelete" name="comment_id">
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Add this JavaScript code at the end of your HTML body
+document.addEventListener('DOMContentLoaded', function() {
+  // Show delete confirmation modal when delete button is clicked
+  document.querySelectorAll('.delete-comment-btn').forEach(function(button) {
+    button.addEventListener('click', function() {
+      var commentId = this.getAttribute('data-comment-id');
+      document.getElementById('commentIdToDelete').value = commentId;
+      var deleteModal = new bootstrap.Modal(document.getElementById('deleteCommentModal'), {});
+      deleteModal.show();
+    });
+  });
+});
+</script>
 
     <!-- JS.PHP -->
     <?php

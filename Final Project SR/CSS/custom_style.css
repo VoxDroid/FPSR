@@ -71,3 +71,79 @@
     color: white;
 }
 
+/* view_my_requests.php */
+body {
+    background-color: #f8f9fa;
+    font-family: Arial, sans-serif;
+}
+.navbar {
+    background-color: #343a40 !important;
+}
+.navbar-brand {
+    color: #ffffff !important;
+    font-weight: bold;
+}
+.navbar-nav .nav-link {
+    color: #ffffff !important;
+}
+.table-container {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin-top: 20px;
+}
+.table-title {
+    background-color: #007bff;
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: bold;
+    padding: 15px;
+    margin: 0;
+}
+.table-wrapper {
+    overflow-x: auto;
+}
+.table {
+    margin-bottom: 0;
+}
+.table th, .table td {
+    border-top: none !important;
+    vertical-align: middle !important;
+}
+.table th {
+    background-color: #343a40;
+    color: #ffffff;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+.table th, .table td {
+    border-bottom: 1px solid #dee2e6;
+}
+.btn {
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+.btn-primary, .btn-primary:hover {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+.btn-primary:hover {
+    transform: translateY(-2px);
+}
+.btn-success, .btn-success:hover {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+.btn-success:hover {
+    transform: translateY(-2px);
+}
+.btn-danger, .btn-danger:hover {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+.btn-danger:hover {
+    transform: translateY(-2px);
+}
