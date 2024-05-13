@@ -49,7 +49,7 @@ require_once '../PARTS/header_EMS.php';
 
 <!-- Main Content -->
 <div class="container mt-5">
-
+<input type="text" id="searchInput" class="form-control mb-3" placeholder="Search...">
 <?php
 
 if (isset($_POST['submit_approval'])) {
@@ -105,38 +105,62 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
 }
 ?>
     <!-- Pending Events Section -->
-    <div class="table-container">
+    <div class="table-container pending-section">
         <div class="table-title">Pending Events</div>
         <div class="table-wrapper">
             <?php
-            // Pagination
-            $perPagePending = 10; // Number of items per page for pending events
-            $currentPagePending = isset($_GET['page_pending']) ? $_GET['page_pending'] : 1; // Current page number for pending events
-            $offsetPending = ($currentPagePending - 1) * $perPagePending; // Offset for SQL query for pending events
+                // Pagination
+                $perPagePending = 10; // Number of items per page for pending events
+                $currentPagePending = isset($_GET['page_pending']) ? $_GET['page_pending'] : 1; // Current page number for pending events
+                $offsetPending = ($currentPagePending - 1) * $perPagePending; // Offset for SQL query for pending events
 
-            // Fetch pending events with pagination
-            $pendingEventsQuery = "SELECT * FROM events WHERE status = 'pending' LIMIT $perPagePending OFFSET $offsetPending";
-            $pendingStmt = $pdo->query($pendingEventsQuery);
-            $pendingEvents = $pendingStmt->fetchAll(PDO::FETCH_ASSOC);
+                // Sort parameters
+                $sortColumn = isset($_GET['pending_sort']) ? $_GET['pending_sort'] : 'date_requested';
+                $sortOrder = isset($_GET['order']) && strtolower($_GET['order']) === 'desc' ? 'DESC' : 'ASC';
 
-            // Count total pending events
-            $totalPendingEventsQuery = "SELECT COUNT(*) AS total FROM events WHERE status = 'pending'";
-            $totalPendingStmt = $pdo->query($totalPendingEventsQuery);
-            $totalPendingEvents = $totalPendingStmt->fetch(PDO::FETCH_ASSOC)['total'];
+                // Fetch pending events with pagination and sorting
+                $pendingEventsQuery = "SELECT * FROM events WHERE status = 'pending' ORDER BY $sortColumn $sortOrder LIMIT $perPagePending OFFSET $offsetPending";
+                $pendingStmt = $pdo->query($pendingEventsQuery);
+                $pendingEvents = $pendingStmt->fetchAll(PDO::FETCH_ASSOC);
 
-            if ($totalPendingEvents > 0) {
-                ?>
+                // Count total pending events
+                $totalPendingEventsQuery = "SELECT COUNT(*) AS total FROM events WHERE status = 'pending'";
+                $totalPendingStmt = $pdo->query($totalPendingEventsQuery);
+                $totalPendingEvents = $totalPendingStmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+                if ($totalPendingEvents > 0) {
+            ?>
                 <table class="table table-bordered table-striped mb-0">
                     <!-- Table header -->
                     <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Description</th>
-                        <th>Facility</th>
-                        <th>Duration</th>
-                        <th>Date Requested</th>
-                        <th>Action</th>
-                    </tr>
+                        <tr>
+                            <th>Title 
+                                <a href="?pending_sort=title&order=<?= $sortColumn === 'title' && strtolower($sortOrder) === 'asc' ? 'desc' : 'asc' ?>">
+                                    <img src="../SVG/sort-<?= $sortColumn === 'title' && strtolower($sortOrder) === 'asc' ? 'up' : 'down' ?>.svg" alt="<?= $sortOrder === 'asc' ? 'Ascending' : 'Descending' ?>" width="16" height="16">
+                                </a>
+                            </th>
+                            <th>Description 
+                                <a href="?pending_sort=description&order=<?= $sortColumn === 'description' && strtolower($sortOrder) === 'asc' ? 'desc' : 'asc' ?>">
+                                    <img src="../SVG/sort-<?= $sortColumn === 'description' && strtolower($sortOrder) === 'asc' ? 'up' : 'down' ?>.svg" alt="<?= $sortOrder === 'asc' ? 'Ascending' : 'Descending' ?>" width="16" height="16">
+                                </a>
+                            </th>
+                            <th>Facility 
+                                <a href="?pending_sort=facility&order=<?= $sortColumn === 'facility' && strtolower($sortOrder) === 'asc' ? 'desc' : 'asc' ?>">
+                                    <img src="../SVG/sort-<?= $sortColumn === 'facility' && strtolower($sortOrder) === 'asc' ? 'up' : 'down' ?>.svg" alt="<?= $sortOrder === 'asc' ? 'Ascending' : 'Descending' ?>" width="16" height="16">
+                                </a>
+                            </th>
+                            <th>Duration 
+                                <a href="?pending_sort=duration&order=<?= $sortColumn === 'duration' && strtolower($sortOrder) === 'asc' ? 'desc' : 'asc' ?>">
+                                    <img src="../SVG/sort-<?= $sortColumn === 'duration' && strtolower($sortOrder) === 'asc' ? 'up' : 'down' ?>.svg" alt="<?= $sortOrder === 'asc' ? 'Ascending' : 'Descending' ?>" width="16" height="16">
+                                </a>
+                            </th>
+                            <th>Date Requested 
+                                <a href="?pending_sort=date_requested&order=<?= $sortColumn === 'date_requested' && strtolower($sortOrder) === 'asc' ? 'desc' : 'asc' ?>">
+                                    <img src="../SVG/sort-<?= $sortColumn === 'date_requested' && strtolower($sortOrder) === 'asc' ? 'up' : 'down' ?>.svg" alt="<?= $sortOrder === 'asc' ? 'Ascending' : 'Descending' ?>" width="16" height="16">
+                                </a>
+                            </th>
+                            <th>Action</th>
+                        </tr>
                     </thead>
                     <!-- Table body -->
                     <tbody>
@@ -151,7 +175,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
                             <td>
                                 <a class="btn btn-primary btn-sm mr-1 view-button" href="../EMS/event_details.php?event_id=<?= $event['id'] ?>">View</a>
                                 <button class="btn btn-success btn-sm mr-1 approve-button" data-bs-toggle="modal" data-bs-target="#eventDetailsModal<?= $event['id'] ?>">Check</button>
-                                <button type="button" class="btn btn-danger btn-sm delete-button" data-bs-toggle="modal" data-bs-target="#withdrawModal<?= $event['id'] ?>">Delete Request</button>
+                                <button type="button" class="btn btn-danger btn-sm delete-button" data-bs-toggle="modal" data-bs-target="#withdrawModal<?= $event['id'] ?>">Delete</button>
 
                                 <?php
                                 // Deletion Modal
@@ -274,9 +298,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
         </div>
     </div>
 
-
     <!-- Ongoing Events Section -->
-    <div class="table-container mt-5">
+    <div class="table-container mt-5 ongoing-section">
         <div class="table-title">Ongoing Events</div>
         <div class="table-wrapper">
             <?php
@@ -285,8 +308,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
             $currentPage = isset($_GET['page']) ? $_GET['page'] : 1; // Current page number
             $offset = ($currentPage - 1) * $perPage; // Offset for SQL query
 
-            // Fetch ongoing events with pagination
-            $ongoingEventsQuery = "SELECT * FROM events WHERE status = 'ongoing' LIMIT $perPage OFFSET $offset";
+            // Sort parameters
+            $sortColumnOngoing = isset($_GET['ongoing_sort']) ? $_GET['ongoing_sort'] : 'date_requested';
+            $sortOrderOngoing = isset($_GET['order']) && strtolower($_GET['order']) === 'desc' ? 'DESC' : 'ASC';
+
+            // Fetch ongoing events with pagination and sorting
+            $ongoingEventsQuery = "SELECT * FROM events WHERE status = 'ongoing' ORDER BY $sortColumnOngoing $sortOrderOngoing LIMIT $perPage OFFSET $offset";
             $ongoingStmt = $pdo->query($ongoingEventsQuery);
             $ongoingEvents = $ongoingStmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -301,11 +328,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
                     <!-- Table header -->
                     <thead>
                         <tr>
-                            <th>Title</th>
-                            <th>Description</th>
-                            <th>Facility</th>
-                            <th>Duration</th>
-                            <th>Date Requested</th>
+                            <th>Title 
+                                <a href="?ongoing_sort=title&order=<?= $sortColumnOngoing === 'title' && strtolower($sortOrderOngoing) === 'asc' ? 'desc' : 'asc' ?>">
+                                    <img src="../SVG/sort-<?= $sortColumnOngoing === 'title' && strtolower($sortOrderOngoing) === 'asc' ? 'up' : 'down' ?>.svg" alt="<?= $sortOrderOngoing === 'asc' ? 'Ascending' : 'Descending' ?>" width="16" height="16">
+                                </a>
+                            </th>
+                            <th>Description 
+                                <a href="?ongoing_sort=description&order=<?= $sortColumnOngoing === 'description' && strtolower($sortOrderOngoing) === 'asc' ? 'desc' : 'asc' ?>">
+                                    <img src="../SVG/sort-<?= $sortColumnOngoing === 'description' && strtolower($sortOrderOngoing) === 'asc' ? 'up' : 'down' ?>.svg" alt="<?= $sortOrderOngoing === 'asc' ? 'Ascending' : 'Descending' ?>" width="16" height="16">
+                                </a>
+                            </th>
+                            <th>Facility 
+                                <a href="?ongoing_sort=facility&order=<?= $sortColumnOngoing === 'facility' && strtolower($sortOrderOngoing) === 'asc' ? 'desc' : 'asc' ?>">
+                                    <img src="../SVG/sort-<?= $sortColumnOngoing === 'facility' && strtolower($sortOrderOngoing) === 'asc' ? 'up' : 'down' ?>.svg" alt="<?= $sortOrderOngoing === 'asc' ? 'Ascending' : 'Descending' ?>" width="16" height="16">
+                                </a>
+                            </th>
+                            <th>Duration 
+                                <a href="?ongoing_sort=duration&order=<?= $sortColumnOngoing === 'duration' && strtolower($sortOrderOngoing) === 'asc' ? 'desc' : 'asc' ?>">
+                                    <img src="../SVG/sort-<?= $sortColumnOngoing === 'duration' && strtolower($sortOrderOngoing) === 'asc' ? 'up' : 'down' ?>.svg" alt="<?= $sortOrderOngoing === 'asc' ? 'Ascending' : 'Descending' ?>" width="16" height="16">
+                                </a>
+                            </th>
+                            <th>Date Requested 
+                                <a href="?ongoing_sort=date_requested&order=<?= $sortColumnOngoing === 'date_requested' && strtolower($sortOrderOngoing) === 'asc' ? 'desc' : 'asc' ?>">
+                                    <img src="../SVG/sort-<?= $sortColumnOngoing === 'date_requested' && strtolower($sortOrderOngoing) === 'asc' ? 'up' : 'down' ?>.svg" alt="<?= $sortOrderOngoing === 'asc' ? 'Ascending' : 'Descending' ?>" width="16" height="16">
+                                </a>
+                            </th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -367,39 +414,63 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
     </div>
 
     <!-- Approved Events Section -->
-<div class="table-container mt-5">
-    <div class="table-title">Approved Events</div>
-    <div class="table-wrapper">
-        <?php
-        // Pagination
-        $perPageApproved = 10; // Number of items per page for approved events
-        $currentPageApproved = isset($_GET['page_approved']) ? $_GET['page_approved'] : 1; // Current page number for approved events
-        $offsetApproved = ($currentPageApproved - 1) * $perPageApproved; // Offset for SQL query for approved events
+    <div class="table-container mt-5 approved-section">
+        <div class="table-title">Approved Events</div>
+        <div class="table-wrapper">
+            <?php
+            // Pagination
+            $perPageApproved = 10; // Number of items per page for approved events
+            $currentPageApproved = isset($_GET['page_approved']) ? $_GET['page_approved'] : 1; // Current page number for approved events
+            $offsetApproved = ($currentPageApproved - 1) * $perPageApproved; // Offset for SQL query for approved events
 
-        // Fetch approved events with pagination
-        $approvedEventsQuery = "SELECT * FROM events WHERE status = 'active' LIMIT $perPageApproved OFFSET $offsetApproved";
-        $approvedStmt = $pdo->query($approvedEventsQuery);
-        $approvedEvents = $approvedStmt->fetchAll(PDO::FETCH_ASSOC);
+            // Sort parameters
+            $sortColumnApproved = isset($_GET['approved_sort']) ? $_GET['approved_sort'] : 'date_requested';
+            $sortOrderApproved = isset($_GET['order']) && strtolower($_GET['order']) === 'desc' ? 'DESC' : 'ASC';
 
-        // Count total approved events
-        $totalApprovedEventsQuery = "SELECT COUNT(*) AS total FROM events WHERE status = 'active'";
-        $totalApprovedStmt = $pdo->query($totalApprovedEventsQuery);
-        $totalApprovedEvents = $totalApprovedStmt->fetch(PDO::FETCH_ASSOC)['total'];
+            // Fetch approved events with pagination and sorting
+            $approvedEventsQuery = "SELECT * FROM events WHERE status = 'active' ORDER BY $sortColumnApproved $sortOrderApproved LIMIT $perPageApproved OFFSET $offsetApproved";
+            $approvedStmt = $pdo->query($approvedEventsQuery);
+            $approvedEvents = $approvedStmt->fetchAll(PDO::FETCH_ASSOC);
 
-        if ($totalApprovedEvents > 0) {
-            ?>
-            <table class="table table-bordered table-striped mb-0">
-                <!-- Table header -->
-                <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Description</th>
-                    <th>Facility</th>
-                    <th>Duration</th>
-                    <th>Date Requested</th>
-                    <th>Action</th>
-                </tr>
-                </thead>
+            // Count total approved events
+            $totalApprovedEventsQuery = "SELECT COUNT(*) AS total FROM events WHERE status = 'active'";
+            $totalApprovedStmt = $pdo->query($totalApprovedEventsQuery);
+            $totalApprovedEvents = $totalApprovedStmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+            if ($totalApprovedEvents > 0) {
+                ?>
+                <table class="table table-bordered table-striped mb-0">
+                    <!-- Table header -->
+                    <thead>
+                    <tr>
+                        <th>Title 
+                            <a href="?approved_sort=title&order=<?= $sortColumnApproved === 'title' && strtolower($sortOrderApproved) === 'asc' ? 'desc' : 'asc' ?>">
+                                <img src="../SVG/sort-<?= $sortColumnApproved === 'title' && strtolower($sortOrderApproved) === 'asc' ? 'up' : 'down' ?>.svg" alt="<?= $sortOrderApproved === 'asc' ? 'Ascending' : 'Descending' ?>" width="16" height="16">
+                            </a>
+                        </th>
+                        <th>Description 
+                            <a href="?approved_sort=description&order=<?= $sortColumnApproved === 'description' && strtolower($sortOrderApproved) === 'asc' ? 'desc' : 'asc' ?>">
+                                <img src="../SVG/sort-<?= $sortColumnApproved === 'description' && strtolower($sortOrderApproved) === 'asc' ? 'up' : 'down' ?>.svg" alt="<?= $sortOrderApproved === 'asc' ? 'Ascending' : 'Descending' ?>" width="16" height="16">
+                            </a>
+                        </th>
+                        <th>Facility 
+                            <a href="?approved_sort=facility&order=<?= $sortColumnApproved === 'facility' && strtolower($sortOrderApproved) === 'asc' ? 'desc' : 'asc' ?>">
+                                <img src="../SVG/sort-<?= $sortColumnApproved === 'facility' && strtolower($sortOrderApproved) === 'asc' ? 'up' : 'down' ?>.svg" alt="<?= $sortOrderApproved === 'asc' ? 'Ascending' : 'Descending' ?>" width="16" height="16">
+                            </a>
+                        </th>
+                        <th>Duration 
+                            <a href="?approved_sort=duration&order=<?= $sortColumnApproved === 'duration' && strtolower($sortOrderApproved) === 'asc' ? 'desc' : 'asc' ?>">
+                                <img src="../SVG/sort-<?= $sortColumnApproved === 'duration' && strtolower($sortOrderApproved) === 'asc' ? 'up' : 'down' ?>.svg" alt="<?= $sortOrderApproved === 'asc' ? 'Ascending' : 'Descending' ?>" width="16" height="16">
+                            </a>
+                        </th>
+                        <th>Date Requested 
+                            <a href="?approved_sort=date_requested&order=<?= $sortColumnApproved === 'date_requested' && strtolower($sortOrderApproved) === 'asc' ? 'desc' : 'asc' ?>">
+                                <img src="../SVG/sort-<?= $sortColumnApproved === 'date_requested' && strtolower($sortOrderApproved) === 'asc' ? 'up' : 'down' ?>.svg" alt="<?= $sortOrderApproved === 'asc' ? 'Ascending' : 'Descending' ?>" width="16" height="16">
+                            </a>
+                        </th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
                 <!-- Table body -->
                 <tbody>
                 <!-- Loop through approved events -->
@@ -458,39 +529,63 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
 </div>
 
     <!-- Completed Events Section -->
-<div class="table-container mt-5">
-    <div class="table-title">Completed Events</div>
-    <div class="table-wrapper">
-        <?php
-        // Pagination
-        $perPageCompleted = 10; // Number of items per page for completed events
-        $currentPageCompleted = isset($_GET['page_completed']) ? $_GET['page_completed'] : 1; // Current page number for completed events
-        $offsetCompleted = ($currentPageCompleted - 1) * $perPageCompleted; // Offset for SQL query for completed events
+    <div class="table-container mt-5 completed-section">
+        <div class="table-title">Completed Events</div>
+        <div class="table-wrapper">
+            <?php
+            // Pagination
+            $perPageCompleted = 10; // Number of items per page for completed events
+            $currentPageCompleted = isset($_GET['page_completed']) ? $_GET['page_completed'] : 1; // Current page number for completed events
+            $offsetCompleted = ($currentPageCompleted - 1) * $perPageCompleted; // Offset for SQL query for completed events
 
-        // Fetch completed events with pagination
-        $completedEventsQuery = "SELECT * FROM events WHERE status = 'completed' LIMIT $perPageCompleted OFFSET $offsetCompleted";
-        $completedStmt = $pdo->query($completedEventsQuery);
-        $completedEvents = $completedStmt->fetchAll(PDO::FETCH_ASSOC);
+            // Sort parameters
+            $sortColumnCompleted = isset($_GET['completed_sort']) ? $_GET['completed_sort'] : 'date_requested';
+            $sortOrderCompleted = isset($_GET['order']) && strtolower($_GET['order']) === 'desc' ? 'DESC' : 'ASC';
 
-        // Count total completed events
-        $totalCompletedEventsQuery = "SELECT COUNT(*) AS total FROM events WHERE status = 'completed'";
-        $totalCompletedStmt = $pdo->query($totalCompletedEventsQuery);
-        $totalCompletedEvents = $totalCompletedStmt->fetch(PDO::FETCH_ASSOC)['total'];
+            // Fetch completed events with pagination and sorting
+            $completedEventsQuery = "SELECT * FROM events WHERE status = 'completed' ORDER BY $sortColumnCompleted $sortOrderCompleted LIMIT $perPageCompleted OFFSET $offsetCompleted";
+            $completedStmt = $pdo->query($completedEventsQuery);
+            $completedEvents = $completedStmt->fetchAll(PDO::FETCH_ASSOC);
 
-        if ($totalCompletedEvents > 0) {
-            ?>
-            <table class="table table-bordered table-striped mb-0">
-                <!-- Table header -->
-                <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Description</th>
-                    <th>Facility</th>
-                    <th>Duration</th>
-                    <th>Date Requested</th>
-                    <th>Action</th>
-                </tr>
-                </thead>
+            // Count total completed events
+            $totalCompletedEventsQuery = "SELECT COUNT(*) AS total FROM events WHERE status = 'completed'";
+            $totalCompletedStmt = $pdo->query($totalCompletedEventsQuery);
+            $totalCompletedEvents = $totalCompletedStmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+            if ($totalCompletedEvents > 0) {
+                ?>
+                <table class="table table-bordered table-striped mb-0">
+                    <!-- Table header -->
+                    <thead>
+                    <tr>
+                        <th>Title 
+                            <a href="?completed_sort=title&order=<?= $sortColumnCompleted === 'title' && strtolower($sortOrderCompleted) === 'asc' ? 'desc' : 'asc' ?>">
+                                <img src="../SVG/sort-<?= $sortColumnCompleted === 'title' && strtolower($sortOrderCompleted) === 'asc' ? 'up' : 'down' ?>.svg" alt="<?= $sortOrderCompleted === 'asc' ? 'Ascending' : 'Descending' ?>" width="16" height="16">
+                            </a>
+                        </th>
+                        <th>Description 
+                            <a href="?completed_sort=description&order=<?= $sortColumnCompleted === 'description' && strtolower($sortOrderCompleted) === 'asc' ? 'desc' : 'asc' ?>">
+                                <img src="../SVG/sort-<?= $sortColumnCompleted === 'description' && strtolower($sortOrderCompleted) === 'asc' ? 'up' : 'down' ?>.svg" alt="<?= $sortOrderCompleted === 'asc' ? 'Ascending' : 'Descending' ?>" width="16" height="16">
+                            </a>
+                        </th>
+                        <th>Facility 
+                            <a href="?completed_sort=facility&order=<?= $sortColumnCompleted === 'facility' && strtolower($sortOrderCompleted) === 'asc' ? 'desc' : 'asc' ?>">
+                                <img src="../SVG/sort-<?= $sortColumnCompleted === 'facility' && strtolower($sortOrderCompleted) === 'asc' ? 'up' : 'down' ?>.svg" alt="<?= $sortOrderCompleted === 'asc' ? 'Ascending' : 'Descending' ?>" width="16" height="16">
+                            </a>
+                        </th>
+                        <th>Duration 
+                            <a href="?completed_sort=duration&order=<?= $sortColumnCompleted === 'duration' && strtolower($sortOrderCompleted) === 'asc' ? 'desc' : 'asc' ?>">
+                                <img src="../SVG/sort-<?= $sortColumnCompleted === 'duration' && strtolower($sortOrderCompleted) === 'asc' ? 'up' : 'down' ?>.svg" alt="<?= $sortOrderCompleted === 'asc' ? 'Ascending' : 'Descending' ?>" width="16" height="16">
+                            </a>
+                        </th>
+                        <th>Date Requested 
+                            <a href="?completed_sort=date_requested&order=<?= $sortColumnCompleted === 'date_requested' && strtolower($sortOrderCompleted) === 'asc' ? 'desc' : 'asc' ?>">
+                                <img src="../SVG/sort-<?= $sortColumnCompleted === 'date_requested' && strtolower($sortOrderCompleted) === 'asc' ? 'up' : 'down' ?>.svg" alt="<?= $sortOrderCompleted === 'asc' ? 'Ascending' : 'Descending' ?>" width="16" height="16">
+                            </a>
+                        </th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
                 <!-- Table body -->
                 <tbody>
                 <!-- Loop through completed events -->
@@ -549,39 +644,63 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
 
 
     <!-- Denied Events Section -->
-<div class="table-container mt-5">
-    <div class="table-title">Denied Events</div>
-    <div class="table-wrapper">
-        <?php
-        // Pagination
-        $perPageDenied = 10; // Number of items per page for denied events
-        $currentPageDenied = isset($_GET['page_denied']) ? $_GET['page_denied'] : 1; // Current page number for denied events
-        $offsetDenied = ($currentPageDenied - 1) * $perPageDenied; // Offset for SQL query for denied events
+    <div class="table-container mt-5 denied-section">
+        <div class="table-title">Denied Events</div>
+        <div class="table-wrapper">
+            <?php
+            // Pagination
+            $perPageDenied = 10; // Number of items per page for denied events
+            $currentPageDenied = isset($_GET['page_denied']) ? $_GET['page_denied'] : 1; // Current page number for denied events
+            $offsetDenied = ($currentPageDenied - 1) * $perPageDenied; // Offset for SQL query for denied events
 
-        // Fetch denied events with pagination
-        $deniedEventsQuery = "SELECT * FROM events WHERE status = 'denied' LIMIT $perPageDenied OFFSET $offsetDenied";
-        $deniedStmt = $pdo->query($deniedEventsQuery);
-        $deniedEvents = $deniedStmt->fetchAll(PDO::FETCH_ASSOC);
+            // Sort parameters
+            $sortColumnDenied = isset($_GET['denied_sort']) ? $_GET['denied_sort'] : 'date_requested';
+            $sortOrderDenied = isset($_GET['order']) && strtolower($_GET['order']) === 'desc' ? 'DESC' : 'ASC';
 
-        // Count total denied events
-        $totalDeniedEventsQuery = "SELECT COUNT(*) AS total FROM events WHERE status = 'denied'";
-        $totalDeniedStmt = $pdo->query($totalDeniedEventsQuery);
-        $totalDeniedEvents = $totalDeniedStmt->fetch(PDO::FETCH_ASSOC)['total'];
+            // Fetch denied events with pagination and sorting
+            $deniedEventsQuery = "SELECT * FROM events WHERE status = 'denied' ORDER BY $sortColumnDenied $sortOrderDenied LIMIT $perPageDenied OFFSET $offsetDenied";
+            $deniedStmt = $pdo->query($deniedEventsQuery);
+            $deniedEvents = $deniedStmt->fetchAll(PDO::FETCH_ASSOC);
 
-        if ($totalDeniedEvents > 0) {
-            ?>
-            <table class="table table-bordered table-striped mb-0">
-                <!-- Table header -->
-                <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Description</th>
-                    <th>Facility</th>
-                    <th>Duration</th>
-                    <th>Date Requested</th>
-                    <th>Action</th>
-                </tr>
-                </thead>
+            // Count total denied events
+            $totalDeniedEventsQuery = "SELECT COUNT(*) AS total FROM events WHERE status = 'denied'";
+            $totalDeniedStmt = $pdo->query($totalDeniedEventsQuery);
+            $totalDeniedEvents = $totalDeniedStmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+            if ($totalDeniedEvents > 0) {
+                ?>
+                <table class="table table-bordered table-striped mb-0">
+                    <!-- Table header -->
+                    <thead>
+                    <tr>
+                        <th>Title 
+                            <a href="?denied_sort=title&order=<?= $sortColumnDenied === 'title' && strtolower($sortOrderDenied) === 'asc' ? 'desc' : 'asc' ?>">
+                                <img src="../SVG/sort-<?= $sortColumnDenied === 'title' && strtolower($sortOrderDenied) === 'asc' ? 'up' : 'down' ?>.svg" alt="<?= $sortOrderDenied === 'asc' ? 'Ascending' : 'Descending' ?>" width="16" height="16">
+                            </a>
+                        </th>
+                        <th>Description 
+                            <a href="?denied_sort=description&order=<?= $sortColumnDenied === 'description' && strtolower($sortOrderDenied) === 'asc' ? 'desc' : 'asc' ?>">
+                                <img src="../SVG/sort-<?= $sortColumnDenied === 'description' && strtolower($sortOrderDenied) === 'asc' ? 'up' : 'down' ?>.svg" alt="<?= $sortOrderDenied === 'asc' ? 'Ascending' : 'Descending' ?>" width="16" height="16">
+                            </a>
+                        </th>
+                        <th>Facility 
+                            <a href="?denied_sort=facility&order=<?= $sortColumnDenied === 'facility' && strtolower($sortOrderDenied) === 'asc' ? 'desc' : 'asc' ?>">
+                                <img src="../SVG/sort-<?= $sortColumnDenied === 'facility' && strtolower($sortOrderDenied) === 'asc' ? 'up' : 'down' ?>.svg" alt="<?= $sortOrderDenied === 'asc' ? 'Ascending' : 'Descending' ?>" width="16" height="16">
+                            </a>
+                        </th>
+                        <th>Duration 
+                            <a href="?denied_sort=duration&order=<?= $sortColumnDenied === 'duration' && strtolower($sortOrderDenied) === 'asc' ? 'desc' : 'asc' ?>">
+                                <img src="../SVG/sort-<?= $sortColumnDenied === 'duration' && strtolower($sortOrderDenied) === 'asc' ? 'up' : 'down' ?>.svg" alt="<?= $sortOrderDenied === 'asc' ? 'Ascending' : 'Descending' ?>" width="16" height="16">
+                            </a>
+                        </th>
+                        <th>Date Requested 
+                            <a href="?denied_sort=date_requested&order=<?= $sortColumnDenied === 'date_requested' && strtolower($sortOrderDenied) === 'asc' ? 'desc' : 'asc' ?>">
+                                <img src="../SVG/sort-<?= $sortColumnDenied === 'date_requested' && strtolower($sortOrderDenied) === 'asc' ? 'up' : 'down' ?>.svg" alt="<?= $sortOrderDenied === 'asc' ? 'Ascending' : 'Descending' ?>" width="16" height="16">
+                            </a>
+                        </th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
                 <!-- Table body -->
                 <tbody>
                 <!-- Loop through denied events -->
@@ -637,6 +756,69 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
         ?>
     </div>
 </div>
+
+<!-- JavaScript for real-time filtering -->
+<!-- JavaScript for real-time filtering -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('searchInput');
+        const sections = document.querySelectorAll('.table-container');
+        const allPagination = document.querySelectorAll('.pagination');
+
+        searchInput.addEventListener('input', function () {
+            const searchTerm = searchInput.value.trim().toLowerCase();
+            let visibleSections = new Set();
+
+            sections.forEach(section => {
+                let hasVisibleRows = false;
+                const tableRows = section.querySelectorAll('.table-bordered tbody tr');
+                tableRows.forEach(row => {
+                    const title = row.querySelector('td:nth-child(1)').textContent.trim().toLowerCase();
+                    const description = row.querySelector('td:nth-child(2)').textContent.trim().toLowerCase();
+                    const facility = row.querySelector('td:nth-child(3)').textContent.trim().toLowerCase();
+                    const duration = row.querySelector('td:nth-child(4)').textContent.trim().toLowerCase();
+                    const dateRequested = row.querySelector('td:nth-child(5)').textContent.trim().toLowerCase();
+
+                    if (title.includes(searchTerm) || description.includes(searchTerm) || facility.includes(searchTerm) || duration.includes(searchTerm) || dateRequested.includes(searchTerm)) {
+                        row.style.display = '';
+                        hasVisibleRows = true;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                // Update section visibility
+                if (hasVisibleRows) {
+                    section.style.display = '';
+                    visibleSections.add(section);
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+
+            // Toggle pagination visibility for all sections
+            if (searchTerm !== '') {
+                allPagination.forEach(pagination => {
+                    pagination.style.display = 'none';
+                });
+            } else {
+                allPagination.forEach(pagination => {
+                    pagination.style.display = '';
+                });
+            }
+
+            // Hide sections with no visible rows
+            sections.forEach(section => {
+                if (!visibleSections.has(section)) {
+                    section.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
+
+
+
 <!-- JS.PHP -->
 <?php require_once '../PARTS/js.php'; ?>
 </body>

@@ -27,7 +27,7 @@
                             <?php endif; ?>
                             <li><a class="dropdown-item" href="../EMS/profile.php">Profile</a></li>
                             <form method="post">
-                                <li><button type="submit" name="logout" class="dropdown-item btn btn-link text-danger">Logout</button></li>
+                                <li><button type="submit" name="logout_EMS" class="dropdown-item btn btn-link text-danger">Logout</button></li>
                             </form>
                         </ul>
                     </div>
