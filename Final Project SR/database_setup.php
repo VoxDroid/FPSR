@@ -37,11 +37,15 @@ try {
         id INT AUTO_INCREMENT PRIMARY KEY,
         username VARCHAR(50) NOT NULL,
         password VARCHAR(255) NOT NULL,
+        gender ENUM('male', 'female') NOT NULL,
+        email VARCHAR(100),
+        profile_picture VARCHAR(255),
         role ENUM('user', 'admin') NOT NULL,
         can_request_event BOOLEAN DEFAULT TRUE,
         can_review_request BOOLEAN DEFAULT FALSE,
         can_delete_user BOOLEAN DEFAULT FALSE,
-        date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        is_active BOOLEAN DEFAULT TRUE
     )";
     $pdo->exec($createUserTableQuery);
 

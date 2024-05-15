@@ -758,7 +758,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
 </div>
 
 <!-- JavaScript for real-time filtering -->
-<!-- JavaScript for real-time filtering -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const searchInput = document.getElementById('searchInput');
