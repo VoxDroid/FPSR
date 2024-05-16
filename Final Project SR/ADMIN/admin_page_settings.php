@@ -1,6 +1,7 @@
 <?php
 require_once '../PARTS/background_worker.php';
 require_once '../PARTS/config.php';
+
 // Redirect to index.php if user is not logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../index.php");
@@ -62,7 +63,7 @@ $stmtUsers->execute();
             // Begin a transaction
             $pdo->beginTransaction();
     
-            // Delete associated records from comments table
+            // Delete associated comments made by the user
             $deleteCommentsQuery = "DELETE FROM comments WHERE user_id = :id";
             $stmtComments = $pdo->prepare($deleteCommentsQuery);
             $stmtComments->bindParam(':id', $userId);
@@ -98,15 +99,13 @@ $stmtUsers->execute();
             // Deletion successful, redirect to admin page
             header("Location: admin_page_settings.php");
             exit();
-        } catch (PDOException $e) {
-            // Rollback the transaction on failure
+        } catch(PDOException $e) {
+            // Rollback the transaction on error
             $pdo->rollBack();
-    
-            // Handle database error
-            echo "Error: " . $e->getMessage();
-            exit();
+            die("Error: " . $e->getMessage());
         }
     }
+    
     
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_account'])) {

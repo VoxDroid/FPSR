@@ -77,8 +77,8 @@ try {
         likes INT DEFAULT 0,
         dislikes INT DEFAULT 0,
         date_commented TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (event_id) REFERENCES events(id),
-        FOREIGN KEY (user_id) REFERENCES users(id)
+        FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     )";
     $pdo->exec($createCommentTableQuery);
 
@@ -90,9 +90,9 @@ try {
         comment_id INT NOT NULL,
         vote_type ENUM('like', 'dislike') NOT NULL,
         UNIQUE KEY user_comment_unique (user_id, event_id, comment_id),
-        FOREIGN KEY (user_id) REFERENCES users(id),
-        FOREIGN KEY (event_id) REFERENCES events(id),
-        FOREIGN KEY (comment_id) REFERENCES comments(id)
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
+        FOREIGN KEY (comment_id) REFERENCES comments(id) ON DELETE CASCADE
     )";
     $pdo->exec($createCommentVotesTableQuery);
 
@@ -103,8 +103,8 @@ try {
         event_id INT NOT NULL,
         vote_type ENUM('like', 'dislike') NOT NULL,
         UNIQUE KEY user_event_unique (user_id, event_id),
-        FOREIGN KEY (user_id) REFERENCES users(id),
-        FOREIGN KEY (event_id) REFERENCES events(id)
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
     )";
     $pdo->exec($createEventVotesTableQuery);
 
