@@ -47,18 +47,81 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
 <?php
     require_once 'PARTS/header_index.php';
 ?>
+
+<style>
+.event-card {
+    border: none;
+    transition: box-shadow 0.3s;
+    border-radius: 10px;
+}
+
+.event-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.profile-picture {
+    border: 2px solid #fff;
+}
+
+.event-description {
+    color: #555;
+    font-size: 0.95rem;
+}
+
+.like-dislike img {
+    margin-right: 5px;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    padding: 10px;
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+    width: auto;
+}
+
+.carousel-indicators {
+    bottom: -30px;
+}
+
+.carousel-indicators li {
+    background-color: #ccc;
+    border: none;
+    margin: 0 3px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.carousel-indicators .active {
+    background-color: #007bff;
+}
+
+</style>
 <!-- End Header -->
 
 <!-- Main Content -->
 <main class="py-5">
     <div class="container">
-        <!-- Ongoing Events -->
         <h2>Ongoing Events</h2>
         <div id="ongoingEventsCarousel" class="carousel slide mb-5" data-ride="carousel">
             <div class="carousel-inner">
                 <?php
-                // Fetch ongoing events from the database
-                $queryOngoingEvents = "SELECT * FROM events WHERE status = 'ongoing' ORDER BY date_requested ASC LIMIT 20";
+                // Fetch ongoing events with user information
+                $queryOngoingEvents = "SELECT e.*, u.username, u.profile_picture 
+                                    FROM events e
+                                    JOIN users u ON e.user_id = u.id
+                                    WHERE e.status = 'ongoing' 
+                                    ORDER BY e.date_requested ASC 
+                                    LIMIT 20";
                 $stmtOngoingEvents = $pdo->query($queryOngoingEvents);
                 $ongoingEventCount = $stmtOngoingEvents->rowCount();
 
@@ -67,22 +130,51 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
                     $slideIndex = 0;
                     while ($event = $stmtOngoingEvents->fetch(PDO::FETCH_ASSOC)) {
                         echo '<div class="carousel-item' . ($first ? ' active' : '') . '">';
-                        echo '<div class="card">';
+                        echo '<div class="card shadow-sm event-card">';
                         echo '<div class="card-body">';
-                        echo '<h5 class="card-title">' . $event['title'] . '</h5>';
-                        echo '<p class="card-text">' . $event['description'] . '</p>';
-                        echo '<p class="card-text">Date: ' . $event['date_requested'] . '</p>';
+                        // User profile picture and name
+                        echo '<div class="d-flex align-items-center mb-3">';
+                        // Adjust profile picture path if it starts with '../'
+                        $profilePicture = $event['profile_picture'];
+                        if (strpos($profilePicture, '../') === 0) {
+                            $profilePicture = substr($profilePicture, 3); // Remove '../'
+                        }
+                        echo '<img src="' . $profilePicture . '" class="rounded-circle me-3 profile-picture" width="50" height="50" alt="Profile Picture">';
+                        echo '<div>';
+                        echo '<h5 class="card-title mb-0">' . htmlspecialchars($event['title']) . '</h5>';
+                        echo '<p class="card-text text-muted mb-1">Organized by: ' . htmlspecialchars($event['username']) . '</p>';
+                        echo '<p class="card-text text-muted mb-0">Date: ' . date('M d, Y', strtotime($event['date_requested'])) . '</p>';
+                        echo '</div>';
+                        echo '</div>';
+                        // Event details
+                        echo '<p class="card-text event-description">' . nl2br(htmlspecialchars($event['description'])) . '</p>';
+                        // Additional event information
+                        echo '<div class="row mb-3">';
+                        echo '<div class="col-md-6">';
+                        echo '<p class="card-text"><strong>Duration:</strong> ' . $event['duration'] . ' hours</p>';
+                        echo '<p class="card-text"><strong>Location:</strong> ' . htmlspecialchars($event['facility']) . '</p>';
+                        echo '</div>';
+                        echo '<div class="col-md-6">';
+                        echo '<p class="card-text"><strong>Status:</strong> ' . ucfirst($event['status']) . '</p>';
+                        echo '<p class="card-text"><strong>Remarks:</strong> ' . ($event['remarks'] ? htmlspecialchars($event['remarks']) : 'None') . '</p>';
+                        echo '</div>';
+                        echo '</div>';
                         // Likes and dislikes icons and numbers
-                        echo '<div class="d-flex align-items-center">';
+                        echo '<div class="d-flex align-items-center mb-3">';
+                        echo '<div class="like-dislike me-4">';
                         echo '<img src="SVG/hand-thumbs-up-fill.svg" alt="Likes" width="16" height="16" class="text-success me-1">';
-                        echo '<span>' . $event['likes'] . '</span>';
-                        echo '<img src="SVG/hand-thumbs-down-fill.svg" alt="Dislikes" width="16" height="16" class="text-danger ms-3 me-1">';
-                        echo '<span>' . $event['dislikes'] . '</span>';
+                        echo '<span class="like-count">' . $event['likes'] . '</span>';
                         echo '</div>';
-                        echo '<a href="EMS/event_details.php?event_id=' . $event['id'] . '" class="btn btn-primary mt-3">View</a>';
+                        echo '<div class="like-dislike">';
+                        echo '<img src="SVG/hand-thumbs-down-fill.svg" alt="Dislikes" width="16" height="16" class="text-danger me-1">';
+                        echo '<span class="dislike-count">' . $event['dislikes'] . '</span>';
                         echo '</div>';
                         echo '</div>';
-                        echo '</div>';
+                        // View button
+                        echo '<a href="EMS/event_details.php?event_id=' . $event['id'] . '" class="btn btn-primary btn-sm">View Details</a>';
+                        echo '</div>'; // .card-body
+                        echo '</div>'; // .card
+                        echo '</div>'; // .carousel-item
                         $first = false;
                     }
                 } else {
@@ -117,8 +209,13 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
         <div id="approvedEventsCarousel" class="carousel slide mb-5" data-ride="carousel">
             <div class="carousel-inner">
                 <?php
-                // Fetch approved events from the database
-                $queryApprovedEvents = "SELECT * FROM events WHERE status = 'active' ORDER BY date_requested ASC LIMIT 20";
+                // Fetch approved events with user information
+                $queryApprovedEvents = "SELECT e.*, u.username, u.profile_picture 
+                                    FROM events e
+                                    JOIN users u ON e.user_id = u.id
+                                    WHERE e.status = 'active' 
+                                    ORDER BY e.date_requested ASC 
+                                    LIMIT 20";
                 $stmtApprovedEvents = $pdo->query($queryApprovedEvents);
                 $approvedEventCount = $stmtApprovedEvents->rowCount();
 
@@ -127,22 +224,51 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
                     $slideIndex = 0;
                     while ($event = $stmtApprovedEvents->fetch(PDO::FETCH_ASSOC)) {
                         echo '<div class="carousel-item' . ($first ? ' active' : '') . '">';
-                        echo '<div class="card">';
+                        echo '<div class="card shadow-sm event-card">';
                         echo '<div class="card-body">';
-                        echo '<h5 class="card-title">' . $event['title'] . '</h5>';
-                        echo '<p class="card-text">' . $event['description'] . '</p>';
-                        echo '<p class="card-text">Date: ' . $event['date_requested'] . '</p>';
+                        // User profile picture and name
+                        echo '<div class="d-flex align-items-center mb-3">';
+                        // Adjust profile picture path if it starts with '../'
+                        $profilePicture = $event['profile_picture'];
+                        if (strpos($profilePicture, '../') === 0) {
+                            $profilePicture = substr($profilePicture, 3); // Remove '../'
+                        }
+                        echo '<img src="' . $profilePicture . '" class="rounded-circle me-3 profile-picture" width="50" height="50" alt="Profile Picture">';
+                        echo '<div>';
+                        echo '<h5 class="card-title mb-0">' . htmlspecialchars($event['title']) . '</h5>';
+                        echo '<p class="card-text text-muted mb-1">Organized by: ' . htmlspecialchars($event['username']) . '</p>';
+                        echo '<p class="card-text text-muted mb-0">Date: ' . date('M d, Y', strtotime($event['date_requested'])) . '</p>';
+                        echo '</div>';
+                        echo '</div>';
+                        // Event details
+                        echo '<p class="card-text event-description">' . nl2br(htmlspecialchars($event['description'])) . '</p>';
+                        // Additional event information
+                        echo '<div class="row mb-3">';
+                        echo '<div class="col-md-6">';
+                        echo '<p class="card-text"><strong>Duration:</strong> ' . $event['duration'] . ' hours</p>';
+                        echo '<p class="card-text"><strong>Location:</strong> ' . htmlspecialchars($event['facility']) . '</p>';
+                        echo '</div>';
+                        echo '<div class="col-md-6">';
+                        echo '<p class="card-text"><strong>Status:</strong> ' . ucfirst($event['status']) . '</p>';
+                        echo '<p class="card-text"><strong>Remarks:</strong> ' . ($event['remarks'] ? htmlspecialchars($event['remarks']) : 'None') . '</p>';
+                        echo '</div>';
+                        echo '</div>';
                         // Likes and dislikes icons and numbers
-                        echo '<div class="d-flex align-items-center">';
+                        echo '<div class="d-flex align-items-center mb-3">';
+                        echo '<div class="like-dislike me-4">';
                         echo '<img src="SVG/hand-thumbs-up-fill.svg" alt="Likes" width="16" height="16" class="text-success me-1">';
-                        echo '<span>' . $event['likes'] . '</span>';
-                        echo '<img src="SVG/hand-thumbs-down-fill.svg" alt="Dislikes" width="16" height="16" class="text-danger ms-3 me-1">';
-                        echo '<span>' . $event['dislikes'] . '</span>';
+                        echo '<span class="like-count">' . $event['likes'] . '</span>';
                         echo '</div>';
-                        echo '<a href="EMS/event_details.php?event_id=' . $event['id'] . '" class="btn btn-primary mt-3">View</a>';
+                        echo '<div class="like-dislike">';
+                        echo '<img src="SVG/hand-thumbs-down-fill.svg" alt="Dislikes" width="16" height="16" class="text-danger me-1">';
+                        echo '<span class="dislike-count">' . $event['dislikes'] . '</span>';
                         echo '</div>';
                         echo '</div>';
-                        echo '</div>';
+                        // View button
+                        echo '<a href="EMS/event_details.php?event_id=' . $event['id'] . '" class="btn btn-primary btn-sm">View Details</a>';
+                        echo '</div>'; // .card-body
+                        echo '</div>'; // .card
+                        echo '</div>'; // .carousel-item
                         $first = false;
                     }
                 } else {
@@ -172,6 +298,7 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
             <?php endif; ?>
         </div>
 
+
         <!-- Pending Events -->
         <h2>Pending Events</h2>
         <div class="row">
@@ -190,30 +317,67 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
             // Fetch pending events with pagination
             $pendingCurrentPage = isset($_GET['pending_page']) ? max(1, intval($_GET['pending_page'])) : 1;
             $pendingOffset = ($pendingCurrentPage - 1) * $pendingItemsPerPage;
-            $queryPendingEvents = "SELECT * FROM events WHERE status = 'pending' ORDER BY date_requested ASC LIMIT $pendingOffset, $pendingItemsPerPage";
+            $queryPendingEvents = "SELECT e.*, u.username, u.profile_picture 
+                                FROM events e
+                                JOIN users u ON e.user_id = u.id
+                                WHERE e.status = 'pending' 
+                                ORDER BY e.date_requested ASC 
+                                LIMIT $pendingOffset, $pendingItemsPerPage";
             $stmtPendingEvents = $pdo->query($queryPendingEvents);
 
             if ($stmtPendingEvents->rowCount() > 0) {
                 while ($event = $stmtPendingEvents->fetch(PDO::FETCH_ASSOC)) {
                     echo '<div class="col-md-6 mb-4">';
-                    echo '<div class="card">';
+                    echo '<div class="card shadow-sm event-card">';
                     echo '<div class="card-body">';
-                    echo '<h5 class="card-title">' . $event['title'] . '</h5>';
-                    echo '<p class="card-text">' . $event['description'] . '</p>';
-                    echo '<p class="card-text">Date: ' . $event['date_requested'] . '</p>';
-                    echo '<div class="d-flex align-items-center">';
+                    // User profile picture and name
+                    echo '<div class="d-flex align-items-center mb-3">';
+                    // Adjust profile picture path if it starts with '../'
+                    $profilePicture = $event['profile_picture'];
+                    if (strpos($profilePicture, '../') === 0) {
+                        $profilePicture = substr($profilePicture, 3); // Remove '../'
+                    }
+                    echo '<img src="' . $profilePicture . '" class="rounded-circle me-3 profile-picture" width="50" height="50" alt="Profile Picture">';
+                    echo '<div>';
+                    echo '<h5 class="card-title mb-0">' . htmlspecialchars($event['title']) . '</h5>';
+                    echo '<p class="card-text text-muted mb-1">Organized by: ' . htmlspecialchars($event['username']) . '</p>';
+                    echo '<p class="card-text text-muted mb-0">Date: ' . date('M d, Y', strtotime($event['date_requested'])) . '</p>';
+                    echo '</div>';
+                    echo '</div>';
+                    // Event details
+                    echo '<p class="card-text event-description">' . nl2br(htmlspecialchars($event['description'])) . '</p>';
+                    // Additional event information
+                    echo '<div class="row mb-3">';
+                    echo '<div class="col-md-6">';
+                    echo '<p class="card-text"><strong>Duration:</strong> ' . htmlspecialchars($event['duration']) . ' hours</p>';
+                    echo '<p class="card-text"><strong>Location:</strong> ' . htmlspecialchars($event['facility']) . '</p>';
+                    echo '</div>';
+                    echo '<div class="col-md-6">';
+                    echo '<p class="card-text"><strong>Status:</strong> ' . ucfirst($event['status']) . '</p>';
+                    echo '<p class="card-text"><strong>Remarks:</strong> ' . ($event['remarks'] ? htmlspecialchars($event['remarks']) : 'None') . '</p>';
+                    echo '</div>';
+                    echo '</div>';
+                    // Likes and dislikes icons and numbers
+                    echo '<div class="d-flex align-items-center mb-3">';
+                    echo '<div class="like-dislike me-4">';
                     echo '<img src="SVG/hand-thumbs-up-fill.svg" alt="Likes" width="16" height="16" class="text-success me-1">';
-                    echo '<span>' . $event['likes'] . '</span>';
-                    echo '<img src="SVG/hand-thumbs-down-fill.svg" alt="Dislikes" width="16" height="16" class="text-danger ms-3 me-1">';
-                    echo '<span>' . $event['dislikes'] . '</span>';
+                    echo '<span class="like-count">' . $event['likes'] . '</span>';
                     echo '</div>';
-                    echo '<a href="EMS/event_details.php?event_id=' . $event['id'] . '" class="btn btn-primary mt-3">View</a>';
+                    echo '<div class="like-dislike">';
+                    echo '<img src="SVG/hand-thumbs-down-fill.svg" alt="Dislikes" width="16" height="16" class="text-danger me-1">';
+                    echo '<span class="dislike-count">' . $event['dislikes'] . '</span>';
                     echo '</div>';
                     echo '</div>';
-                    echo '</div>';
+                    // View button
+                    echo '<a href="EMS/event_details.php?event_id=' . $event['id'] . '" class="btn btn-primary btn-sm">View Details</a>';
+                    echo '</div>'; // .card-body
+                    echo '</div>'; // .card
+                    echo '</div>'; // .col-md-6
                 }
             } else {
+                echo '<div class="col-md-12">';
                 echo '<p>No pending events found.</p>';
+                echo '</div>';
             }
 
             // Display pagination controls for pending section
@@ -243,6 +407,7 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
             ?>
         </div>
 
+
         <!-- Archive Section -->
         <h2>Archive</h2>
         <div class="row">
@@ -261,30 +426,67 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
             // Fetch archive events with pagination
             $archiveCurrentPage = isset($_GET['archive_page']) ? max(1, intval($_GET['archive_page'])) : 1;
             $archiveOffset = ($archiveCurrentPage - 1) * $archiveItemsPerPage;
-            $queryArchiveEvents = "SELECT * FROM events WHERE status IN ('completed', 'denied') ORDER BY date_requested ASC LIMIT $archiveOffset, $archiveItemsPerPage";
+            $queryArchiveEvents = "SELECT e.*, u.username, u.profile_picture 
+                                FROM events e
+                                JOIN users u ON e.user_id = u.id
+                                WHERE e.status IN ('completed', 'denied') 
+                                ORDER BY e.date_requested ASC 
+                                LIMIT $archiveOffset, $archiveItemsPerPage";
             $stmtArchiveEvents = $pdo->query($queryArchiveEvents);
 
             if ($stmtArchiveEvents->rowCount() > 0) {
                 while ($event = $stmtArchiveEvents->fetch(PDO::FETCH_ASSOC)) {
                     echo '<div class="col-md-6 mb-4">';
-                    echo '<div class="card">';
+                    echo '<div class="card shadow-sm event-card">';
                     echo '<div class="card-body">';
-                    echo '<h5 class="card-title">' . $event['title'] . '</h5>';
-                    echo '<p class="card-text">' . $event['description'] . '</p>';
-                    echo '<p class="card-text">Date: ' . $event['date_requested'] . '</p>';
-                    echo '<div class="d-flex align-items-center">';
+                    // User profile picture and name
+                    echo '<div class="d-flex align-items-center mb-3">';
+                    // Adjust profile picture path if it starts with '../'
+                    $profilePicture = $event['profile_picture'];
+                    if (strpos($profilePicture, '../') === 0) {
+                        $profilePicture = substr($profilePicture, 3); // Remove '../'
+                    }
+                    echo '<img src="' . $profilePicture . '" class="rounded-circle me-3 profile-picture" width="50" height="50" alt="Profile Picture">';
+                    echo '<div>';
+                    echo '<h5 class="card-title mb-0">' . htmlspecialchars($event['title']) . '</h5>';
+                    echo '<p class="card-text text-muted mb-1">Organized by: ' . htmlspecialchars($event['username']) . '</p>';
+                    echo '<p class="card-text text-muted mb-0">Date: ' . date('M d, Y', strtotime($event['date_requested'])) . '</p>';
+                    echo '</div>';
+                    echo '</div>';
+                    // Event details
+                    echo '<p class="card-text event-description">' . nl2br(htmlspecialchars($event['description'])) . '</p>';
+                    // Additional event information
+                    echo '<div class="row mb-3">';
+                    echo '<div class="col-md-6">';
+                    echo '<p class="card-text"><strong>Duration:</strong> ' . $event['duration'] . ' hours</p>';
+                    echo '<p class="card-text"><strong>Location:</strong> ' . htmlspecialchars($event['facility']) . '</p>';
+                    echo '</div>';
+                    echo '<div class="col-md-6">';
+                    echo '<p class="card-text"><strong>Status:</strong> ' . ucfirst($event['status']) . '</p>';
+                    echo '<p class="card-text"><strong>Remarks:</strong> ' . ($event['remarks'] ? htmlspecialchars($event['remarks']) : 'None') . '</p>';
+                    echo '</div>';
+                    echo '</div>';
+                    // Likes and dislikes icons and numbers
+                    echo '<div class="d-flex align-items-center mb-3">';
+                    echo '<div class="like-dislike me-4">';
                     echo '<img src="SVG/hand-thumbs-up-fill.svg" alt="Likes" width="16" height="16" class="text-success me-1">';
-                    echo '<span>' . $event['likes'] . '</span>';
-                    echo '<img src="SVG/hand-thumbs-down-fill.svg" alt="Dislikes" width="16" height="16" class="text-danger ms-3 me-1">';
-                    echo '<span>' . $event['dislikes'] . '</span>';
+                    echo '<span class="like-count">' . $event['likes'] . '</span>';
                     echo '</div>';
-                    echo '<a href="EMS/event_details.php?event_id=' . $event['id'] . '" class="btn btn-primary mt-3">View</a>';
+                    echo '<div class="like-dislike">';
+                    echo '<img src="SVG/hand-thumbs-down-fill.svg" alt="Dislikes" width="16" height="16" class="text-danger me-1">';
+                    echo '<span class="dislike-count">' . $event['dislikes'] . '</span>';
                     echo '</div>';
                     echo '</div>';
-                    echo '</div>';
+                    // View button
+                    echo '<a href="EMS/event_details.php?event_id=' . $event['id'] . '" class="btn btn-primary btn-sm">View Details</a>';
+                    echo '</div>'; // .card-body
+                    echo '</div>'; // .card
+                    echo '</div>'; // .col-md-6
                 }
             } else {
+                echo '<div class="col-md-12">';
                 echo '<p>No archived events found.</p>';
+                echo '</div>';
             }
 
             // Display pagination controls for archive section
