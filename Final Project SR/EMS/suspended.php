@@ -119,15 +119,15 @@ require_once '../PARTS/config.php';
   </style>
 </head>
 <body>
-<
+
 <div class="container">
   <div class="alert text-center bounce">
     <img src="../SVG/exclamation-triangle-fill.svg" alt="Account Suspended" class="illustration">
     <h1>Uh-oh! Your Account Has Been Suspended</h1>
     <p>We're sorry, but your account has been temporarily suspended for violating our terms of service.</p>
     <p>Please contact support for further assistance or logout and try again later.</p>
-    <a href="#" class="btn btn-primary btn-lg mb-2">Contact Support</a>
     <form method="post">
+        <button href="#" class="btn btn-primary btn-lg">Contact Support</button>
         <button type="submit" name="logout_EMS" class="btn btn-outline-light btn-lg">Logout</button>
     </form>
   </div>

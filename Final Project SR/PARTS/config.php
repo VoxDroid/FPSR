@@ -42,10 +42,12 @@ if (isset($_POST['logout_EMS'])) {
 
 // WILL PREVENT GOING TO OTHER PAGES IF NOT LOGGED IN
 // Redirect to index.php if user is not logged in
+/* 
 if (!$loggedIn && !strpos($_SERVER['REQUEST_URI'], 'index.php')) {
     header("Location: ../index.php");
     exit();
 } 
+*/
 
 if ($loggedIn) {
     $userId = $_SESSION['user_id'];
