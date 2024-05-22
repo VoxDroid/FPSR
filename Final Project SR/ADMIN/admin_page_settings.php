@@ -56,56 +56,73 @@ $stmtUsers->execute();
 <main class="py-5">
 <div class="container mt-5">
     <?php
+
+    // Check for success message
+    if (isset($_SESSION['success_message'])) {
+        echo "<div class='alert alert-success'>{$_SESSION['success_message']}</div>";
+        unset($_SESSION['success_message']); // Clear message after displaying
+    }
+
+    // Check for error message
+    if (isset($_SESSION['error_message'])) {
+        echo "<div class='alert alert-danger'>{$_SESSION['error_message']}</div>";
+        unset($_SESSION['error_message']); // Clear message after displaying
+    }
+
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_account'])) {
         $userId = $_POST['user_id'];
-    
-        try {
-            // Begin a transaction
-            $pdo->beginTransaction();
-    
-            // Delete associated comments made by the user
-            $deleteCommentsQuery = "DELETE FROM comments WHERE user_id = :id";
-            $stmtComments = $pdo->prepare($deleteCommentsQuery);
-            $stmtComments->bindParam(':id', $userId);
-            $stmtComments->execute();
-    
-            // Delete associated records from comment_votes table
-            $deleteCommentVotesQuery = "DELETE FROM comment_votes WHERE user_id = :id";
-            $stmtCommentVotes = $pdo->prepare($deleteCommentVotesQuery);
-            $stmtCommentVotes->bindParam(':id', $userId);
-            $stmtCommentVotes->execute();
-    
-            // Delete associated records from event_votes table
-            $deleteEventVotesQuery = "DELETE FROM event_votes WHERE user_id = :id";
-            $stmtEventVotes = $pdo->prepare($deleteEventVotesQuery);
-            $stmtEventVotes->bindParam(':id', $userId);
-            $stmtEventVotes->execute();
-    
-            // Delete associated records from events table
-            $deleteEventsQuery = "DELETE FROM events WHERE user_id = :id";
-            $stmtEvents = $pdo->prepare($deleteEventsQuery);
-            $stmtEvents->bindParam(':id', $userId);
-            $stmtEvents->execute();
-    
-            // Finally, delete the user record
-            $deleteUserQuery = "DELETE FROM users WHERE id = :id";
-            $stmtUser = $pdo->prepare($deleteUserQuery);
-            $stmtUser->bindParam(':id', $userId);
-            $stmtUser->execute();
-    
-            // Commit the transaction
-            $pdo->commit();
-    
-            // Deletion successful, redirect to admin page
-            header("Location: admin_page_settings.php");
-            exit();
-        } catch(PDOException $e) {
-            // Rollback the transaction on error
-            $pdo->rollBack();
-            die("Error: " . $e->getMessage());
+        
+        if ($userId != 1) {
+            try {
+                // Begin a transaction
+                $pdo->beginTransaction();
+        
+                // Delete associated comments made by the user
+                $deleteCommentsQuery = "DELETE FROM comments WHERE user_id = :id";
+                $stmtComments = $pdo->prepare($deleteCommentsQuery);
+                $stmtComments->bindParam(':id', $userId);
+                $stmtComments->execute();
+        
+                // Delete associated records from comment_votes table
+                $deleteCommentVotesQuery = "DELETE FROM comment_votes WHERE user_id = :id";
+                $stmtCommentVotes = $pdo->prepare($deleteCommentVotesQuery);
+                $stmtCommentVotes->bindParam(':id', $userId);
+                $stmtCommentVotes->execute();
+        
+                // Delete associated records from event_votes table
+                $deleteEventVotesQuery = "DELETE FROM event_votes WHERE user_id = :id";
+                $stmtEventVotes = $pdo->prepare($deleteEventVotesQuery);
+                $stmtEventVotes->bindParam(':id', $userId);
+                $stmtEventVotes->execute();
+        
+                // Delete associated records from events table
+                $deleteEventsQuery = "DELETE FROM events WHERE user_id = :id";
+                $stmtEvents = $pdo->prepare($deleteEventsQuery);
+                $stmtEvents->bindParam(':id', $userId);
+                $stmtEvents->execute();
+        
+                // Finally, delete the user record
+                $deleteUserQuery = "DELETE FROM users WHERE id = :id";
+                $stmtUser = $pdo->prepare($deleteUserQuery);
+                $stmtUser->bindParam(':id', $userId);
+                $stmtUser->execute();
+                // Commit the transaction
+                $pdo->commit();
+                $_SESSION['success_message'] = "User deleted successfully.";
+                // Deletion successful, redirect to admin page
+                header("Location: admin_page_settings.php");
+                exit();
+            } catch(PDOException $e) {
+                $pdo->rollBack();
+                $_SESSION['error_message'] = "Error: " . $e->getMessage();
+                header("Location: admin_page_settings.php");
+                exit();
+            }
+        } else {
+            echo "<div class='alert alert-danger'>Cannot delete the default admin account.</div>";
         }
     }
-    
     
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_account'])) {
@@ -305,38 +322,38 @@ $stmtUsers->execute();
                             <form method="post" enctype="multipart/form-data">
                                 <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
                                 <div class="mb-3">
-    <label for="profile_picture" class="form-label">Profile Picture</label>
-    <div class="input-group">
-        <?php 
-            if (!empty($user['profile_picture'])) {
-                $profilePictureFileName = basename($user['profile_picture']);
-                echo '<input type="text" class="form-control mb-2" value="'.$profilePictureFileName.'" readonly>';
-            }
-        ?>
-    </div>
-    <div class="input-group">
-    <select class="form-control" id="profile_action" name="profile_action" required>
-    <option value="Upload" <?php if (!isset($_POST['profile_action']) || (isset($_POST['profile_action']) && $_POST['profile_action'] == 'Upload')) echo 'selected'; ?>>Upload</option>
-    <option value="Default" <?php if (isset($_POST['profile_action']) && $_POST['profile_action'] == 'Default') echo 'selected'; ?>>Default</option>
-</select>
-<?php
-    // Initially show the upload button and hide the default button
-    $uploadButtonStyle = '';
-    $defaultButtonStyle = 'display: none;';
+                                    <label for="profile_picture" class="form-label">Profile Picture</label>
+                                    <div class="input-group">
+                                        <?php 
+                                            if (!empty($user['profile_picture'])) {
+                                                $profilePictureFileName = basename($user['profile_picture']);
+                                                echo '<input type="text" class="form-control mb-2" value="'.$profilePictureFileName.'" readonly>';
+                                            }
+                                        ?>
+                                    </div>
+                                    <div class="input-group">
+                                    <select class="form-control" id="profile_action" name="profile_action" required>
+                                    <option value="Upload" <?php if (!isset($_POST['profile_action']) || (isset($_POST['profile_action']) && $_POST['profile_action'] == 'Upload')) echo 'selected'; ?>>Upload</option>
+                                    <option value="Default" <?php if (isset($_POST['profile_action']) && $_POST['profile_action'] == 'Default') echo 'selected'; ?>>Default</option>
+                                </select>
+                                <?php
+                                    // Initially show the upload button and hide the default button
+                                    $uploadButtonStyle = '';
+                                    $defaultButtonStyle = 'display: none;';
 
-    if (isset($_POST['profile_action']) && $_POST['profile_action'] == 'Default') {
-        $uploadButtonStyle = 'display: none;';
-        $defaultButtonStyle = '';
-    }
+                                    if (isset($_POST['profile_action']) && $_POST['profile_action'] == 'Default') {
+                                        $uploadButtonStyle = 'display: none;';
+                                        $defaultButtonStyle = '';
+                                    }
 
-    echo '<input type="file" class="form-control btn btn-primary" id="profile_picture_upload" name="profile_picture_upload" accept=".jpg, .jpeg, .png" style="' . $uploadButtonStyle . '">';
-    // Output the default button with inline style based on selection
-    $defaultProfilePicture = ($user['gender'] == 'male') ? '../ASSETS/IMG/DPFP/male.png' : '../ASSETS/IMG/DPFP/female.png';
-    echo '<input type="text" class="form-control" id="profile_picture_default" name="profile_picture_default" value="'.$defaultProfilePicture.'" readonly style="' . $defaultButtonStyle . '">';
-?>
+                                    echo '<input type="file" class="form-control btn btn-primary" id="profile_picture_upload" name="profile_picture_upload" accept=".jpg, .jpeg, .png" style="' . $uploadButtonStyle . '">';
+                                    // Output the default button with inline style based on selection
+                                    $defaultProfilePicture = ($user['gender'] == 'male') ? '../ASSETS/IMG/DPFP/male.png' : '../ASSETS/IMG/DPFP/female.png';
+                                    echo '<input type="text" class="form-control" id="profile_picture_default" name="profile_picture_default" value="'.$defaultProfilePicture.'" readonly style="' . $defaultButtonStyle . '">';
+                                ?>
 
-    </div>
-</div>
+                                    </div>
+                                </div>
 
 <script>
     document.getElementById('profile_action').addEventListener('change', function() {
@@ -353,32 +370,52 @@ $stmtUsers->execute();
     });
 </script>
 
-                                <div class="mb-3">
-                                    <label for="username" class="form-label">Username</label>
-                                    <input type="text" class="form-control" id="username" name="username" value="<?php echo htmlspecialchars($user['username']); ?>" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="email" class="form-label">Email</label>
-                                    <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>">                                    
-                                </div>
-                                <div class="mb-3">
-                                    <label for="role" class="form-label">Role</label>
-                                    <select class="form-control" id="role" name="role" required>
-                                        <option value="user" <?php echo $user['role'] == 'user' ? 'selected' : ''; ?>>User</option>
-                                        <option value="admin" <?php echo $user['role'] == 'admin' ? 'selected' : ''; ?>>Admin</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="is_active" class="form-label">Status</label>
-                                    <select class="form-control" id="is_active" name="is_active" required>
-                                        <option value="1" <?php echo $user['is_active'] ? 'selected' : ''; ?>>Active</option>
-                                        <option value="0" <?php echo !$user['is_active'] ? 'selected' : ''; ?>>Suspended</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <button type="submit" class="btn btn-primary" name="update_account">Save Changes</button>
-                                    <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal<?php echo $user['id']; ?>">Delete Account</button>
-                                </div>
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" value="<?php echo htmlspecialchars($user['username']); ?>" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>">                                    
+                        </div>
+                        <?php if ($user['id'] != 1): ?>
+                        <div class="mb-3">
+                            <label for="role" class="form-label">Role</label>
+                            <select class="form-control" id="role" name="role" required>
+                                <option value="user" <?php echo $user['role'] == 'user' ? 'selected' : ''; ?>>User</option>
+                                <option value="admin" <?php echo $user['role'] == 'admin' ? 'selected' : ''; ?>>Admin</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="is_active" class="form-label">Status</label>
+                            <select class="form-control" id="is_active" name="is_active" required>
+                                <option value="1" <?php echo $user['is_active'] ? 'selected' : ''; ?>>Active</option>
+                                <option value="0" <?php echo !$user['is_active'] ? 'selected' : ''; ?>>Suspended</option>
+                            </select>
+                        </div>
+                        <?php else: ?>
+                        <!-- Disable the role and status fields for the admin user -->
+                        <div class="mb-3">
+                            <label for="role" class="form-label">Role</label>
+                            <select class="form-control" id="role" name="role" disabled>
+                                <option value="user" <?php echo $user['role'] == 'user' ? 'selected' : ''; ?>>User</option>
+                                <option value="admin" <?php echo $user['role'] == 'admin' ? 'selected' : ''; ?>>Admin</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="is_active" class="form-label">Status</label>
+                            <select class="form-control" id="is_active" name="is_active" disabled>
+                                <option value="1" <?php echo $user['is_active'] ? 'selected' : ''; ?>>Active</option>
+                                <option value="0" <?php echo !$user['is_active'] ? 'selected' : ''; ?>>Suspended</option>
+                            </select>
+                        </div>
+                        <?php endif; ?>
+                        <div class="mb-3">
+                            <button type="submit" class="btn btn-primary" name="update_account">Save Changes</button>
+                            <?php if ($user['id'] != 1): ?>
+                                <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal<?php echo $user['id']; ?>">Delete Account</button>
+                            <?php endif; ?>
+                        </div>
                             </form>
                         </div>
                         <div class="modal-footer">

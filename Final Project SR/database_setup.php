@@ -110,34 +110,39 @@ try {
 
     echo "Tables created successfully.<br>";
 
-    // Check if admin exists, if not create default admin
-    $queryAdmin = "SELECT * FROM users WHERE role = 'admin' LIMIT 1";
+    // Check if admin with user ID 1 exists, if not create default admin
+    $queryAdmin = "SELECT * FROM users WHERE id = 1";
     $stmtAdmin = $pdo->query($queryAdmin);
     $adminExists = $stmtAdmin->fetch();
 
     if (!$adminExists) {
-        // Create a default admin account if none exists
+        // Create a default admin account with user ID 1 if it doesn't exist
         $hashedAdminPassword = password_hash("admin_password", PASSWORD_DEFAULT); // Change "admin_password" to desired default admin password
-        $createAdminQuery = "INSERT INTO users (username, password, role, can_request_event, can_review_request, can_delete_user) VALUES ('admin', '$hashedAdminPassword', 'admin', TRUE, TRUE, TRUE)";
-        $pdo->exec($createAdminQuery);
+        $createAdminQuery = "INSERT INTO users (id, username, password, role, can_request_event, can_review_request, can_delete_user) VALUES (1, 'admin', :hashedAdminPassword, 'admin', TRUE, TRUE, TRUE)";
+        $stmtCreateAdmin = $pdo->prepare($createAdminQuery);
+        $stmtCreateAdmin->bindParam(':hashedAdminPassword', $hashedAdminPassword);
+        $stmtCreateAdmin->execute();
         echo "Default admin account created successfully.<br>";
     }
 
-    // Check if default user exists, if not create default user
-    $queryDefaultUser = "SELECT * FROM users WHERE username = 'user' LIMIT 1";
+    // Check if user with user ID 2 exists, if not create default user
+    $queryDefaultUser = "SELECT * FROM users WHERE id = 2";
     $stmtDefaultUser = $pdo->query($queryDefaultUser);
     $userExists = $stmtDefaultUser->fetch();
 
     if (!$userExists) {
-        // Create a default user account if none exists
+        // Create a default user account with user ID 2 if it doesn't exist
         $hashedUserPassword = password_hash("user_password", PASSWORD_DEFAULT); // Change "user_password" to desired default user password
-        $createUserQuery = "INSERT INTO users (username, password, role) VALUES ('user', '$hashedUserPassword', 'user')";
-        $pdo->exec($createUserQuery);
+        $createUserQuery = "INSERT INTO users (id, username, password, role) VALUES (2, 'user', :hashedUserPassword, 'user')";
+        $stmtCreateUser = $pdo->prepare($createUserQuery);
+        $stmtCreateUser->bindParam(':hashedUserPassword', $hashedUserPassword);
+        $stmtCreateUser->execute();
         echo "Default user account created successfully.<br>";
     }
 
     // If everything is done, redirect to index.php
     echo '<a href="index.php"><button>Go to Index</button></a>';
+
 
 } catch(PDOException $e) {
     die("Error: " . $e->getMessage());
