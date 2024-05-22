@@ -129,8 +129,23 @@ $stmtUsers->execute();
         $userId = $_POST['user_id'];
         $username = $_POST['username'];
         $email = $_POST['email'];
-        $role = $_POST['role'];
-        $isActive = $_POST['is_active'];
+
+        // Check if user is not admin (user id 1)
+        if ($userId != 1) {
+            $role = $_POST['role'];
+            $isActive = $_POST['is_active'];
+        } else {
+            // If user is admin, retrieve current role and is_active values
+            $currentUserInfoQuery = "SELECT role, is_active FROM users WHERE id = :id";
+            $stmtCurrentUser = $pdo->prepare($currentUserInfoQuery);
+            $stmtCurrentUser->bindParam(':id', $userId);
+            $stmtCurrentUser->execute();
+            $userInfo = $stmtCurrentUser->fetch(PDO::FETCH_ASSOC);
+
+            // Assign current role and is_active values
+            $role = $userInfo['role'];
+            $isActive = $userInfo['is_active'];
+        }
     
         // Check if the user selected to upload a new profile picture
         $profileAction = $_POST['profile_action'];
@@ -227,7 +242,7 @@ $stmtUsers->execute();
         $stmt->bindParam(':role', $role);
         $stmt->bindParam(':is_active', $isActive);
         $stmt->bindParam(':id', $userId);
-        
+
         if ($stmt->execute()) {
             header("Location: admin_page_settings.php");
             exit();
