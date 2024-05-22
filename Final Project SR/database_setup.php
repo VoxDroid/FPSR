@@ -118,9 +118,14 @@ try {
     if (!$adminExists) {
         // Create a default admin account with user ID 1 if it doesn't exist
         $hashedAdminPassword = password_hash("admin_password", PASSWORD_DEFAULT); // Change "admin_password" to desired default admin password
-        $createAdminQuery = "INSERT INTO users (id, username, password, role, can_request_event, can_review_request, can_delete_user) VALUES (1, 'admin', :hashedAdminPassword, 'admin', TRUE, TRUE, TRUE)";
+        $defaultAdminGender = 'male'; // Change as needed
+        $defaultAdminProfilePic = $defaultAdminGender == 'male' ? '../ASSETS/IMG/DPFP/male.png' : '../ASSETS/IMG/DPFP/female.png';
+        
+        $createAdminQuery = "INSERT INTO users (id, username, password, role, can_request_event, can_review_request, can_delete_user, gender, profile_picture) VALUES (1, 'admin', :hashedAdminPassword, 'admin', TRUE, TRUE, TRUE, :defaultAdminGender, :defaultAdminProfilePic)";
         $stmtCreateAdmin = $pdo->prepare($createAdminQuery);
         $stmtCreateAdmin->bindParam(':hashedAdminPassword', $hashedAdminPassword);
+        $stmtCreateAdmin->bindParam(':defaultAdminGender', $defaultAdminGender);
+        $stmtCreateAdmin->bindParam(':defaultAdminProfilePic', $defaultAdminProfilePic);
         $stmtCreateAdmin->execute();
         echo "Default admin account created successfully.<br>";
     }
@@ -133,9 +138,14 @@ try {
     if (!$userExists) {
         // Create a default user account with user ID 2 if it doesn't exist
         $hashedUserPassword = password_hash("user_password", PASSWORD_DEFAULT); // Change "user_password" to desired default user password
-        $createUserQuery = "INSERT INTO users (id, username, password, role) VALUES (2, 'user', :hashedUserPassword, 'user')";
+        $defaultUserGender = 'female'; // Change as needed
+        $defaultUserProfilePic = $defaultUserGender == 'male' ? '../ASSETS/IMG/DPFP/male.png' : '../ASSETS/IMG/DPFP/female.png';
+        
+        $createUserQuery = "INSERT INTO users (id, username, password, role, gender, profile_picture) VALUES (2, 'user', :hashedUserPassword, 'user', :defaultUserGender, :defaultUserProfilePic)";
         $stmtCreateUser = $pdo->prepare($createUserQuery);
         $stmtCreateUser->bindParam(':hashedUserPassword', $hashedUserPassword);
+        $stmtCreateUser->bindParam(':defaultUserGender', $defaultUserGender);
+        $stmtCreateUser->bindParam(':defaultUserProfilePic', $defaultUserProfilePic);
         $stmtCreateUser->execute();
         echo "Default user account created successfully.<br>";
     }
