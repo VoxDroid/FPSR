@@ -105,8 +105,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
 }
 ?>
     <!-- Pending Events Section -->
-    <div class="table-container pending-section">
-        <div class="table-title">Pending Events</div>
+    <div class="table-container pending-section" >
+        <div class="table-title" >Pending Events</div>
         <div class="table-wrapper">
             <?php
                 // Pagination
@@ -167,11 +167,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
                     <!-- Loop through pending events -->
                     <?php foreach ($pendingEvents as $event): ?>
                         <tr>
-                            <td><?= $event['title'] ?></td>
-                            <td><?= $event['description'] ?></td>
-                            <td><?= $event['facility'] ?></td>
-                            <td><?= $event['duration'] ?></td>
-                            <td><?= $event['date_requested'] ?></td>
+                            <td><?= htmlspecialchars($event['title'] )?></td>
+                            <td><?= htmlspecialchars($event['description'])?></td>
+                            <td><?= htmlspecialchars($event['facility'])?></td>
+                            <td><?= htmlspecialchars($event['duration'])?></td>
+                            <td><?= htmlspecialchars($event['date_requested']) ?></td>
                             <td>
                                 <a class="btn btn-primary btn-sm mr-1 view-button" href="../EMS/event_details.php?event_id=<?= $event['id'] ?>">View</a>
                                 <button class="btn btn-success btn-sm mr-1 approve-button" data-bs-toggle="modal" data-bs-target="#eventDetailsModal<?= $event['id'] ?>">Check</button>
@@ -220,18 +220,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
                 </div>
                 <div class="modal-body">
                     <!-- Display user details -->
-                    <p><strong>User:</strong> <?= $user['username'] ?></p>
+                    <p><strong>User:</strong> <?= htmlspecialchars($user['username'], ENT_QUOTES, 'UTF-8') ?></p>
                     <!-- Display event details -->
-                    <p><strong>Title:</strong> <?= $event['title'] ?></p>
-                    <p><strong>Description:</strong> <?= $event['description'] ?></p>
-                    <p><strong>Facility:</strong> <?= $event['facility'] ?></p>
-                    <p><strong>Duration:</strong> <?= $event['duration'] ?></p>
-                    <p><strong>Date Requested:</strong> <?= $event['date_requested'] ?></p>
-                    <p><strong>Event Start:</strong> <?= $event['event_start'] ?></p>
-                    <p><strong>Event End:</strong> <?= $event['event_end'] ?></p>
-                    <p><strong>Status:</strong> <?= $event['status'] ?></p>
-                    <p><strong>Likes:</strong> <?= $event['likes'] ?></p>
-                    <p><strong>Dislikes:</strong> <?= $event['dislikes'] ?></p>
+                    <p><strong>Title:</strong> <?= htmlspecialchars($event['title'], ENT_QUOTES, 'UTF-8') ?></p>
+                    <p><strong>Description:</strong> <?= htmlspecialchars($event['description'], ENT_QUOTES, 'UTF-8') ?></p>
+                    <p><strong>Facility:</strong> <?= htmlspecialchars($event['facility'], ENT_QUOTES, 'UTF-8') ?></p>
+                    <p><strong>Duration:</strong> <?= htmlspecialchars($event['duration'], ENT_QUOTES, 'UTF-8') ?></p>
+                    <p><strong>Date Requested:</strong> <?= htmlspecialchars($event['date_requested'], ENT_QUOTES, 'UTF-8') ?></p>
+                    <p><strong>Event Start:</strong> <?= htmlspecialchars($event['event_start'], ENT_QUOTES, 'UTF-8') ?></p>
+                    <p><strong>Event End:</strong> <?= htmlspecialchars($event['event_end'], ENT_QUOTES, 'UTF-8') ?></p>
+                    <p><strong>Status:</strong> <?= htmlspecialchars($event['status'], ENT_QUOTES, 'UTF-8') ?></p>
+                    <p><strong>Likes:</strong> <?= htmlspecialchars($event['likes'], ENT_QUOTES, 'UTF-8') ?></p>
+                    <p><strong>Dislikes:</strong> <?= htmlspecialchars($event['dislikes'], ENT_QUOTES, 'UTF-8') ?></p>
                     <!-- Form for admin's comment and approval/denial -->
                     <form method="post">
                         <div class="mb-3">
@@ -361,11 +361,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
                         <!-- Loop through ongoing events -->
                         <?php foreach ($ongoingEvents as $event): ?>
                             <tr>
-                                <td><?= $event['title'] ?></td>
-                                <td><?= $event['description'] ?></td>
-                                <td><?= $event['facility'] ?></td>
-                                <td><?= $event['duration'] ?></td>
-                                <td><?= $event['date_requested'] ?></td>
+                                <td><?= htmlspecialchars($event['title'] )?></td>
+                                <td><?= htmlspecialchars($event['description'])?></td>
+                                <td><?= htmlspecialchars($event['facility'])?></td>
+                                <td><?= htmlspecialchars($event['duration'])?></td>
+                                <td><?= htmlspecialchars($event['date_requested']) ?></td>
                                 <td>
                                     <a class="btn btn-primary btn-sm mr-1 view-button" href="../EMS/event_details.php?event_id=<?= $event['id'] ?>">View</a>
                                     <button class="btn btn-danger btn-sm delete-button">Delete</button>
@@ -476,11 +476,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
                 <!-- Loop through approved events -->
                 <?php foreach ($approvedEvents as $event): ?>
                     <tr>
-                        <td><?= $event['title'] ?></td>
-                        <td><?= $event['description'] ?></td>
-                        <td><?= $event['facility'] ?></td>
-                        <td><?= $event['duration'] ?></td>
-                        <td><?= $event['date_requested'] ?></td>
+                            <td><?= htmlspecialchars($event['title'] )?></td>
+                            <td><?= htmlspecialchars($event['description'])?></td>
+                            <td><?= htmlspecialchars($event['facility'])?></td>
+                            <td><?= htmlspecialchars($event['duration'])?></td>
+                            <td><?= htmlspecialchars($event['date_requested']) ?></td>
                         <td>
                             <a class="btn btn-primary btn-sm mr-1 view-button" href="../EMS/event_details.php?event_id=<?= $event['id'] ?>">View</a>
                             <button class="btn btn-danger btn-sm delete-button">Delete</button>
@@ -591,11 +591,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
                 <!-- Loop through completed events -->
                 <?php foreach ($completedEvents as $event): ?>
                     <tr>
-                        <td><?= $event['title'] ?></td>
-                        <td><?= $event['description'] ?></td>
-                        <td><?= $event['facility'] ?></td>
-                        <td><?= $event['duration'] ?></td>
-                        <td><?= $event['date_requested'] ?></td>
+                            <td><?= htmlspecialchars($event['title'] )?></td>
+                            <td><?= htmlspecialchars($event['description'])?></td>
+                            <td><?= htmlspecialchars($event['facility'])?></td>
+                            <td><?= htmlspecialchars($event['duration'])?></td>
+                            <td><?= htmlspecialchars($event['date_requested']) ?></td>
                         <td>
                             <a class="btn btn-primary btn-sm mr-1 view-button" href="../EMS/event_details.php?event_id=<?= $event['id'] ?>">View</a>
                             <button class="btn btn-danger btn-sm delete-button">Delete</button>
@@ -706,11 +706,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
                 <!-- Loop through denied events -->
                 <?php foreach ($deniedEvents as $event): ?>
                     <tr>
-                        <td><?= $event['title'] ?></td>
-                        <td><?= $event['description'] ?></td>
-                        <td><?= $event['facility'] ?></td>
-                        <td><?= $event['duration'] ?></td>
-                        <td><?= $event['date_requested'] ?></td>
+                            <td><?= htmlspecialchars($event['title'] )?></td>
+                            <td><?= htmlspecialchars($event['description'])?></td>
+                            <td><?= htmlspecialchars($event['facility'])?></td>
+                            <td><?= htmlspecialchars($event['duration'])?></td>
+                            <td><?= htmlspecialchars($event['date_requested']) ?></td>
                         <td>
                             <a class="btn btn-primary btn-sm mr-1 view-button" href="../EMS/event_details.php?event_id=<?= $event['id'] ?>">View</a>
                             <button class="btn btn-danger btn-sm delete-button">Delete</button>

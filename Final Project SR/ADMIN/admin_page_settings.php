@@ -69,6 +69,14 @@ $stmtUsers->execute();
         unset($_SESSION['error_message']); // Clear message after displaying
     }
 
+    if (isset($_SESSION['error_messages'])) {
+        echo '<div class="alert alert-danger">';
+        foreach ($_SESSION['error_messages'] as $error) {
+            echo "<p>{$error}</p>";
+        }
+        echo '</div>';
+        unset($_SESSION['error_messages']); // Clear errors after displaying
+    }
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_account'])) {
         $userId = $_POST['user_id'];
@@ -120,160 +128,255 @@ $stmtUsers->execute();
                 exit();
             }
         } else {
-            echo "<div class='alert alert-danger'>Cannot delete the default admin account.</div>";
+            $_SESSION['error_message'] = "Cannot delete the default admin account.";
+            header('Location: admin_page_settings.php');
+            exit();
         }
     }
     
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_account'])) {
-        $userId = $_POST['user_id'];
-        $username = $_POST['username'];
-        $email = $_POST['email'];
+    // Initialize variables
+$errors = [];
+$successMessage = "";
 
-        // Check if user is not admin (user id 1)
-        if ($userId != 1) {
-            $role = $_POST['role'];
-            $isActive = $_POST['is_active'];
+
+try {
+    // Connect to MySQL database using PDO
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username22, $password);
+    // Set PDO error mode to exception
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Error: " . $e->getMessage());
+}
+
+// Process form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_account'])) {
+    $userId = $_POST['user_id'];
+    $username = $_POST['username'];
+    $email = $_POST['email'];
+
+    // Validate username
+    if (!empty(trim($username))) {
+        if (strlen(trim($username)) < 3) {
+            $_SESSION['error_message'] = "Username must have at least 3 characters.";
+            header('Location: admin_page_settings.php');
+            exit();
+        } elseif (!preg_match('/^[a-zA-Z0-9_]{3,}$/', trim($username))) {
+            $_SESSION['error_message'] = "Username can only contain letters, numbers, and underscores.";
+            header('Location: admin_page_settings.php');
+            exit();
         } else {
-            // If user is admin, retrieve current role and is_active values
-            $currentUserInfoQuery = "SELECT role, is_active FROM users WHERE id = :id";
-            $stmtCurrentUser = $pdo->prepare($currentUserInfoQuery);
-            $stmtCurrentUser->bindParam(':id', $userId);
-            $stmtCurrentUser->execute();
-            $userInfo = $stmtCurrentUser->fetch(PDO::FETCH_ASSOC);
+            // Check if the username is already taken
+            $stmt = $pdo->prepare("SELECT id FROM users WHERE username = :username AND id != :id");
+            $stmt->bindParam(':username', $username);
+            $stmt->bindParam(':id', $userId);
+            $stmt->execute();
+            if ($stmt->rowCount() > 0) {
+                $errors[] = "This username is already taken.";
+                $_SESSION['error_message'] = "This username is already taken.";
+                header('Location: admin_page_settings.php');
+                exit();
+            }
+        }
+    }
 
-            // Assign current role and is_active values
-            $role = $userInfo['role'];
-            $isActive = $userInfo['is_active'];
-        }
-    
-        // Check if the user selected to upload a new profile picture
-        $profileAction = $_POST['profile_action'];
-        if ($profileAction === 'Upload' && isset($_FILES['profile_picture_upload']) && $_FILES['profile_picture_upload']['error'] === UPLOAD_ERR_OK) {
-            // Handle profile picture upload
-            $uploadDir = '../UPLOADS/img/USERS/'; // Change this to your desired upload directory
-            
-            // Create directory if it doesn't exist
-            if (!file_exists($uploadDir)) {
-                mkdir($uploadDir, 0777, true);
-            }
-            
-            $uploadFile = $uploadDir . basename($_FILES['profile_picture_upload']['name']);
-    
-            // Check if the file is an image
-            $imageFileType = strtolower(pathinfo($uploadFile, PATHINFO_EXTENSION));
-            $allowedExtensions = ['jpg', 'jpeg', 'png'];
-            if (!in_array($imageFileType, $allowedExtensions)) {
-                echo "Only JPG, JPEG, and PNG files are allowed.";
-                exit();
-            }
-    
-            // Move the uploaded file to the upload directory
-            if (move_uploaded_file($_FILES['profile_picture_upload']['tmp_name'], $uploadFile)) {
-                // Resize and crop the image to 100x100 square
-                $image = imagecreatefromstring(file_get_contents($uploadFile));
-                $width = imagesx($image);
-                $height = imagesy($image);
-                $size = min($width, $height);
-                $croppedImage = imagecrop($image, ['x' => 0, 'y' => 0, 'width' => $size, 'height' => $size]);
-                $resizedImage = imagescale($croppedImage, 200, 200);
-                
-                // Overwrite the original uploaded file with the resized image
-                imagepng($resizedImage, $uploadFile);
-                imagedestroy($image);
-                imagedestroy($croppedImage);
-                imagedestroy($resizedImage);
-                
-                // Update profile picture path in the database
-                $profilePicture = $uploadFile;
-                $updateProfilePictureQuery = "UPDATE users SET profile_picture = :profile_picture WHERE id = :id";
-                $stmtProfilePicture = $pdo->prepare($updateProfilePictureQuery);
-                $stmtProfilePicture->bindParam(':profile_picture', $profilePicture);
-                $stmtProfilePicture->bindParam(':id', $userId);
-                $stmtProfilePicture->execute();
-            } else {
-                echo "Error uploading file.";
-                exit();
-            }
-        } elseif ($profileAction === 'Default') {
-            // Fetch the user's data from the database
-            $queryUser = "SELECT gender FROM users WHERE id = :id";
-            $stmtUser = $pdo->prepare($queryUser);
-            $stmtUser->bindParam(':id', $userId);
-            $stmtUser->execute();
-            $userData = $stmtUser->fetch(PDO::FETCH_ASSOC);
-        
-            // Check if user data is fetched successfully
-            if ($userData) {
-                // Get the user's gender
-                $gender = strtolower($userData['gender']);
-        
-                // Set the default profile picture based on gender
-                if ($gender === 'male') {
-                    $defaultProfilePicture = '../ASSETS/IMG/DPFP/male.png';
-                } elseif ($gender === 'female') {
-                    $defaultProfilePicture = '../ASSETS/IMG/DPFP/female.png';
-                } else {
-                    // Default to male profile picture if gender is not specified or invalid
-                    $defaultProfilePicture = '../ASSETS/IMG/DPFP/male.png';
-                }
-        
-                // Update profile picture path in the database
-                $updateProfilePictureQuery = "UPDATE users SET profile_picture = :profile_picture WHERE id = :id";
-                $stmtUpdateProfilePicture = $pdo->prepare($updateProfilePictureQuery);
-                $stmtUpdateProfilePicture->bindParam(':profile_picture', $defaultProfilePicture);
-                $stmtUpdateProfilePicture->bindParam(':id', $userId);
-                $stmtUpdateProfilePicture->execute();
-            } else {
-                // Handle the case where user data is not found
-                echo "Error: User data not found.";
+    // Validate email
+    if (!empty(trim($email))) {
+        if (!filter_var(trim($email), FILTER_VALIDATE_EMAIL)) {
+            $_SESSION['error_message'] = "Please enter a valid email address.";
+            header('Location: admin_page_settings.php');
+            exit();
+        } else {
+            // Check if the email is already registered
+            $stmt = $pdo->prepare("SELECT id FROM users WHERE email = :email AND id != :id");
+            $stmt->bindParam(':email', $email);
+            $stmt->bindParam(':id', $userId);
+            $stmt->execute();
+            if ($stmt->rowCount() > 0) {
+                $_SESSION['error_message'] = "This email address is already registered";
+                header('Location: admin_page_settings.php');
                 exit();
             }
         }
+    }
+
+    // Validate role and is_active for non-admin users
+    $role = isset($_POST['role']) ? $_POST['role'] : null;
+    $isActive = isset($_POST['is_active']) ? ($_POST['is_active'] ? 1 : 0) : null;
+
+    // Handle profile picture actions
+    $profileAction = $_POST['profile_action'] ?? '';
+    if ($profileAction === 'Upload' && isset($_FILES['profile_picture_upload']) && $_FILES['profile_picture_upload']['error'] === UPLOAD_ERR_OK) {
+        // Handle profile picture upload
+        $uploadDir = '../UPLOADS/img/USERS/';
         
+        // Create directory if it doesn't exist
+        if (!file_exists($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
         
-    
-    
-        // Update user details in the database
-        $updateQuery = "UPDATE users SET username = :username, email = :email, role = :role, is_active = :is_active WHERE id = :id";
+        $uploadFile = $uploadDir . basename($_FILES['profile_picture_upload']['name']);
+
+        // Check if the file is an image
+        $imageFileType = strtolower(pathinfo($uploadFile, PATHINFO_EXTENSION));
+        $allowedExtensions = ['jpg', 'jpeg', 'png'];
+        if (!in_array($imageFileType, $allowedExtensions)) {
+            $_SESSION['error_message'] = "Only JPG, JPEG, and PNG files are allowed.";
+            header('Location: admin_page_settings.php');
+            exit();
+        } elseif (!move_uploaded_file($_FILES['profile_picture_upload']['tmp_name'], $uploadFile)) {
+            $_SESSION['error_message'] = "Error uploading file.";
+            header('Location: admin_page_settings.php');
+            exit();
+        } else {
+            // Resize and crop the image to 200x200 square
+            $image = imagecreatefromstring(file_get_contents($uploadFile));
+            $width = imagesx($image);
+            $height = imagesy($image);
+            $size = min($width, $height);
+            $croppedImage = imagecrop($image, ['x' => 0, 'y' => 0, 'width' => $size, 'height' => $size]);
+            $resizedImage = imagescale($croppedImage, 200, 200);
+            
+            // Overwrite the original uploaded file with the resized image
+            imagepng($resizedImage, $uploadFile);
+            imagedestroy($image);
+            imagedestroy($croppedImage);
+            imagedestroy($resizedImage);
+            
+            // Update profile picture path in the database
+            $profilePicture = $uploadFile;
+            $updateProfilePictureQuery = "UPDATE users SET profile_picture = :profile_picture WHERE id = :id";
+            $stmtProfilePicture = $pdo->prepare($updateProfilePictureQuery);
+            $stmtProfilePicture->bindParam(':profile_picture', $profilePicture);
+            $stmtProfilePicture->bindParam(':id', $userId);
+            if (!$stmtProfilePicture->execute()) {
+                $_SESSION['error_message'] = "Error updating profile picture.";
+                header('Location: admin_page_settings.php');
+                exit();
+            }
+        }
+    } elseif ($profileAction === 'Default') {
+        // Set default profile picture based on gender
+        $queryUser = "SELECT gender FROM users WHERE id = :id";
+        $stmtUser = $pdo->prepare($queryUser);
+        $stmtUser->bindParam(':id', $userId);
+        $stmtUser->execute();
+        $userData = $stmtUser->fetch(PDO::FETCH_ASSOC);
+        
+        if ($userData) {
+            $gender = strtolower($userData['gender']);
+            $defaultProfilePicture = ($gender === 'male') ? '../ASSETS/IMG/DPFP/male.png' : '../ASSETS/IMG/DPFP/female.png';
+            
+            // Update profile picture path in the database
+            $updateProfilePictureQuery = "UPDATE users SET profile_picture = :profile_picture WHERE id = :id";
+            $stmtUpdateProfilePicture = $pdo->prepare($updateProfilePictureQuery);
+            $stmtUpdateProfilePicture->bindParam(':profile_picture', $defaultProfilePicture);
+            $stmtUpdateProfilePicture->bindParam(':id', $userId);
+            if (!$stmtUpdateProfilePicture->execute()) {
+                $_SESSION['error_message'] = "Error updating profile picture.";
+                header('Location: admin_page_settings.php');
+                exit();
+            }
+        } else {
+            $_SESSION['error_message'] = "Error: User data not found.";
+            header('Location: admin_page_settings.php');
+            exit();
+        }
+    }
+
+    // If no errors, update user details in the database
+    if (empty($errors)) {
+        $updateQuery = "UPDATE users SET username = :username, email = :email";
+        if ($role !== null) {
+            $updateQuery .= ", role = :role";
+        }
+        if ($isActive !== null) {
+            $updateQuery .= ", is_active = :is_active";
+        }
+        $updateQuery .= " WHERE id = :id";
+
         $stmt = $pdo->prepare($updateQuery);
         $stmt->bindParam(':username', $username);
         $stmt->bindParam(':email', $email);
-        $stmt->bindParam(':role', $role);
-        $stmt->bindParam(':is_active', $isActive);
+        if ($role !== null) {
+            $stmt->bindParam(':role', $role);
+        }
+        if ($isActive !== null) {
+            $stmt->bindParam(':is_active', $isActive);
+        }
         $stmt->bindParam(':id', $userId);
-
+        
         if ($stmt->execute()) {
+            $_SESSION['success_message'] = "User details updated successfully.";
             header("Location: admin_page_settings.php");
             exit();
         } else {
-            echo "Error updating user.";
+            $_SESSION['error_message'] = "Error updating user details.";
+            header("Location: admin_page_settings.php");
+            exit();
         }
-    
-        // Handle profile picture removal
-    if (isset($_POST['remove_picture'])) {
-        // Set default profile picture based on gender
-        $defaultProfilePicture = '';
-        if ($user['gender'] === 'Male') {
-            $defaultProfilePicture = '../ASSETS/IMG/DPFP/male.png';
-        } elseif ($user['gender'] === 'female') {
-            $defaultProfilePicture = '../ASSETS/IMG/DPFP/female.png';
-        }
-        
-        // Update profile picture path in the database
-        $updateProfilePictureQuery = "UPDATE users SET profile_picture = :profile_picture WHERE id = :id";
-        $stmtUpdateProfilePicture = $pdo->prepare($updateProfilePictureQuery);
-        $stmtUpdateProfilePicture->bindParam(':profile_picture', $defaultProfilePicture);
-        $stmtUpdateProfilePicture->bindParam(':id', $userId);
-        $stmtUpdateProfilePicture->execute();
     }
-    
-    
-    }
-    
-    
+}
+
+// Save success message to $_SESSION
+if (!empty($successMessage)) {
+    $_SESSION['success_message'] = $successMessage;
+}
+
+// Save error messages to $_SESSION if they exist
+if (!empty($errors)) {
+    $_SESSION['error_messages'] = $errors;
+}
+
     ?>
+    <?php
+$limit = 200; // Number of users per page
+$page = isset($_GET['page']) ? intval($_GET['page']) : 1; // Current page number
+
+// Count total number of users
+$queryCount = "SELECT COUNT(*) AS total FROM users";
+$stmtCount = $pdo->query($queryCount);
+$totalUsers = $stmtCount->fetch(PDO::FETCH_ASSOC)['total'];
+
+// Calculate total pages
+$totalPages = ceil($totalUsers / $limit);
+
+// Adjust page number if it's out of bounds
+if ($page < 1) {
+    $page = 1;
+} elseif ($page > $totalPages && $totalPages > 0) {
+    $page = $totalPages;
+}
+
+// Calculate the offset for the query
+$offset = ($page - 1) * $limit;
+
+// Fetch users for the current page
+$queryUsers = "SELECT * FROM users LIMIT :limit OFFSET :offset";
+$stmtUsers = $pdo->prepare($queryUsers);
+$stmtUsers->bindParam(':limit', $limit, PDO::PARAM_INT);
+$stmtUsers->bindParam(':offset', $offset, PDO::PARAM_INT);
+$stmtUsers->execute();
+$users = $stmtUsers->fetchAll(PDO::FETCH_ASSOC);
+
+// Pagination display logic
+$pagesToShow = 3; // Number of pages to show at a time
+$halfPagesToShow = floor($pagesToShow / 2); // Half of the pages to show
+
+$startPage = max(1, $page - $halfPagesToShow);
+$endPage = min($totalPages, $page + $halfPagesToShow);
+
+// Adjust startPage and endPage if they are at the edges
+if ($endPage - $startPage + 1 < $pagesToShow) {
+    if ($startPage == 1) {
+        $endPage = min($totalPages, $startPage + $pagesToShow - 1);
+    } elseif ($endPage == $totalPages) {
+        $startPage = max(1, $endPage - $pagesToShow + 1);
+    }
+}
+?>
     <h2>Manage Users</h2>
+    <input type="text" id="searchInput" class="form-control mb-3" placeholder="Search...">
     <table class="table table-striped">
         <thead>
             <tr>
@@ -285,17 +388,17 @@ $stmtUsers->execute();
             </tr>
         </thead>
         <tbody>
-            <?php while ($user = $stmtUsers->fetch(PDO::FETCH_ASSOC)) { ?>
-            <tr>
-                <td><?php echo htmlspecialchars($user['id']); ?></td>
-                <td><?php echo htmlspecialchars($user['username']); ?></td>
-                <td><?php echo htmlspecialchars($user['email']); ?></td>
-                <td><?php echo htmlspecialchars($user['role']); ?></td>
-                <td>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#viewUserModal<?php echo $user['id']; ?>">View</button>
-                    <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#manageUserModal<?php echo $user['id']; ?>">Manage</button>
-                </td>
-            </tr>
+        <?php foreach ($users as $user) { ?>
+    <tr>
+        <td><?php echo htmlspecialchars($user['id']); ?></td>
+        <td><?php echo htmlspecialchars($user['username']); ?></td>
+        <td><?php echo htmlspecialchars($user['email']); ?></td>
+        <td><?php echo htmlspecialchars($user['role']); ?></td>
+        <td>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#viewUserModal<?php echo $user['id']; ?>">View</button>
+            <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#manageUserModal<?php echo $user['id']; ?>">Manage</button>
+        </td>
+    </tr>
 
             <!-- View User Modal -->
             <div class="modal fade" id="viewUserModal<?php echo $user['id']; ?>" tabindex="-1" aria-labelledby="viewUserModalLabel<?php echo $user['id']; ?>" aria-hidden="true">
@@ -467,12 +570,102 @@ $stmtUsers->execute();
             <?php } ?>
         </tbody>
     </table>
+
+    
+<!-- Pagination -->
+<nav aria-label="Page navigation example">
+    <ul class="pagination justify-content-center">
+        <!-- Previous Page Link -->
+        <li class="page-item <?php echo $page == 1 ? 'disabled' : ''; ?>">
+            <a class="page-link mt-3" href="?page=<?php echo $page - 1; ?>" tabindex="-1" aria-disabled="true">Previous</a>
+        </li>
+
+        <!-- Page Links -->
+        <?php for ($p = $startPage; $p <= $endPage; $p++): ?>
+            <li class="page-item <?php echo $p == $page ? 'active' : ''; ?>">
+                <a class="page-link mt-3" href="?page=<?php echo $p; ?>"><?php echo $p; ?></a>
+            </li>
+        <?php endfor; ?>
+
+        <!-- Next Page Link -->
+        <li class="page-item <?php echo $page == $totalPages ? 'disabled' : ''; ?>">
+            <a class="page-link mt-3" href="?page=<?php echo $page + 1; ?>">Next</a>
+        </li>
+    </ul>
+</nav>
+
 </div>
 </main>
 <!-- End Main Content -->
 
 <!-- JS.PHP -->
 <?php require_once '../PARTS/js.php'; ?>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('searchInput');
+        const tableBody = document.querySelector('.table-striped tbody');
+        const allPagination = document.querySelectorAll('.pagination');
+        let allRows = []; // Array to store all rows from the table
+
+        // Function to initialize the rows array
+        function initializeRows() {
+            allRows = Array.from(tableBody.querySelectorAll('tr'));
+        }
+
+        // Function to filter rows based on search term
+        function filterRows(searchTerm) {
+            searchTerm = searchTerm.trim().toLowerCase();
+
+            allRows.forEach(row => {
+                const id = row.querySelector('td:nth-child(1)').textContent.trim().toLowerCase();
+                const username = row.querySelector('td:nth-child(2)').textContent.trim().toLowerCase();
+                const email = row.querySelector('td:nth-child(3)').textContent.trim().toLowerCase();
+                const role = row.querySelector('td:nth-child(4)').textContent.trim().toLowerCase();
+
+                // Check if any of the row's data matches the search term
+                if (username.includes(searchTerm) || email.includes(searchTerm) || role.includes(searchTerm) || id.includes(searchTerm)) {
+                    row.style.display = ''; // Show the row if it matches
+                } else {
+                    row.style.display = 'none'; // Hide the row if it doesn't match
+                }
+            });
+
+            // Toggle pagination visibility based on search term
+            if (searchTerm !== '') {
+                allPagination.forEach(pagination => {
+                    pagination.style.display = 'none'; // Hide pagination when searching
+                });
+            } else {
+                allPagination.forEach(pagination => {
+                    pagination.style.display = ''; // Show pagination when no search term
+                });
+            }
+        }
+
+        // Event listener for input changes in search input
+        searchInput.addEventListener('input', function () {
+            const searchTerm = searchInput.value;
+            filterRows(searchTerm);
+        });
+
+        // Handle pagination clicks
+        allPagination.forEach(pagination => {
+            pagination.addEventListener('click', function () {
+                // Re-initialize rows array on pagination click
+                initializeRows();
+
+                // Get the current search term and filter rows
+                const searchTerm = searchInput.value;
+                filterRows(searchTerm);
+            });
+        });
+
+        // Initialize rows array on page load
+        initializeRows();
+    });
+</script>
+
+
 
 </body>
 </html>

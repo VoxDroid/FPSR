@@ -91,14 +91,16 @@ try {
     <!-- End Header -->
 
     <div class="container mt-5">
-        <h5>
-            <a href="../index.php" class="btn btn-primary">
-                <img src="../SVG/house-fill.svg" alt="" class="me-2" width="16" height="16">Dashboard</a>
-        </h5>
-    </div>
-    <div class="container mt-5">
         <?php
+        if (isset($_SESSION['success_message'])) {
+            echo '<div class="alert alert-success">' . $_SESSION['success_message'] . '</div>';
+            unset($_SESSION['success_message']); // Clear message after displaying
+        }
 
+        if (isset($_SESSION['error_message'])) {
+            echo '<div class="alert alert-danger">' . $_SESSION['error_message'] . '</div>';
+            unset($_SESSION['error_message']); // Clear message after displaying
+        }
         try {
             // Connect to MySQL database using PDO
             $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username22, $password);
@@ -122,17 +124,17 @@ try {
                     echo '<h5 class="card-title">Event Details</h5>';
                     echo '</div>';
                     echo '<div class="card-body">';
-                    echo '<p class="card-text"><strong>User:</strong> ' . $eventDetails['requester_username'] . '</p>';
-                    echo '<p class="card-text"><strong>Title:</strong> ' . $eventDetails['title'] . '</p>';
-                    echo '<p class="card-text"><strong>Description:</strong> ' . $eventDetails['description'] . '</p>';
-                    echo '<p class="card-text"><strong>Facility:</strong> ' . $eventDetails['facility'] . '</p>';
-                    echo '<p class="card-text"><strong>Duration:</strong> ' . $eventDetails['duration'] . ' hrs</p>';
-                    echo '<p class="card-text"><strong>Status:</strong> ' . $eventDetails['status'] . '</p>';
-                    echo '<p class="card-text"><strong>Date Requested:</strong> ' . $eventDetails['date_requested'] . '</p>';
-                    echo '<p class="card-text"><strong>Event Start:</strong> ' . $eventDetails['event_start'] . '</p>';
-                    echo '<p class="card-text"><strong>Event End:</strong> ' . $eventDetails['event_end'] . '</p>';
-                    echo '<p class="card-text"><strong>Likes:</strong> ' . $eventDetails['likes'] . '</p>';
-                    echo '<p class="card-text"><strong>Dislikes:</strong> ' . $eventDetails['dislikes'] . '</p>';
+                    echo '<p class="card-text"><strong>User:</strong> ' . htmlspecialchars($eventDetails['requester_username'], ENT_QUOTES, 'UTF-8') . '</p>';
+                    echo '<p class="card-text"><strong>Title:</strong> ' . htmlspecialchars($eventDetails['title'], ENT_QUOTES, 'UTF-8') . '</p>';
+                    echo '<p class="card-text"><strong>Description:</strong> ' . htmlspecialchars($eventDetails['description'], ENT_QUOTES, 'UTF-8') . '</p>';
+                    echo '<p class="card-text"><strong>Facility:</strong> ' . htmlspecialchars($eventDetails['facility'], ENT_QUOTES, 'UTF-8') . '</p>';
+                    echo '<p class="card-text"><strong>Duration:</strong> ' . htmlspecialchars($eventDetails['duration'], ENT_QUOTES, 'UTF-8') . ' hrs</p>';
+                    echo '<p class="card-text"><strong>Status:</strong> ' . htmlspecialchars($eventDetails['status'], ENT_QUOTES, 'UTF-8') . '</p>';
+                    echo '<p class="card-text"><strong>Date Requested:</strong> ' . htmlspecialchars($eventDetails['date_requested'], ENT_QUOTES, 'UTF-8') . '</p>';
+                    echo '<p class="card-text"><strong>Event Start:</strong> ' . htmlspecialchars($eventDetails['event_start'], ENT_QUOTES, 'UTF-8') . '</p>';
+                    echo '<p class="card-text"><strong>Event End:</strong> ' . htmlspecialchars($eventDetails['event_end'], ENT_QUOTES, 'UTF-8') . '</p>';
+                    echo '<p class="card-text"><strong>Likes:</strong> ' . htmlspecialchars($eventDetails['likes'], ENT_QUOTES, 'UTF-8') . '</p>';
+                    echo '<p class="card-text"><strong>Dislikes:</strong> ' . htmlspecialchars($eventDetails['dislikes'], ENT_QUOTES, 'UTF-8') . '</p>';
                     
                     // Display like and dislike buttons only for logged-in users
                     if(isset($_SESSION['user_id'])) {
@@ -312,7 +314,7 @@ try {
                     $queryInsertComment = "INSERT INTO comments (event_id, user_id, comment) VALUES (:event_id, :user_id, :comment)";
                     $stmtInsertComment = $pdo->prepare($queryInsertComment);
                     $stmtInsertComment->execute(['event_id' => $event_id, 'user_id' => $user_id, 'comment' => $comment]);
-
+                    $_SESSION['success_message'] = 'Comment added successfully!';
                     // Redirect to prevent form resubmission
                     header("Location: {$_SERVER['REQUEST_URI']}");
                     exit();
@@ -323,6 +325,8 @@ try {
                 echo '<p class="alert alert-warning">Please log in to post a comment.</p>';
             }
         }
+
+
 
         // Edit comment form
         if (isset($_POST['edit_comment'])) {
@@ -365,6 +369,7 @@ try {
                 $stmtUpdateComment = $pdo->prepare($queryUpdateComment);
                 $stmtUpdateComment->execute(['edited_comment' => $edited_comment, 'comment_id' => $edit_comment_id]);
                 // Redirect to prevent form resubmission
+                $_SESSION['success_message'] = 'Comment updated successfully!';
                 header("Location: {$_SERVER['REQUEST_URI']}");
                 exit();
             } catch (PDOException $e) {
@@ -373,48 +378,50 @@ try {
         }
 
         // Handle comment deletion
-if(isset($_POST['confirm_delete'])) {
-    if(isset($_SESSION['user_id'])) {
-        // User is logged in
-        $user_id = $_SESSION['user_id'];
-        $comment_id = $_POST['comment_id'];
+        if(isset($_POST['confirm_delete'])) {
+            if(isset($_SESSION['user_id'])) {
+                // User is logged in
+                $user_id = $_SESSION['user_id'];
+                $comment_id = $_POST['comment_id'];
 
-        try {
-            // Check if the user owns the comment
-            $queryCheckOwnership = "SELECT * FROM comments WHERE id = :comment_id AND user_id = :user_id";
-            $stmtCheckOwnership = $pdo->prepare($queryCheckOwnership);
-            $stmtCheckOwnership->execute(['comment_id' => $comment_id, 'user_id' => $user_id]);
-            $comment = $stmtCheckOwnership->fetch(PDO::FETCH_ASSOC);
+                try {
+                    // Check if the user owns the comment
+                    $queryCheckOwnership = "SELECT * FROM comments WHERE id = :comment_id AND user_id = :user_id";
+                    $stmtCheckOwnership = $pdo->prepare($queryCheckOwnership);
+                    $stmtCheckOwnership->execute(['comment_id' => $comment_id, 'user_id' => $user_id]);
+                    $comment = $stmtCheckOwnership->fetch(PDO::FETCH_ASSOC);
 
-            if($comment) {
-                // User owns the comment, proceed with deletion of associated votes
-                $queryDeleteVotes = "DELETE FROM comment_votes WHERE comment_id = :comment_id";
-                $stmtDeleteVotes = $pdo->prepare($queryDeleteVotes);
-                $stmtDeleteVotes->execute(['comment_id' => $comment_id]);
+                    if($comment) {
+                        // User owns the comment, proceed with deletion of associated votes
+                        $queryDeleteVotes = "DELETE FROM comment_votes WHERE comment_id = :comment_id";
+                        $stmtDeleteVotes = $pdo->prepare($queryDeleteVotes);
+                        $stmtDeleteVotes->execute(['comment_id' => $comment_id]);
 
-                // Then delete the comment itself
-                $queryDeleteComment = "DELETE FROM comments WHERE id = :comment_id";
-                $stmtDeleteComment = $pdo->prepare($queryDeleteComment);
-                $stmtDeleteComment->execute(['comment_id' => $comment_id]);
+                        // Then delete the comment itself
+                        $queryDeleteComment = "DELETE FROM comments WHERE id = :comment_id";
+                        $stmtDeleteComment = $pdo->prepare($queryDeleteComment);
+                        $stmtDeleteComment->execute(['comment_id' => $comment_id]);
 
-                // Show success message
-                echo '<div class="alert alert-success" role="alert">Comment Deleted Successfully!</div>';
-                
-                // Redirect to prevent form resubmission
-                header("Location: {$_SERVER['REQUEST_URI']}");
-                exit();
+                        // Show success message
+                        echo '<div class="alert alert-success" role="alert">Comment Deleted Successfully!</div>';
+                        
+                        $_SESSION['success_message'] = 'Comment deleted successfully!';
+                        
+                        // Redirect to prevent form resubmission
+                        header("Location: {$_SERVER['REQUEST_URI']}");
+                        exit();
+                    } else {
+                        // User does not own the comment
+                        echo '<p class="alert alert-danger">You do not have permission to delete this comment.</p>';
+                    }
+                } catch(PDOException $e) {
+                    echo '<p class="alert alert-danger">Error: ' . $e->getMessage() . '</p>';
+                }
             } else {
-                // User does not own the comment
-                echo '<p class="alert alert-danger">You do not have permission to delete this comment.</p>';
+                // User is not logged in
+                echo '<p class="alert alert-warning">Please log in to delete this comment.</p>';
             }
-        } catch(PDOException $e) {
-            echo '<p class="alert alert-danger">Error: ' . $e->getMessage() . '</p>';
         }
-    } else {
-        // User is not logged in
-        echo '<p class="alert alert-warning">Please log in to delete this comment.</p>';
-    }
-}
 
 
         // Handle like/dislike button actions for comments
@@ -496,8 +503,8 @@ if(isset($_POST['confirm_delete'])) {
         foreach ($comments as $comment) {
             echo '<div class="card mb-3">';
             echo '<div class="card-body">';
-            echo '<h6 class="card-subtitle mb-2 text-muted">Commented by: ' . $comment['commenter_username'] . ' on ' . $comment['date_commented'] . '</h6>';
-            echo '<p class="card-text">' . $comment['comment'] . '</p>';
+            echo '<h6 class="card-subtitle mb-2 text-muted">Commented by: ' . htmlspecialchars($comment['commenter_username']) . ' on ' . htmlspecialchars($comment['date_commented']) . '</h6>';
+            echo '<p class="card-text">'. htmlspecialchars($comment['comment'], ENT_NOQUOTES, 'UTF-8') . '</p>';
             echo '<div class="d-flex justify-content-between align-items-center">';
 
             // Like button

@@ -28,19 +28,48 @@ try {
     // Set PDO error mode to exception
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+    // Initialize variables for form input values
+    $title = isset($_SESSION['request_event_data']['title']) ? $_SESSION['request_event_data']['title'] : '';
+    $description = isset($_SESSION['request_event_data']['description']) ? $_SESSION['request_event_data']['description'] : '';
+    $facility = isset($_SESSION['request_event_data']['facility']) ? $_SESSION['request_event_data']['facility'] : '';
+    $eventStart = isset($_SESSION['request_event_data']['event_start']) ? $_SESSION['request_event_data']['event_start'] : '';
+    $eventEnd = isset($_SESSION['request_event_data']['event_end']) ? $_SESSION['request_event_data']['event_end'] : '';
+
     // Check if form is submitted
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        // Validate and sanitize user inputs
-        $title = filter_input(INPUT_POST, 'title', FILTER_SANITIZE_STRING);
-        $description = filter_input(INPUT_POST, 'description', FILTER_SANITIZE_STRING);
-        $facility = filter_input(INPUT_POST, 'facility', FILTER_SANITIZE_STRING);
-        $eventStart = $_POST['event_start'];
-        $eventEnd = $_POST['event_end'];
+        // Retrieve form data
+        $title = filter_input(INPUT_POST, 'title');
+        $description = filter_input(INPUT_POST, 'description');
+        $facility = filter_input(INPUT_POST, 'facility');
+        $eventStart = ($_POST['event_start']);
+        $eventEnd = ($_POST['event_end']);
+
+        // Additional validation
+        if (strlen($title) < 5 || strlen($description) < 5) {
+            $_SESSION['error_message'] = 'Title and Description must be at least 5 characters long!';
+            $_SESSION['request_event_data'] = [
+                'title' => $title,
+                'description' => $description,
+                'facility' => $facility,
+                'event_start' => $eventStart,
+                'event_end' => $eventEnd
+            ];
+            header("Location: request_event.php");
+            exit();
+        }
+
 
         // Additional validation
         if (!$title || !$description || !$facility || !$eventStart || !$eventEnd) {
-            // If any required field is missing, redirect back to the form with an error message
-            header("Location: request_event.php?error=missing_fields");
+            $_SESSION['error_message'] = 'Please fill in all required fields!';
+            $_SESSION['request_event_data'] = [
+                'title' => $title,
+                'description' => $description,
+                'facility' => $facility,
+                'event_start' => $eventStart,
+                'event_end' => $eventEnd
+            ];
+            header("Location: request_event.php");
             exit();
         }
 
@@ -50,34 +79,48 @@ try {
 
         // Check if event start date is past the current time
         if ($startDateTime <= new DateTime()) {
-            // If event start date is invalid, redirect back to the form with an error message
-            header("Location: request_event.php?error=start_date_past_current_time");
+            $_SESSION['error_message'] = 'Event start date must be in the future!';
+            $_SESSION['request_event_data'] = [
+                'title' => $title,
+                'description' => $description,
+                'facility' => $facility,
+                'event_start' => $eventStart,
+                'event_end' => $eventEnd
+            ];
+            header("Location: request_event.php");
             exit();
         }
 
         // Check if event end date is before the start date
         if ($startDateTime >= $endDateTime) {
-            // If event end date is invalid, redirect back to the form with an error message
-            header("Location: request_event.php?error=end_date_before_start");
+            $_SESSION['error_message'] = 'Event end date must be after event start date!';
+            $_SESSION['request_event_data'] = [
+                'title' => $title,
+                'description' => $description,
+                'facility' => $facility,
+                'event_start' => $eventStart,
+                'event_end' => $eventEnd
+            ];
+            header("Location: request_event.php");
             exit();
         }
 
-        // Calculate duration based on event start and end dates
-        $duration = $endDateTime->diff($startDateTime)->format('%h');
+        // Calculate duration in total hours
+        $interval = $startDateTime->diff($endDateTime);
+        $duration = ($interval->days * 24) + $interval->h + ($interval->i / 60);
 
         // Insert the event into the database
         $stmt = $pdo->prepare("INSERT INTO events (user_id, title, description, facility, duration, status, event_start, event_end) VALUES (?, ?, ?, ?, ?, 'pending', ?, ?)");
         $stmt->execute([$_SESSION['user_id'], $title, $description, $facility, $duration, $eventStart, $eventEnd]);
 
-        // Redirect to index.php after successfully submitting the event
-        header("Location: ../index.php?success=event_submitted");
+        $_SESSION['success_message'] = 'Event submitted successfully!';
+        header("Location: ../index.php");
         exit();
     }
 } catch(PDOException $e) {
     // Redirect to index.php if there's an error
     redirectToIndex();
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -94,53 +137,65 @@ try {
 <?php require_once '../PARTS/header_EMS.php'; ?>
 <!-- End Header -->
 <div class="container mt-5">
-<div class="container mt-5">
-        <h5>
-            <a href="../index.php" class="btn btn-primary">
-                <img src="../SVG/house-fill.svg" alt="" class="me-2" width="16" height="16">Dashboard</a>
-        </h5>
-    </div>
+    <?php
+    if (isset($_SESSION['success_message'])) {
+        echo '<div class="alert alert-success">' . $_SESSION['success_message'] . '</div>';
+        unset($_SESSION['success_message']); // Clear message after displaying
+    }
+
+    if (isset($_SESSION['error_message'])) {
+        echo '<div class="alert alert-danger">' . $_SESSION['error_message'] . '</div>';
+        unset($_SESSION['error_message']); // Clear message after displaying
+    }
+    ?>
     <h2>Request Event</h2>
-    <!-- Display error message if there's any -->
-    <?php if (isset($_GET['error'])): ?>
-        <div class="alert alert-danger" role="alert">
-            <?php if ($_GET['error'] === 'missing_fields'): ?>
-                Please fill in all required fields.
-            <?php elseif ($_GET['error'] === 'start_date_past_current_time'): ?>
-                Event start date cannot be past the current time.
-            <?php elseif ($_GET['error'] === 'end_date_before_start'): ?>
-                Event end date cannot be before the start date.
-            <?php endif; ?>
-        </div>
-    <?php endif; ?>
     <!-- Event request form -->
-<form action="request_event.php" method="POST" id="eventForm">
-    <div class="form-group">
-        <label for="title">Event Title *</label>
-        <input type="text" class="form-control" id="title" name="title" value="<?php echo isset($_POST['title']) ? htmlspecialchars($_POST['title']) : ''; ?>" required>
-    </div>
-    <div class="form-group">
-        <label for="description">Event Description *</label>
-        <textarea class="form-control" id="description" name="description" rows="3" required><?php echo isset($_POST['description']) ? htmlspecialchars($_POST['description']) : ''; ?></textarea>
-    </div>
-    <div class="form-group">
-        <label for="facility">Facility *</label>
-        <input type="text" class="form-control" id="facility" name="facility" value="<?php echo isset($_POST['facility']) ? htmlspecialchars($_POST['facility']) : ''; ?>" required>
-    </div>
-    <div class="form-group">
-        <label for="event_start">Event Start Date and Time *</label>
-        <input type="datetime-local" class="form-control" id="event_start" name="event_start" value="<?php echo isset($_POST['event_start']) ? htmlspecialchars($_POST['event_start']) : ''; ?>" required>
-    </div>
-    <div class="form-group">
-        <label for="event_end">Event End Date and Time *</label>
-        <input type="datetime-local" class="form-control" id="event_end" name="event_end" value="<?php echo isset($_POST['event_end']) ? htmlspecialchars($_POST['event_end']) : ''; ?>" required>
-    </div>
-    <div class="form-group">
-        <label for="duration">Duration (in hours)</label>
-        <input type="number" class="form-control" id="duration" name="duration" min="1" readonly value="<?php echo isset($_POST['duration']) ? htmlspecialchars($_POST['duration']) : ''; ?>">
-    </div>
-    <button type="submit" class="btn btn-primary mt-3">Submit</button>
-</form>
+    <form action="request_event.php" method="POST" id="eventForm">
+        <div class="form-group">
+            <label for="title">Event Title *</label>
+            <input type="text" class="form-control" id="title" name="title" value="<?php echo htmlspecialchars($title); ?>" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Event Description *</label>
+            <textarea class="form-control" id="description" name="description" rows="3" required><?php echo htmlspecialchars($description); ?></textarea>
+        </div>
+        <div class="form-group">
+            <label for="facility">Facility *</label>
+            <input type="text" class="form-control" id="facility" name="facility" value="<?php echo htmlspecialchars($facility); ?>" required>
+        </div>
+        <div class="form-group">
+            <label for="event_start">Event Start Date and Time *</label>
+            <input type="datetime-local" class="form-control" id="event_start" name="event_start" value="<?php echo htmlspecialchars($eventStart); ?>" required>
+        </div>
+        <div class="form-group">
+            <label for="event_end">Event End Date and Time *</label>
+            <input type="datetime-local" class="form-control" id="event_end" name="event_end" value="<?php echo htmlspecialchars($eventEnd); ?>" required>
+        </div>
+        <div class="form-group">
+            <label for="duration">Duration (in hours)</label>
+            <input type="number" class="form-control" id="duration" name="duration" min="1" readonly>
+        </div>
+        <button type="button" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#confirmModal">Submit</button>
+
+        <!-- Confirmation Modal -->
+        <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="confirmModalLabel">Confirm Event Submission</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to submit this event? You won't be able to edit the details later.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Submit Event</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
 
 </div>
 <!-- JS.PHP -->

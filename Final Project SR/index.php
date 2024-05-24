@@ -49,6 +49,8 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
 ?>
 
 <style>
+
+
 .event-card {
     border: none;
     transition: box-shadow 0.3s;
@@ -109,9 +111,15 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
 <!-- End Header -->
 
 <!-- Main Content -->
-<main class="py-5">
+<main class="py-5" style="background-color: #1c2331">
     <div class="container">
-        <h2>Ongoing Events</h2>
+        <?php
+        if (isset($_SESSION['success_message'])) {
+            echo '<div class="alert alert-success">' . $_SESSION['success_message'] . '</div>';
+            unset($_SESSION['success_message']); // Clear message after displaying
+        }
+        ?>
+        <h2 class="text-white">Ongoing Events</h2>
         <div id="ongoingEventsCarousel" class="carousel slide mb-5" data-ride="carousel">
             <div class="carousel-inner">
                 <?php
@@ -203,8 +211,12 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
                 </a>
             <?php endif; ?>
         </div>
-
-        <!-- Approved Events -->
+    </div>
+</main>
+<!-- End Main Content -->
+<!-- Approved events -->
+<div class="py-5">
+    <div class="container">
         <h2>Approved Events</h2>
         <div id="approvedEventsCarousel" class="carousel slide mb-5" data-ride="carousel">
             <div class="carousel-inner">
@@ -297,10 +309,14 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
                 </a>
             <?php endif; ?>
         </div>
+    </div>
+</div>
+<!-- End of Approved events -->
 
-
-        <!-- Pending Events -->
-        <h2>Pending Events</h2>
+<!-- Pending Events -->
+<div class="py-5" style="background-color: #1c2331">
+    <div class="container">
+        <h2 class="text-white">Pending Events</h2>
         <div class="row">
             <?php
             // Fetch pending events count
@@ -406,10 +422,14 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
             }
             ?>
         </div>
+    </div>
+</div>
+<!-- End of Pending Events -->
 
-
-        <!-- Archive Section -->
-        <h2>Archive</h2>
+<!-- Archive Section -->
+<div class="py-5">
+    <div class="container">
+    <h2>Archive</h2>
         <div class="row">
             <?php
             // Fetch archive events count
@@ -515,10 +535,74 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
             }
             ?>
         </div>
-
     </div>
-</main>
-<!-- End Main Content -->
+</div>
+<!-- End of Archive Section -->
+
+<!-- Footer -->
+<!-- Footer -->
+<footer
+          class="text-center text-lg-start text-white"
+          style="background-color: #1c2331"
+          >
+
+    <!-- Section: Links  -->
+    <section class="py-1">
+      <div class="container text-center text-md-start mt-5">
+        <!-- Grid row -->
+        <div class="row mt-3">
+          <!-- Grid column -->
+          <div class="col-md-2 col-lg-3 col-xl-3 mx-auto mb-4">
+            <!-- Links -->
+            <h6 class="text-uppercase fw-bold">Team Members</h6>
+            <hr
+                class="mb-4 mt-0 d-inline-block mx-auto"
+                style="width: 60px; background-color: #7c4dff; height: 2px"
+                />
+            <p>
+              <a href="https://www.facebook.com/MharAndrei" target="_blank" rel="noreferrer noopener" class="text-white text-decoration-none">Mhar Andrei Macapallag</a>
+            </p>
+            <p>
+                <a href="https://www.facebook.com/keayon.romero" target="_blank" rel="noreferrer noopener" class="text-white text-decoration-none">Keayon Ivan Romero</a>
+            </p>
+            <p>
+                <a href="https://www.facebook.com/profile.php?id=100009647451125" target="_blank" rel="noreferrer noopener" class="text-white text-decoration-none">Carlo James G. Arat</a>
+            </p>
+          </div>
+          <!-- Grid column -->
+
+          <!-- Grid column -->
+          <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-4">
+            <!-- Links -->
+            <h6 class="text-uppercase fw-bold">Contact</h6>
+            <hr
+                class="mb-4 mt-0 d-inline-block mx-auto"
+                style="width: 60px; background-color: #7c4dff; height: 2px"
+                />
+            <p><i class="fas fa-envelope mr-3"></i> strawhat424@gmail.com</p>
+            <p><i class="fas fa-phone mr-3"></i> +63  992-926-7623</p>
+          </div>
+          <!-- Grid column -->
+        </div>
+        <!-- Grid row -->
+      </div>
+    </section>
+    <!-- Section: Links  -->
+
+    <!-- Copyright -->
+    <div
+         class="text-center p-3"
+         style="background-color: rgba(0, 0, 0, 0.2)"
+         >
+      © 2024 Copyright:
+      <a class="text-white text-decoration-none" href="https://github.com/VoxDroid/FPSR?fbclid=IwZXh0bgNhZW0CMTAAAR3HNhvJ6BIH0bYgrZ4Jsee-s5CjGJ4fYMfjI1XHO2ASBC0He38QZznZ4Nk_aem_AbIHv3cFXtxFxifFnHmegss7rspLrcTwu59dkqQwB_6vH6ffKY1GDCO4DCUTz2y-C0fmYKaJakXE4bstkykk1DPr" target="_blank" rel="noreferrer noopener"
+         >MRA</a
+        >
+    </div>
+    <!-- Copyright -->
+  </footer>
+  <!-- Footer -->
+<!-- End of Footer -->
 
 <!-- JS.PHP -->
 <?php

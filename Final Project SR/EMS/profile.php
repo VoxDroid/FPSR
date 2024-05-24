@@ -2,7 +2,6 @@
 require_once '../PARTS/background_worker.php';
 require_once '../PARTS/config.php';
 
-// Redirect to index.php if user is not logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../index.php");
     exit();
@@ -15,6 +14,9 @@ $host = 'localhost';
 $dbname = 'event_management_system';
 $username22 = 'root';
 $password = '';
+
+$errors = []; // Array to store error messages
+$successMessage = ""; // Variable to store success message
 
 try {
     // Connect to MySQL database using PDO
@@ -35,10 +37,66 @@ $user = $stmtUser->fetch(PDO::FETCH_ASSOC);
 
 // Process form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_account'])) {
-    $newUsername = !empty($_POST['username']) && strlen($_POST['username']) >= 3 ? $_POST['username'] : $user['username'];
-    $newPassword = !empty($_POST['password']) && strlen($_POST['password']) >= 8 ? password_hash($_POST['password'], PASSWORD_DEFAULT) : $user['password'];
-    $newGender = !empty($_POST['gender']) ? $_POST['gender'] : $user['gender'];
-    $newEmail = !empty($_POST['email']) ? $_POST['email'] : $user['email'];
+    // Validate and sanitize username
+    if (isset($_POST['username'])) {
+        $newUsername = trim($_POST['username']);
+        if (!empty($newUsername) && !preg_match('/^[a-zA-Z0-9_]{3,}$/', $newUsername)) {
+            $errors[] = "Username must be at least 3 characters long and can only contain letters, numbers, and underscores.";
+        }
+    } else {
+        $newUsername = $user['username'];
+    }
+
+    // Validate and sanitize password
+    if (isset($_POST['password'])) {
+        $newPassword = trim($_POST['password']);
+        if (!empty($newPassword) && strlen($newPassword) < 8) {
+            $errors[] = "Password must be at least 8 characters long.";
+        } elseif (!empty($newPassword)) {
+            $newPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+        }
+    } else {
+        $newPassword = $user['password'];
+    }
+
+    // Validate and sanitize gender
+    $newGender = isset($_POST['gender']) ? $_POST['gender'] : $user['gender'];
+
+    // Validate and sanitize email
+    if (isset($_POST['email'])) {
+        $newEmail = trim($_POST['email']);
+        if (!empty($newEmail) && !filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = "Invalid email format.";
+        }
+    } else {
+        $newEmail = $user['email'];
+    }
+
+    // Check if username already exists
+    if (!empty($newUsername)) {
+        $queryUsernameCheck = "SELECT id FROM users WHERE username = :username AND id != :id";
+        $stmtUsernameCheck = $pdo->prepare($queryUsernameCheck);
+        $stmtUsernameCheck->bindParam(':username', $newUsername);
+        $stmtUsernameCheck->bindParam(':id', $userId, PDO::PARAM_INT);
+        $stmtUsernameCheck->execute();
+        $existingUsername = $stmtUsernameCheck->fetch(PDO::FETCH_ASSOC);
+        if ($existingUsername) {
+            $errors[] = "Username '$newUsername' is already taken.";
+        }
+    }
+
+    // Check if email already exists
+    if (!empty($newEmail)) {
+        $queryEmailCheck = "SELECT id FROM users WHERE email = :email AND id != :id";
+        $stmtEmailCheck = $pdo->prepare($queryEmailCheck);
+        $stmtEmailCheck->bindParam(':email', $newEmail);
+        $stmtEmailCheck->bindParam(':id', $userId, PDO::PARAM_INT);
+        $stmtEmailCheck->execute();
+        $existingEmail = $stmtEmailCheck->fetch(PDO::FETCH_ASSOC);
+        if ($existingEmail) {
+            $errors[] = "Email '$newEmail' is already registered.";
+        }
+    }
 
     // Handle profile picture upload
     if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
@@ -75,7 +133,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_account'])) {
                 $stmtProfilePicture->bindParam(':profile_picture', $profilePicture);
                 $stmtProfilePicture->bindParam(':id', $userId);
                 $stmtProfilePicture->execute();
+                $successMessage = "User profile updated successfully.";
+                if (!empty($successMessage)) {
+                    $_SESSION['success_message'] = $successMessage;
+                }
+                header('Location: profile.php');
+                exit();
+            } else {
+                $errors[] = "Failed to upload profile picture.";
             }
+        } else {
+            $errors[] = "Profile picture must be a JPG, JPEG, or PNG file.";
         }
     } elseif (isset($_POST['set_default_picture'])) {
         // Set default profile picture based on gender
@@ -97,27 +165,44 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_account'])) {
         $stmtProfilePicture->bindParam(':profile_picture', $defaultProfilePicture);
         $stmtProfilePicture->bindParam(':id', $userId);
         $stmtProfilePicture->execute();
+        $successMessage = "User profile picture removed successfully.";
+        if (!empty($successMessage)) {
+            $_SESSION['success_message'] = $successMessage;
+        }
+        header('Location: profile.php');
+        exit();
     }
 
-    // Update user details in the database
-    $updateQuery = "UPDATE users SET username = :username, password = :password, gender = :gender, email = :email WHERE id = :id";
-    $stmt = $pdo->prepare($updateQuery);
-    $stmt->bindParam(':username', $newUsername);
-    $stmt->bindParam(':password', $newPassword);
-    $stmt->bindParam(':gender', $newGender);
-    $stmt->bindParam(':email', $newEmail);
-    $stmt->bindParam(':id', $userId);
+    // If there are no errors, proceed with updating user details
+    if (empty($errors)) {
+        // Update user details in the database
+        $updateQuery = "UPDATE users SET username = :username, password = :password, gender = :gender, email = :email WHERE id = :id";
+        $stmt = $pdo->prepare($updateQuery);
+        $stmt->bindParam(':username', $newUsername);
+        $stmt->bindParam(':password', $newPassword);
+        $stmt->bindParam(':gender', $newGender);
+        $stmt->bindParam(':email', $newEmail);
+        $stmt->bindParam(':id', $userId);
 
-    if ($stmt->execute()) {
-        // Refresh user data
-        header("Location: profile.php");
-        exit();
-    } else {
-        echo "Error updating user.";
+        if ($stmt->execute()) {
+            // Set success message
+            $successMessage = "User details updated successfully.";
+        } else {
+            $errors[] = "Error updating user.";
+        }
     }
 }
-?>
 
+// Save success message to $_SESSION
+if (!empty($successMessage)) {
+    $_SESSION['success_message'] = $successMessage;
+}
+
+// Save error messages to $_SESSION if they exist
+if (!empty($errors)) {
+    $_SESSION['error_messages'] = $errors;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -136,8 +221,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_account'])) {
 <!-- Main Content -->
 <main class="py-5">
     <div class="container mt-5">
+        <?php
+        // Display errors and success message at the top of the page
+        if (isset($_SESSION['error_messages'])) {
+            echo '<div class="alert alert-danger">';
+            foreach ($_SESSION['error_messages'] as $error) {
+                echo "<p>{$error}</p>";
+            }
+            echo '</div>';
+            unset($_SESSION['error_messages']); // Clear errors after displaying
+        }
+
+        // Check for success message
+        if (isset($_SESSION['success_message'])) {
+            echo '<div class="alert alert-success">' . $_SESSION['success_message'] . '</div>';
+            unset($_SESSION['success_message']); // Clear message after displaying
+        }
+        ?>
         <h2>My Profile</h2>
-        <form method="post" enctype="multipart/form-data">
+        <form id="profileForm" method="post" enctype="multipart/form-data">
             <div class="mb-3 text-center">
                 <?php if (!empty($user['profile_picture'])): ?>
                     <img src="<?php echo htmlspecialchars($user['profile_picture']); ?>" alt="Profile Picture" class="img-thumbnail" style="width: 150px; height: 150px;">
@@ -172,11 +274,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_account'])) {
                 <input type="checkbox" class="form-check-input" id="remove_picture" name="remove_picture" onchange="handleRemovePicture()">
                 <label class="form-check-label" for="remove_picture">Remove Profile Picture</label>
             </div>
-            <button type="submit" class="btn btn-primary" name="update_account">Save Changes</button>
+            <input type="hidden" name="update_account" value="1">
+            <!-- Button to trigger modal -->
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#confirmModal">Save Changes</button>
+
+            <!-- Save Changes Confirmation Modal -->
+            <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="confirmModalLabel">Confirm Save Changes</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to save the changes?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary" id="confirmSaveButton">Save Changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </form>
     </div>
 </main>
-<!-- End Main Content -->
 
 <!-- JS.PHP -->
 <?php require_once '../PARTS/js.php'; ?>
@@ -195,7 +317,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_account'])) {
         }
     }
 </script>
-
-
 </body>
 </html>

@@ -188,7 +188,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['username']) && isset($
     <div class="row">
         <div class="col-md-8 col-lg-6 mx-auto">
             <div class="login-container">
-                <h2 class="login-title">Log In</h2>
+                <?php
+                if (isset($_SESSION['registration_successful'])) {
+                    echo '<div class="alert alert-success">' . $_SESSION['registration_successful'] . '</div>';
+                    unset($_SESSION['registration_successful']);
+                }
+                ?>
+                <h2 class="login-title">LOGIN</h2>
                 <?php if (isset($error)) : ?>
                     <div class="alert alert-danger" role="alert">
                         <?php echo $error; ?>
@@ -214,7 +220,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['username']) && isset($
                     <div class="form-group forgot-password mb-3 ">
                         <a href="#">Forgot password?</a>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-block btn-login">Log In</button>
+                    <button type="submit" class="btn btn-primary btn-block btn-login">LogIn</button>
                 </form>
                 <div class="register-link">
                     <p>Don't have an account? <a href="register.php">Register here</a></p>
@@ -222,7 +228,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['username']) && isset($
                 <hr>
                 <div class="login-footer">
                     <p>&copy; <?php echo date('Y'); ?> Event Management System. All rights reserved.</p>
-                    <p>Developed by <a href="#" target="_blank">Keayon</a></p>
+                    <p>Developed by <a href="#" target="_blank">MRA</a></p>
                 </div>
             </div>
         </div>

@@ -30,6 +30,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $username_err = "Please enter a username.";
         } elseif (strlen(trim($_POST['username'])) < 3) {
             $username_err = "Username must have at least 3 characters.";
+        } elseif (!preg_match('/^[a-zA-Z0-9_]{3,}$/', trim($_POST['username']))) {
+            $username_err = "Username can only contain letters, numbers, and underscores.";
         } else {
             // Prepare a select statement
             $stmt = $pdo->prepare("SELECT id FROM users WHERE username = :username");
@@ -124,6 +126,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 // Attempt to execute the prepared statement
                 if ($stmt->execute()) {
                     // Registration successful, redirect to login page
+                    $_SESSION['registration_successful'] = "Registration successful. Please log in to your account.";
                     header("Location: login.php");
                     exit();
                 } else {
@@ -287,7 +290,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="row">
         <div class="col-md-8 col-lg-6 mx-auto">
             <div class="register-container">
-                <h2 class="register-title">Register</h2>
+                <h2 class="register-title">REGISTER</h2>
                 <?php if (isset($error)) : ?>
                     <div class="alert alert-danger" role="alert">
                         <?php echo $error; ?>

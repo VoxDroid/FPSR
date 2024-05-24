@@ -127,10 +127,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
     }
 }
 ?>
-        <h5>
-            <a href="../index.php" class="btn btn-primary">
-                <img src="../SVG/house-fill.svg" alt="" class="me-2" width="16" height="16">Dashboard</a>
-        </h5>
     </div>
     <div class="container">
 <!-- Ongoing Events -->
@@ -165,10 +161,10 @@ if ($stmtOngoingEvents->rowCount() > 0) {
         echo '<div class="col-md-6 mb-4">';
         echo '<div class="card">';
         echo '<div class="card-body">';
-        echo '<h5 class="card-title">' . $event['title'] . '</h5>';
-        echo '<p class="card-text">' . $event['description'] . '</p>';
-        echo '<p class="card-text">Date: ' . $event['date_requested'] . '</p>';
-        echo '<a href="../EMS/event_details.php?event_id=' . $event['id'] . '" class="btn btn-primary mt-3">View</a>';
+        echo '<h5 class="card-title">' . htmlspecialchars($event['title'], ENT_QUOTES, 'UTF-8') . '</h5>';
+        echo '<p class="card-text">' . htmlspecialchars($event['description'], ENT_QUOTES, 'UTF-8') . '</p>';
+        echo '<p class="card-text">Date: ' . htmlspecialchars($event['date_requested'], ENT_QUOTES, 'UTF-8') . '</p>';
+        echo '<a href="../EMS/event_details.php?event_id=' . htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') . '" class="btn btn-primary mt-3">View</a>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -243,10 +239,10 @@ if ($ongoingTotalPages > 1) {
             echo '<div class="col-md-6 mb-4">';
             echo '<div class="card">';
             echo '<div class="card-body">';
-            echo '<h5 class="card-title">' . $event['title'] . '</h5>';
-            echo '<p class="card-text">' . $event['description'] . '</p>';
-            echo '<p class="card-text">Date: ' . $event['date_requested'] . '</p>';
-            echo '<a href="../EMS/event_details.php?event_id=' . $event['id'] . '" class="btn btn-primary mt-3">View</a>';
+            echo '<h5 class="card-title">' . htmlspecialchars($event['title'], ENT_QUOTES, 'UTF-8') . '</h5>';
+            echo '<p class="card-text">' . htmlspecialchars($event['description'], ENT_QUOTES, 'UTF-8') . '</p>';
+            echo '<p class="card-text">Date: ' . htmlspecialchars($event['date_requested'], ENT_QUOTES, 'UTF-8') . '</p>';
+            echo '<a href="../EMS/event_details.php?event_id=' . htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') . '" class="btn btn-primary mt-3">View</a>';
             echo '</div>';
             echo '</div>';
             echo '</div>';
@@ -322,11 +318,11 @@ if ($ongoingTotalPages > 1) {
             echo '<div class="col-md-6 mb-4">';
             echo '<div class="card">';
             echo '<div class="card-body">';
-            echo '<h5 class="card-title">' . $event['title'] . '</h5>';
-            echo '<p class="card-text">' . $event['description'] . '</p>';
-            echo '<p class="card-text">Date: ' . $event['date_requested'] . '</p>';
-            echo '<a href="../EMS/event_details.php?event_id=' . $event['id'] . '" class="btn btn-primary mt-3 me-2">View</a>';
-            echo '<button type="button" class="btn btn-danger mt-3" data-bs-toggle="modal" data-bs-target="#withdrawModal' . $event['id'] . '">Withdraw Request</button>';
+            echo '<h5 class="card-title">' . htmlspecialchars($event['title'], ENT_QUOTES, 'UTF-8') . '</h5>';
+            echo '<p class="card-text">' . htmlspecialchars($event['description'], ENT_QUOTES, 'UTF-8') . '</p>';
+            echo '<p class="card-text">Date: ' . htmlspecialchars($event['date_requested'], ENT_QUOTES, 'UTF-8') . '</p>';
+            echo '<a href="../EMS/event_details.php?event_id=' . htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') . '" class="btn btn-primary mt-3 me-2">View</a>';
+            echo '<button type="button" class="btn btn-danger mt-3" data-bs-toggle="modal" data-bs-target="#withdrawModal' . htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8'). '">Withdraw Request</button>';
             echo '</div>';
             echo '</div>';
             echo '</div>';
@@ -423,10 +419,10 @@ if ($ongoingTotalPages > 1) {
             echo '<div class="col-md-6 mb-4">';
             echo '<div class="card">';
             echo '<div class="card-body">';
-            echo '<h5 class="card-title">' . $event['title'] . '</h5>';
-            echo '<p class="card-text">' . $event['description'] . '</p>';
-            echo '<p class="card-text">Date: ' . $event['date_requested'] . '</p>';
-            echo '<a href="../EMS/event_details.php?event_id=' . $event['id'] . '" class="btn btn-primary mt-3">View</a>';
+            echo '<h5 class="card-title">' . htmlspecialchars($event['title'], ENT_QUOTES, 'UTF-8') . '</h5>';
+            echo '<p class="card-text">' . htmlspecialchars($event['description'], ENT_QUOTES, 'UTF-8') . '</p>';
+            echo '<p class="card-text">Date: ' . htmlspecialchars($event['date_requested'], ENT_QUOTES, 'UTF-8') . '</p>';
+            echo '<a href="../EMS/event_details.php?event_id=' . htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') . '" class="btn btn-primary mt-3">View</a>';
             echo '</div>';
             echo '</div>';
             echo '</div>';
@@ -500,10 +496,10 @@ if ($ongoingTotalPages > 1) {
             echo '<div class="col-md-6 mb-4">';
             echo '<div class="card">';
             echo '<div class="card-body">';
-            echo '<h5 class="card-title">' . $event['title'] . '</h5>';
-            echo '<p class="card-text">' . $event['description'] . '</p>';
-            echo '<p class="card-text">Date: ' . $event['date_requested'] . '</p>';
-            echo '<a href="../EMS/event_details.php?event_id=' . $event['id'] . '" class="btn btn-primary mt-3">View</a>';
+            echo '<h5 class="card-title">' . htmlspecialchars($event['title'], ENT_QUOTES, 'UTF-8') . '</h5>';
+            echo '<p class="card-text">' . htmlspecialchars($event['description'], ENT_QUOTES, 'UTF-8') . '</p>';
+            echo '<p class="card-text">Date: ' . htmlspecialchars($event['date_requested'], ENT_QUOTES, 'UTF-8') . '</p>';
+            echo '<a href="../EMS/event_details.php?event_id=' . htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') . '" class="btn btn-primary mt-3">View</a>';
             echo '</div>';
             echo '</div>';
             echo '</div>';
