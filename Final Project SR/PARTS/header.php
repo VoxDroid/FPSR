@@ -1,3 +1,21 @@
+<style>
+.sticky-top {
+    position: fixed;
+    top: 0;
+    z-index: 10000; /* Ensure it's above other content */
+    width: 100%;
+    margin-bottom: 10px;
+}
+body {
+    transition: padding-top 0.5s ease; /* Adjust duration and timing function as needed */
+}
+</style>
+<script>
+window.addEventListener('load', function() {
+    var headerHeight = document.querySelector('.sticky-top').offsetHeight;
+    document.body.style.paddingTop = headerHeight + 'px';
+});
+</script>
 <?php
 $current_page = basename($_SERVER['PHP_SELF']);
 
