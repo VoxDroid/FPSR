@@ -80,11 +80,11 @@ $stmtOngoingEvents->execute(['userID' => $userID]);
 </head>
 <body>
 <!-- Header -->
-<?php require_once '../PARTS/header_EMS.php'; ?>
+<?php require_once '../PARTS/header.php'; ?>
 <!-- End Header -->
 
 <!-- Main Content -->
-<main class="py-5">
+<main class="py-5 flex-grow-1">
 <div class="container mt-5">
 <?php
     // Withdraw request if withdraw button is clicked
@@ -551,6 +551,9 @@ if ($ongoingTotalPages > 1) {
     </div>
 </main>
 <!-- End Main Content -->
+
+<!-- Footer -->
+<?php require_once '../PARTS/footer.php'; ?>
 
 <!-- JS.PHP -->
 <?php require_once '../PARTS/js.php'; ?>

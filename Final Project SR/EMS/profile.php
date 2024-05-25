@@ -212,14 +212,19 @@ if (!empty($errors)) {
 
     <!-- CSS.PHP -->
     <?php require_once '../PARTS/CSS.php'; ?>
+    <style>
+        hr {
+        opacity: 1;
+        }   
+    </style>
 </head>
 <body>
 <!-- Header -->
-<?php require_once '../PARTS/header_EMS.php'; ?>
+<?php require_once '../PARTS/header.php'; ?>
 <!-- End Header -->
 
 <!-- Main Content -->
-<main class="py-5">
+<main class="py-5 flex-grow-1">
     <div class="container mt-5">
         <?php
         // Display errors and success message at the top of the page
@@ -239,6 +244,7 @@ if (!empty($errors)) {
         }
         ?>
         <h2>My Profile</h2>
+        <hr style="border: none; height: 4px; background-color: #1c2331;">
         <form id="profileForm" method="post" enctype="multipart/form-data">
             <div class="mb-3 text-center">
                 <?php if (!empty($user['profile_picture'])): ?>
@@ -299,6 +305,9 @@ if (!empty($errors)) {
         </form>
     </div>
 </main>
+
+<!-- Footer -->
+<?php require_once '../PARTS/footer.php'; ?>
 
 <!-- JS.PHP -->
 <?php require_once '../PARTS/js.php'; ?>

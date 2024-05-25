@@ -37,20 +37,17 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
     <title>Event Management System</title>
 
     <!-- CSS.PHP -->
-    <?php
-    require_once 'PARTS/CSS.php';
-    ?>
-
+    <?php require_once 'PARTS/CSS.php'; ?>
 </head>
 <body>
+    
 <!-- Header -->
 <?php
-    require_once 'PARTS/header_index.php';
+    require_once 'PARTS/header.php';
 ?>
 
+<!-- Event Cards and Carousel -->
 <style>
-
-
 .event-card {
     border: none;
     transition: box-shadow 0.3s;
@@ -102,16 +99,65 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
     height: 10px;
     border-radius: 50%;
 }
-
 .carousel-indicators .active {
     background-color: #007bff;
 }
 
 </style>
+
+<!-- Event Header Styling -->
+<style>
+    hr {
+    opacity: 1;
+    }
+    .custom-heading {
+        align-items: center;
+        font-size: 2rem;
+        text-decoration: none; /* Remove underline */
+        display: inline-flex; /* Make the link behave like a flex container */
+        position: relative; /* Needed for absolute positioning */
+        padding: 10px 15px; /* Adjust padding for better visual */
+        transition: color 0.3s ease; /* Smooth transition for text color */
+    }
+    .custom-heading .bi {
+        margin-left: 10px;
+        position: relative; /* Needed for absolute positioning */
+        transition: transform 0.3s ease; /* Smooth transition for transform */
+    }
+    .custom-heading.white-background {
+        color: #161c27; /* Custom text color */
+    }
+    .custom-heading.white-background:hover .bi {
+        color: #34495e; /* Change icon color on hover */
+        transform: translateX(10px); /* Move the icon 5px to the right on hover */
+    }
+    .custom-heading.white-background:hover {
+        color: #34495e; /* Change text color on hover */
+    }
+
+    .custom-heading.blue-background {
+        color: #ffffff; /* White text color */
+    }
+    .custom-heading.blue-background:hover .bi {
+        color: #c0c0c0; /* Change icon color on hover */
+        transform: translateX(10px); /* Move the icon 10px to the right on hover */
+    }
+    .custom-heading.blue-background:hover {
+        color: #c0c0c0; /* Change text color on hover */
+    }
+
+    /* Define the animation */
+    @keyframes moveLeftRight {
+        0% { transform: translateX(0); }
+        50% { transform: translateX(10px); } /* Move 10px to the right */
+        100% { transform: translateX(0); }
+    }
+</style>
+
 <!-- End Header -->
 
 <!-- Main Content -->
-<main class="py-5" style="background-color: #1c2331">
+<main class="py-5 flex-grow-1" style="background-color: #1c2331">
     <div class="container">
         <?php
         if (isset($_SESSION['success_message'])) {
@@ -119,7 +165,13 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
             unset($_SESSION['success_message']); // Clear message after displaying
         }
         ?>
-        <h2 class="text-white">Ongoing Events</h2>
+        <h2>
+            <a href="EMS/events_ongoing.php" class="custom-heading blue-background">
+                Ongoing Events
+                <i class="bi bi-chevron-right"></i>
+            </a>
+        </h2>
+        <hr style="border: none; height: 4px; background-color: #FFFFFF;">
         <div id="ongoingEventsCarousel" class="carousel slide mb-5" data-ride="carousel">
             <div class="carousel-inner">
                 <?php
@@ -186,7 +238,7 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
                         $first = false;
                     }
                 } else {
-                    echo '<p>No ongoing events found.</p>';
+                    echo '<p class="text-white">No ongoing events found.</p>';
                 }
                 ?>
             </div>
@@ -217,7 +269,13 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
 <!-- Approved events -->
 <div class="py-5">
     <div class="container">
-        <h2>Approved Events</h2>
+        <h2>
+            <a href="EMS/events_approved.php" class="custom-heading white-background">
+                Approved Events
+                <i class="bi bi-chevron-right"></i>
+            </a>
+        </h2>
+        <hr style="border: none; height: 4px; background-color: #1c2331;">
         <div id="approvedEventsCarousel" class="carousel slide mb-5" data-ride="carousel">
             <div class="carousel-inner">
                 <?php
@@ -316,7 +374,13 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
 <!-- Pending Events -->
 <div class="py-5" style="background-color: #1c2331">
     <div class="container">
-        <h2 class="text-white">Pending Events</h2>
+        <h2>
+            <a href="EMS/events_pending.php" class="custom-heading blue-background">
+                Pending Events
+                <i class="bi bi-chevron-right"></i>
+            </a>
+        </h2>
+        <hr style="border: none; height: 4px; background-color: #FFFFFF;">
         <div class="row">
             <?php
             // Fetch pending events count
@@ -392,7 +456,7 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
                 }
             } else {
                 echo '<div class="col-md-12">';
-                echo '<p>No pending events found.</p>';
+                echo '<p class="text-white">No pending events found.</p>';
                 echo '</div>';
             }
 
@@ -429,7 +493,13 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
 <!-- Archive Section -->
 <div class="py-5">
     <div class="container">
-    <h2>Archive</h2>
+    <h2>
+            <a href="EMS/events_archived.php" class="custom-heading white-background">
+                Archived Events
+                <i class="bi bi-chevron-right"></i>
+            </a>
+        </h2>
+    <hr style="border: none; height: 4px; background-color: #1c2331;">
         <div class="row">
             <?php
             // Fetch archive events count
@@ -540,74 +610,29 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
 <!-- End of Archive Section -->
 
 <!-- Footer -->
-<!-- Footer -->
-<footer
-          class="text-center text-lg-start text-white"
-          style="background-color: #1c2331"
-          >
-
-    <!-- Section: Links  -->
-    <section class="py-1">
-      <div class="container text-center text-md-start mt-5">
-        <!-- Grid row -->
-        <div class="row mt-3">
-          <!-- Grid column -->
-          <div class="col-md-2 col-lg-3 col-xl-3 mx-auto mb-4">
-            <!-- Links -->
-            <h6 class="text-uppercase fw-bold">Team Members</h6>
-            <hr
-                class="mb-4 mt-0 d-inline-block mx-auto"
-                style="width: 60px; background-color: #7c4dff; height: 2px"
-                />
-            <p>
-              <a href="https://www.facebook.com/MharAndrei" target="_blank" rel="noreferrer noopener" class="text-white text-decoration-none">Mhar Andrei Macapallag</a>
-            </p>
-            <p>
-                <a href="https://www.facebook.com/keayon.romero" target="_blank" rel="noreferrer noopener" class="text-white text-decoration-none">Keayon Ivan Romero</a>
-            </p>
-            <p>
-                <a href="https://www.facebook.com/profile.php?id=100009647451125" target="_blank" rel="noreferrer noopener" class="text-white text-decoration-none">Carlo James G. Arat</a>
-            </p>
-          </div>
-          <!-- Grid column -->
-
-          <!-- Grid column -->
-          <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-4">
-            <!-- Links -->
-            <h6 class="text-uppercase fw-bold">Contact</h6>
-            <hr
-                class="mb-4 mt-0 d-inline-block mx-auto"
-                style="width: 60px; background-color: #7c4dff; height: 2px"
-                />
-            <p><i class="fas fa-envelope mr-3"></i> strawhat424@gmail.com</p>
-            <p><i class="fas fa-phone mr-3"></i> +63  992-926-7623</p>
-          </div>
-          <!-- Grid column -->
-        </div>
-        <!-- Grid row -->
-      </div>
-    </section>
-    <!-- Section: Links  -->
-
-    <!-- Copyright -->
-    <div
-         class="text-center p-3"
-         style="background-color: rgba(0, 0, 0, 0.2)"
-         >
-      © 2024 Copyright:
-      <a class="text-white text-decoration-none" href="https://github.com/VoxDroid/FPSR?fbclid=IwZXh0bgNhZW0CMTAAAR3HNhvJ6BIH0bYgrZ4Jsee-s5CjGJ4fYMfjI1XHO2ASBC0He38QZznZ4Nk_aem_AbIHv3cFXtxFxifFnHmegss7rspLrcTwu59dkqQwB_6vH6ffKY1GDCO4DCUTz2y-C0fmYKaJakXE4bstkykk1DPr" target="_blank" rel="noreferrer noopener"
-         >MRA</a
-        >
-    </div>
-    <!-- Copyright -->
-  </footer>
-  <!-- Footer -->
-<!-- End of Footer -->
+<?php require_once 'PARTS/footer.php'; ?>
 
 <!-- JS.PHP -->
 <?php
 require_once 'PARTS/js.php';
 ?>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const customHeadings = document.querySelectorAll('.custom-heading');
+
+        customHeadings.forEach(function(customHeading) {
+            const chevronIcon = customHeading.querySelector('.bi');
+
+            customHeading.addEventListener('mouseenter', function () {
+                chevronIcon.style.animation = 'moveLeftRight 0.5s ease infinite alternate';
+            });
+
+            customHeading.addEventListener('mouseleave', function () {
+                chevronIcon.style.animation = 'none';
+            });
+        });
+    });
+</script>
 </body>
 </html>

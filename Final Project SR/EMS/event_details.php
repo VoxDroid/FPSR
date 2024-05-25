@@ -86,11 +86,11 @@ try {
 <body>
     <!-- Header -->
     <?php
-        require_once '../PARTS/header_EMS.php';
+        require_once '../PARTS/header.php';
     ?>
     <!-- End Header -->
 
-    <div class="container mt-5">
+    <div class="container mt-5 flex-grow-1">
         <?php
         if (isset($_SESSION['success_message'])) {
             echo '<div class="alert alert-success">' . $_SESSION['success_message'] . '</div>';
@@ -585,6 +585,9 @@ try {
     </div>
   </div>
 </div>
+
+<!-- Footer -->
+<?php require_once '../PARTS/footer.php'; ?>
 
 <script>
 // Add this JavaScript code at the end of your HTML body

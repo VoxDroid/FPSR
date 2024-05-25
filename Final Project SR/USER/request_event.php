@@ -134,9 +134,9 @@ try {
 </head>
 <body>
 <!-- Header -->
-<?php require_once '../PARTS/header_EMS.php'; ?>
+<?php require_once '../PARTS/header.php'; ?>
 <!-- End Header -->
-<div class="container mt-5">
+<div class="container mt-5 flex-grow-1">
     <?php
     if (isset($_SESSION['success_message'])) {
         echo '<div class="alert alert-success">' . $_SESSION['success_message'] . '</div>';
@@ -198,8 +198,13 @@ try {
     </form>
 
 </div>
+
+<!-- Footer -->
+<?php require_once '../PARTS/footer.php'; ?>
+
 <!-- JS.PHP -->
 <?php require_once '../PARTS/js.php'; ?>
+
 <script>
     // Function to set min attribute of event_start input to tomorrow's date
     function setMinStartDate() {

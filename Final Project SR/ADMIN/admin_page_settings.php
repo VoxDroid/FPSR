@@ -49,11 +49,11 @@ $stmtUsers->execute();
 </head>
 <body>
 <!-- Header -->
-<?php require_once '../PARTS/header_EMS.php'; ?>
+<?php require_once '../PARTS/header.php'; ?>
 <!-- End Header -->
 
 <!-- Main Content -->
-<main class="py-5">
+<main class="py-5 flex-grow-1">
 <div class="container mt-5">
     <?php
 
@@ -598,6 +598,9 @@ if ($endPage - $startPage + 1 < $pagesToShow) {
 </main>
 <!-- End Main Content -->
 
+<!-- Footer -->
+<?php require_once '../PARTS/footer.php'; ?>
+
 <!-- JS.PHP -->
 <?php require_once '../PARTS/js.php'; ?>
 <script>
@@ -664,9 +667,6 @@ if ($endPage - $startPage + 1 < $pagesToShow) {
         initializeRows();
     });
 </script>
-
-
-
 </body>
 </html>
 

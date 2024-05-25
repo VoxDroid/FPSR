@@ -13,6 +13,7 @@ if ($current_page === 'index.php') {
 
     <!-- Bootstrap CSS -->
     <link href="CSS/bootstrap.min.css" rel="stylesheet">
+    <link href="CSS/bootstrap-icons.min.css" rel="stylesheet">
     <link href="CSS/bootstrap-icons.css" rel="stylesheet">
     <link href="CSS/FA-all.min.css" rel="stylesheet">
 
@@ -31,6 +32,7 @@ HTML;
 
     <!-- UPPER Bootstrap CSS -->
     <link href="../CSS/bootstrap.min.css" rel="stylesheet">
+    <link href="../CSS/bootstrap-icons.min.css" rel="stylesheet">
     <link href="../CSS/bootstrap-icons.css" rel="stylesheet">
     <link href="../CSS/FA-all.min.css" rel="stylesheet">
 

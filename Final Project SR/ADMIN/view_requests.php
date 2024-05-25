@@ -44,11 +44,11 @@ $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <!-- Header -->
 <?php
-require_once '../PARTS/header_EMS.php';
+require_once '../PARTS/header.php';
 ?>
 
 <!-- Main Content -->
-<div class="container mt-5">
+<div class="container mt-5 flex-grow-1">
 <input type="text" id="searchInput" class="form-control mb-3" placeholder="Search...">
 <?php
 
@@ -644,7 +644,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
 
 
     <!-- Denied Events Section -->
-    <div class="table-container mt-5 denied-section">
+    <div class="table-container mt-5 mb-5 denied-section">
         <div class="table-title">Denied Events</div>
         <div class="table-wrapper">
             <?php
@@ -756,6 +756,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
         ?>
     </div>
 </div>
+</div>
+
+<!-- Footer -->
+<?php require_once '../PARTS/footer.php'; ?>
 
 <!-- JavaScript for real-time filtering -->
 <script>
@@ -815,8 +819,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
         });
     });
 </script>
-
-
 
 <!-- JS.PHP -->
 <?php require_once '../PARTS/js.php'; ?>
