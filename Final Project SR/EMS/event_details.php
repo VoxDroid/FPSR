@@ -23,19 +23,7 @@ function hasExceededCommentLimit($pdo, $user_id, $comment_limit, $hour_limit) {
     }
 }
 
-// Database connection settings
-$host = 'localhost';
-$dbname = 'event_management_system';
-$username22 = 'root';
-$password = '';
-
 try {
-    // Connect to MySQL database using PDO
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username22, $password);
-    
-    // Set PDO error mode to exception
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
     // Check if event_id is provided in the URL
     if(isset($_GET['event_id'])) {
         // Retrieve event details based on event_id
@@ -102,39 +90,64 @@ try {
             unset($_SESSION['error_message']); // Clear message after displaying
         }
         try {
-            // Connect to MySQL database using PDO
-            $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username22, $password);
-            
-            // Set PDO error mode to exception
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
             // Check if event_id is provided in the URL
-            if(isset($_GET['event_id'])) {
+            if (isset($_GET['event_id'])) {
                 // Retrieve event details based on event_id
                 $event_id = $_GET['event_id'];
-                $queryEventDetails = "SELECT e.*, u.username AS requester_username FROM events e JOIN users u ON e.user_id = u.id WHERE e.id = :event_id";
+                $queryEventDetails = "SELECT e.*, u.username AS requester_username, u.profile_picture AS requester_profile_picture 
+                                      FROM events e 
+                                      JOIN users u ON e.user_id = u.id 
+                                      WHERE e.id = :event_id";
                 $stmtEventDetails = $pdo->prepare($queryEventDetails);
                 $stmtEventDetails->execute(['event_id' => $event_id]);
                 $eventDetails = $stmtEventDetails->fetch(PDO::FETCH_ASSOC);
-        
+            
                 // Display event details
-                if($eventDetails) {
-                    echo '<div class="card">';
-                    echo '<div class="card-header">';
+                if ($eventDetails) {
+                    echo '<div class="card mb-4">';
+                    echo '<div class="card-header text-white" style="background-color: #161c27;">';
                     echo '<h5 class="card-title">Event Details</h5>';
                     echo '</div>';
                     echo '<div class="card-body">';
-                    echo '<p class="card-text"><strong>User:</strong> ' . htmlspecialchars($eventDetails['requester_username'], ENT_QUOTES, 'UTF-8') . '</p>';
-                    echo '<p class="card-text"><strong>Title:</strong> ' . htmlspecialchars($eventDetails['title'], ENT_QUOTES, 'UTF-8') . '</p>';
-                    echo '<p class="card-text"><strong>Description:</strong> ' . htmlspecialchars($eventDetails['description'], ENT_QUOTES, 'UTF-8') . '</p>';
-                    echo '<p class="card-text"><strong>Facility:</strong> ' . htmlspecialchars($eventDetails['facility'], ENT_QUOTES, 'UTF-8') . '</p>';
-                    echo '<p class="card-text"><strong>Duration:</strong> ' . htmlspecialchars($eventDetails['duration'], ENT_QUOTES, 'UTF-8') . ' hrs</p>';
-                    echo '<p class="card-text"><strong>Status:</strong> ' . htmlspecialchars($eventDetails['status'], ENT_QUOTES, 'UTF-8') . '</p>';
-                    echo '<p class="card-text"><strong>Date Requested:</strong> ' . htmlspecialchars($eventDetails['date_requested'], ENT_QUOTES, 'UTF-8') . '</p>';
-                    echo '<p class="card-text"><strong>Event Start:</strong> ' . htmlspecialchars($eventDetails['event_start'], ENT_QUOTES, 'UTF-8') . '</p>';
-                    echo '<p class="card-text"><strong>Event End:</strong> ' . htmlspecialchars($eventDetails['event_end'], ENT_QUOTES, 'UTF-8') . '</p>';
-                    echo '<p class="card-text"><strong>Likes:</strong> ' . htmlspecialchars($eventDetails['likes'], ENT_QUOTES, 'UTF-8') . '</p>';
-                    echo '<p class="card-text"><strong>Dislikes:</strong> ' . htmlspecialchars($eventDetails['dislikes'], ENT_QUOTES, 'UTF-8') . '</p>';
+                    
+                    // User Information
+                    echo '<div class="d-flex align-items-center mb-3">';
+                    echo '<img src="' . htmlspecialchars($eventDetails['requester_profile_picture'], ENT_QUOTES, 'UTF-8') . '" alt="Profile Picture" class="rounded-circle me-3" style="width: 50px; height: 50px;">';
+                    echo '<h6 class="mb-0"><strong>User:</strong> ' . htmlspecialchars($eventDetails['requester_username'], ENT_QUOTES, 'UTF-8') . '</h6>';
+                    echo '</div>';
+
+                    // Separator line
+                    echo '<hr class="my-4">';
+            
+                    // Event Details Grid
+                    echo '<div class="row">';
+                    echo '<div class="col-md-6">';
+                    echo '<p><strong>Title:</strong> ' . htmlspecialchars($eventDetails['title'], ENT_QUOTES, 'UTF-8') . '</p>';
+                    echo '<p><strong>Description:</strong> ' . nl2br(htmlspecialchars($eventDetails['description'], ENT_QUOTES, 'UTF-8')) . '</p>';
+                    echo '<p><strong>Facility:</strong> ' . htmlspecialchars($eventDetails['facility'], ENT_QUOTES, 'UTF-8') . '</p>';
+                    echo '</div>';
+                    echo '<div class="col-md-6">';
+                    echo '<p><strong>Duration:</strong> ' . htmlspecialchars($eventDetails['duration'], ENT_QUOTES, 'UTF-8') . ' hrs</p>';
+                    echo '<p><strong>Date Requested:</strong> ' . htmlspecialchars($eventDetails['date_requested'], ENT_QUOTES, 'UTF-8') . '</p>';
+                    echo '<p><strong>Status:</strong> ' . htmlspecialchars($eventDetails['status'], ENT_QUOTES, 'UTF-8') . '</p>';
+                    echo '</div>';
+                    echo '<div class="col-md-6">';
+                    echo '<p><strong>Event Start:</strong> ' . htmlspecialchars($eventDetails['event_start'], ENT_QUOTES, 'UTF-8') . '</p>';
+                    echo '<p><strong>Event End:</strong> ' . htmlspecialchars($eventDetails['event_end'], ENT_QUOTES, 'UTF-8') . '</p>';
+                    echo '</div>';
+                    echo '<div class="col-md-6">';
+                    echo '<p><strong>Likes:</strong> ' . htmlspecialchars($eventDetails['likes'], ENT_QUOTES, 'UTF-8') . '</p>';
+                    echo '<p><strong>Dislikes:</strong> ' . htmlspecialchars($eventDetails['dislikes'], ENT_QUOTES, 'UTF-8') . '</p>';
+                    echo '</div>';
+                    echo '</div>'; // end row
+            
+                    // Event Remarks
+                    echo '<div class="mt-3">';
+                    echo '<h6><strong>Remarks:</strong></h6>';
+                    echo '<p>' . nl2br(htmlspecialchars($eventDetails['remarks'], ENT_QUOTES, 'UTF-8')) . '</p>';
+                    echo '</div>';
+
+                    echo '<hr class="my-4">';
                     
                     // Display like and dislike buttons only for logged-in users
                     if(isset($_SESSION['user_id'])) {
@@ -605,8 +618,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
     <!-- JS.PHP -->
-    <?php
-    require_once '../PARTS/js.php';
-    ?>
+<?php require_once '../PARTS/JS.php'; ?>
 </body>
 </html>

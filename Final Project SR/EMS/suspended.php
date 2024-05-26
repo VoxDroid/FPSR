@@ -122,20 +122,21 @@ require_once '../PARTS/config.php';
 
 <div class="container">
   <div class="alert text-center bounce">
-    <img src="../SVG/exclamation-triangle-fill.svg" alt="Account Suspended" class="illustration">
+    <img src="../SVG/exclamation-triangle-fill.svg" alt="Account Suspended" class="illustration" height="250" width="250">
     <h1>Uh-oh! Your Account Has Been Suspended</h1>
     <p>We're sorry, but your account has been temporarily suspended for violating our terms of service.</p>
-    <p>Please contact support for further assistance or logout and try again later.</p>
-    <form method="post">
-        <button href="#" class="btn btn-primary btn-lg">Contact Support</button>
+    <p>Please contact <strong>mharandreimacapallag@gmail.com</strong> for further assistance or logout and try again later.</p>
+    <div class="mt-4">
+      <form method="post" class="d-inline">
         <button type="submit" name="logout_EMS" class="btn btn-outline-light btn-lg">Logout</button>
-    </form>
+      </form>
+    </div>
   </div>
 </div>
 
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<!-- JS.PHP -->
+<?php require_once '../PARTS/JS.php'; ?>
 
 </body>
 </html>

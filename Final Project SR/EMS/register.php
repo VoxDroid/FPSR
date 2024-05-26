@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once '../PARTS/config.php';
 
 // Redirect user to dashboard if already logged in
 if (isset($_SESSION['user_id'])) {
@@ -14,16 +14,8 @@ $username_err = $email_err = $password_err = $gender_err = "";
 // Process form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Database connection settings
-    $host = 'localhost';
-    $dbname = 'event_management_system';
-    $username22 = 'root';
-    $password22 = '';
-
+    
     try {
-        // Connect to MySQL database using PDO
-        $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username22, $password22);
-        // Set PDO error mode to exception
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Validate username
         if (empty(trim($_POST['username']))) {
@@ -287,9 +279,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
 <div class="container">
-    <div class="row">
-        <div class="col-md-8 col-lg-6 mx-auto">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6 mx-auto text-center">
             <div class="register-container">
+                <img src="../ASSETS/IMG/EMS_icons/EMS_icon.png" width="150" height="150" alt="EMS" class="img-fluid mb-3">
                 <h2 class="register-title">REGISTER</h2>
                 <?php if (isset($error)) : ?>
                     <div class="alert alert-danger" role="alert">
@@ -352,8 +345,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 </div>
 
-<!-- Bootstrap JS -->
-<?php require_once '../PARTS/js.php'; ?>
+<!-- JS.PHP -->
+<?php require_once '../PARTS/JS.php'; ?>
 </body>
 </html>
 

@@ -12,8 +12,26 @@ body {
 </style>
 <script>
 window.addEventListener('load', function() {
-    var headerHeight = document.querySelector('.sticky-top').offsetHeight;
-    document.body.style.paddingTop = headerHeight + 'px';
+    // Function to adjust body padding and modal positions based on header height
+    function adjustLayout() {
+        var headerHeight = document.querySelector('.sticky-top').offsetHeight;
+        
+        // Adjust body padding to accommodate sticky header
+        document.body.style.paddingTop = headerHeight + 'px';
+
+        // Get all modals
+        var modals = document.querySelectorAll('.modal');
+        
+        // Loop through each modal to adjust its position
+        modals.forEach(function(modal) {
+            var modalTop = headerHeight;
+            modal.style.top = modalTop + 'px';
+        });
+    }
+
+    // Call adjustLayout initially and on window resize
+    adjustLayout();
+    window.addEventListener('resize', adjustLayout);
 });
 </script>
 <?php

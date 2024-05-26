@@ -9,24 +9,8 @@ if (!isset($_SESSION['user_id'])) {
 
 $userId = $_SESSION['user_id'];
 
-// Database connection settings
-$host = 'localhost';
-$dbname = 'event_management_system';
-$username22 = 'root';
-$password = '';
-
 $errors = []; // Array to store error messages
 $successMessage = ""; // Variable to store success message
-
-try {
-    // Connect to MySQL database using PDO
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username22, $password);
-    
-    // Set PDO error mode to exception
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    die("Error: " . $e->getMessage());
-}
 
 // Fetch user details
 $queryUser = "SELECT * FROM users WHERE id = :id";
@@ -216,6 +200,13 @@ if (!empty($errors)) {
         hr {
         opacity: 1;
         }   
+        .password-toggle-icon {
+            position: absolute;
+            top: 75%;
+            right: 15px;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -246,7 +237,7 @@ if (!empty($errors)) {
         <h2>My Profile</h2>
         <hr style="border: none; height: 4px; background-color: #1c2331;">
         <form id="profileForm" method="post" enctype="multipart/form-data">
-            <div class="mb-3 text-center">
+        <div class="mb-3 text-center">
                 <?php if (!empty($user['profile_picture'])): ?>
                     <img src="<?php echo htmlspecialchars($user['profile_picture']); ?>" alt="Profile Picture" class="img-thumbnail" style="width: 150px; height: 150px;">
                 <?php else: ?>
@@ -257,9 +248,10 @@ if (!empty($errors)) {
                 <label for="username" class="form-label">Username</label>
                 <input type="text" class="form-control" id="username" name="username" value="<?php echo htmlspecialchars($user['username']); ?>" minlength="3">
             </div>
-            <div class="mb-3">
+            <div class="mb-3 position-relative">
                 <label for="password" class="form-label">Password</label>
                 <input type="password" class="form-control" id="password" name="password" minlength="8">
+                <span class="password-toggle-icon bi bi-eye-slash" onclick="togglePasswordVisibility('password')"></span>
             </div>
             <div class="mb-3">
                 <label for="gender" class="form-label">Gender</label>
@@ -310,8 +302,24 @@ if (!empty($errors)) {
 <?php require_once '../PARTS/footer.php'; ?>
 
 <!-- JS.PHP -->
-<?php require_once '../PARTS/js.php'; ?>
+<?php require_once '../PARTS/JS.php'; ?>
 <script>
+    function togglePasswordVisibility(inputId) {
+        const passwordInput = document.getElementById(inputId);
+        const icon = passwordInput.nextElementSibling;
+
+        if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            icon.classList.remove("bi-eye-slash");
+            icon.classList.add("bi-eye");
+        } else {
+            passwordInput.type = "password";
+            icon.classList.remove("bi-eye");
+            icon.classList.add("bi-eye-slash");
+        }
+    }
+
+
     function handleRemovePicture() {
         var removeCheckbox = document.getElementById('remove_picture');
         var uploadInput = document.getElementById('profile_picture');

@@ -20,10 +20,10 @@
     <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
         <p class="mb-0">Connect with us on social media:</p>
         <div class="social-icons mt-2">
-            <a href="#" class="text-white me-3"><i class="fab fa-facebook-f"></i></a>
-            <a href="#" class="text-white me-3"><i class="fab fa-twitter"></i></a>
-            <a href="#" class="text-white me-3"><i class="fab fa-instagram"></i></a>
-            <a href="#" class="text-white"><i class="fab fa-linkedin-in"></i></a>
+            <a href="https://www.facebook.com/MharAndrei" target="_blank" rel="noreferrer noopener" class="text-white me-3"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://twitter.com/drei_zx" target="_blank" rel="noreferrer noopener" class="text-white me-3"><i class="fab fa-twitter"></i></a>
+            <a href="https://www.instagram.com/andrei_who/" target="_blank" rel="noreferrer noopener" class="text-white me-3"><i class="fab fa-instagram"></i></a>
+            <a href="https://www.linkedin.com/in/macapallag-mhar-andrei-c-4051ab310/" target="_blank" rel="noreferrer noopener" class="text-white"><i class="fab fa-linkedin-in"></i></a>
         </div>
     </div>
     <!-- End of Top Block -->

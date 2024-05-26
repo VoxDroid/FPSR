@@ -1,9 +1,6 @@
 <?php
 // Database connection settings
-$host = 'localhost';
-$dbname = 'event_management_system';
-$username = 'root';
-$password = '';
+require_once 'db_connection_settings.php';
 
 try {
     // Connect to MySQL database using PDO

@@ -1,7 +1,7 @@
 <?php
 require_once '../PARTS/background_worker.php';
 require_once '../PARTS/config.php';
-
+ob_start();
 // Redirect to index.php if user is not logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../index.php");
@@ -12,22 +12,6 @@ if (!isset($_SESSION['user_id'])) {
 if ($_SESSION['role'] !== 'admin') {
     header("Location: ../index.php");
     exit();
-}
-
-// Database connection settings
-$host = 'localhost';
-$dbname = 'event_management_system';
-$username22 = 'root';
-$password = '';
-
-try {
-    // Connect to MySQL database using PDO
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username22, $password);
-    
-    // Set PDO error mode to exception
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    die("Error: " . $e->getMessage());
 }
 
 // Fetch all users
@@ -139,15 +123,6 @@ $stmtUsers->execute();
 $errors = [];
 $successMessage = "";
 
-
-try {
-    // Connect to MySQL database using PDO
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username22, $password);
-    // Set PDO error mode to exception
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Error: " . $e->getMessage());
-}
 
 // Process form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_account'])) {
@@ -310,10 +285,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_account'])) {
             $_SESSION['success_message'] = "User details updated successfully.";
             header("Location: admin_page_settings.php");
             exit();
+            ob_end_flush();
         } else {
             $_SESSION['error_message'] = "Error updating user details.";
             header("Location: admin_page_settings.php");
             exit();
+            ob_end_flush();
         }
     }
 }
@@ -602,7 +579,7 @@ if ($endPage - $startPage + 1 < $pagesToShow) {
 <?php require_once '../PARTS/footer.php'; ?>
 
 <!-- JS.PHP -->
-<?php require_once '../PARTS/js.php'; ?>
+<?php require_once '../PARTS/JS.php'; ?>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const searchInput = document.getElementById('searchInput');

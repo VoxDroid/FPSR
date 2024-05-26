@@ -164,6 +164,11 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
             echo '<div class="alert alert-success">' . $_SESSION['success_message'] . '</div>';
             unset($_SESSION['success_message']); // Clear message after displaying
         }
+
+        if (isset($_SESSION['error_message'])) {
+            echo '<div class="alert alert-danger">' . $_SESSION['error_message'] . '</div>';
+            unset($_SESSION['error_message']); // Clear message after displaying
+        }
         ?>
         <h2>
             <a href="EMS/events_ongoing.php" class="custom-heading blue-background">
@@ -614,7 +619,7 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
 
 <!-- JS.PHP -->
 <?php
-require_once 'PARTS/js.php';
+require_once 'PARTS/JS.php';
 ?>
 
 <script>

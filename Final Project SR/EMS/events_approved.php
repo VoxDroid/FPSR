@@ -164,8 +164,8 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
 <!-- Footer -->
 <?php require_once '../PARTS/footer.php'; ?>
 
-<!-- Custom JS -->
-<?php require_once '../PARTS/js.php'; ?>
+<!-- JS.PHP -->
+<?php require_once '../PARTS/JS.php'; ?>
 
 </body>
 </html>

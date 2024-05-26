@@ -235,7 +235,7 @@ $today = new DateTime();
     <?php require_once '../PARTS/footer.php'; ?>
 
     <!-- JS.PHP -->
-    <?php require_once '../PARTS/js.php'; ?>
+<?php require_once '../PARTS/JS.php'; ?>
 
     <script>
         function changeMonth(direction) {

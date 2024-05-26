@@ -13,21 +13,9 @@ function updateEventStatus($pdo) {
     $stmtCompleted = $pdo->prepare($updateCompletedQuery);
     $stmtCompleted->execute([$currentDate]);
 }
-
-// Database connection settings
-$host = 'localhost';
-$dbname = 'event_management_system';
-$username = 'root';
-$password = '';
+require_once 'config.php';
 
 try {
-    // Connect to MySQL database using PDO
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-    
-    // Set PDO error mode to exception
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-    // Call the function to update event statuses
     updateEventStatus($pdo);
 } catch(PDOException $e) {
     die("Error: " . $e->getMessage());

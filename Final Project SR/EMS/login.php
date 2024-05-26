@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once '../PARTS/config.php';
 
 // Redirect user to dashboard if already logged in
 if (isset($_SESSION['user_id'])) {
@@ -14,18 +14,7 @@ if (!isset($_SESSION['login_attempts'])) {
 
 // Handle login form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['username']) && isset($_POST['password'])) {
-    // Database connection settings
-    $host = 'localhost';
-    $dbname = 'event_management_system';
-    $username = 'root';
-    $password = '';
-
     try {
-        // Connect to MySQL database using PDO
-        $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-        // Set PDO error mode to exception
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
         // Check if too many login attempts
         if ($_SESSION['login_attempts'] >= 8) {
             // Check if cooldown period has passed (1 hour cooldown)
@@ -58,7 +47,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['username']) && isset($
                 $_SESSION['login_attempts'] = 0;
                 $_SESSION['last_login_attempt_time'] = null;
 
-                // Redirect user to dashboard
+                // Redirect user to dashboard to avoid form resubmission
                 header("Location: ../index.php");
                 exit();
             } else {
@@ -72,6 +61,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['username']) && isset($
         }
     } catch(PDOException $e) {
         die("Error: " . $e->getMessage());
+    }
+    
+    // Redirect to prevent form resubmission
+    header("Location: login.php?error=".urlencode($error));
+    exit();
+}
+
+// Display error message if redirected from login attempt
+if(isset($_GET['error'])) {
+    $error = urldecode($_GET['error']);
+}
+
+// Calculate cooldown time left if in cooldown period
+$cooldownTimeLeft = 0;
+if ($_SESSION['login_attempts'] >= 8 && isset($_SESSION['last_login_attempt_time'])) {
+    $cooldownPeriod = 3600; // in seconds (1 hour)
+    if (time() - $_SESSION['last_login_attempt_time'] < $cooldownPeriod) {
+        $cooldownTimeLeft = $cooldownPeriod - (time() - $_SESSION['last_login_attempt_time']);
     }
 }
 ?>
@@ -185,8 +192,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['username']) && isset($
 </head>
 <body>
 <div class="container">
-    <div class="row">
-        <div class="col-md-8 col-lg-6 mx-auto">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6 mx-auto text-center">
             <div class="login-container">
                 <?php
                 if (isset($_SESSION['registration_successful'])) {
@@ -194,8 +201,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['username']) && isset($
                     unset($_SESSION['registration_successful']);
                 }
                 ?>
+                <img src="../ASSETS/IMG/EMS_icons/EMS_icon.png" width="150" height="150" alt="EMS" class="img-fluid mb-3">
                 <h2 class="login-title">LOGIN</h2>
-                <?php if (isset($error)) : ?>
+                <?php if (!empty($error)) : ?>
                     <div class="alert alert-danger" role="alert">
                         <?php echo $error; ?>
                     </div>
@@ -218,7 +226,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['username']) && isset($
                         </div>
                     </div>
                     <div class="form-group forgot-password mb-3 ">
-                        <a href="#">Forgot password?</a>
+                        <a href="recover_account.php">Forgot password?</a>
                     </div>
                     <button type="submit" class="btn btn-primary btn-block btn-login">LogIn</button>
                 </form>
@@ -235,7 +243,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['username']) && isset($
     </div>
 </div>
 
-<!-- Bootstrap JS -->
-<?php require_once '../PARTS/js.php'; ?>
+<!-- JS.PHP -->
+<?php require_once '../PARTS/JS.php'; ?>
+
 </body>
 </html>

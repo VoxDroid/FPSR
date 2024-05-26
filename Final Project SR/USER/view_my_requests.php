@@ -14,25 +14,6 @@ if ($_SESSION['role'] !== 'user') {
     exit();
 }
 
-// Database connection settings
-$host = 'localhost';
-$dbname = 'event_management_system';
-$username22 = 'root';
-$password = '';
-
-try {
-    // Connect to MySQL database using PDO
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username22, $password);
-    
-    // Set PDO error mode to exception
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    die("Error: " . $e->getMessage());
-}
-
-
-
-
 // Fetch user's requested events
 $userID = $_SESSION['user_id'];
 
@@ -556,7 +537,7 @@ if ($ongoingTotalPages > 1) {
 <?php require_once '../PARTS/footer.php'; ?>
 
 <!-- JS.PHP -->
-<?php require_once '../PARTS/js.php'; ?>
+<?php require_once '../PARTS/JS.php'; ?>
 
 </body>
 </html>

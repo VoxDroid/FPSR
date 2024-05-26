@@ -35,6 +35,8 @@ try {
     // Create users table if it doesn't exist
     $createUserTableQuery = "CREATE TABLE IF NOT EXISTS users (
         id INT AUTO_INCREMENT PRIMARY KEY,
+        reset_token VARCHAR(255),
+        token_creation_time DATETIME,
         username VARCHAR(50) NOT NULL,
         password VARCHAR(255) NOT NULL,
         gender ENUM('male', 'female') NOT NULL,

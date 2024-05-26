@@ -9,12 +9,6 @@ if (!(isset($_SESSION['user_id']) && isset($_SESSION['role']) && $_SESSION['role
     exit();
 }
 
-// Database connection settings
-$host = 'localhost';
-$dbname = 'event_management_system';
-$username22 = 'root';
-$password = '';
-
 // Function to redirect to index.php
 function redirectToIndex() {
     header("Location: ../index.php");
@@ -22,12 +16,6 @@ function redirectToIndex() {
 }
 
 try {
-    // Connect to MySQL database using PDO
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username22, $password);
-    
-    // Set PDO error mode to exception
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
     // Initialize variables for form input values
     $title = isset($_SESSION['request_event_data']['title']) ? $_SESSION['request_event_data']['title'] : '';
     $description = isset($_SESSION['request_event_data']['description']) ? $_SESSION['request_event_data']['description'] : '';
@@ -203,7 +191,7 @@ try {
 <?php require_once '../PARTS/footer.php'; ?>
 
 <!-- JS.PHP -->
-<?php require_once '../PARTS/js.php'; ?>
+<?php require_once '../PARTS/JS.php'; ?>
 
 <script>
     // Function to set min attribute of event_start input to tomorrow's date

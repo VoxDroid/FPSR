@@ -9,21 +9,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 
-
-$host = 'localhost';
-$dbname = 'event_management_system';
-$username22 = 'root';
-$password = '';
-
-try {
-    // Connect to MySQL database using PDO
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username22, $password);
-    // Set PDO error mode to exception
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    die("Error: " . $e->getMessage());
-}
-
 // Fetch all events
 $query = "SELECT * FROM events";
 $stmt = $pdo->query($query);
@@ -52,17 +37,22 @@ require_once '../PARTS/header.php';
 <input type="text" id="searchInput" class="form-control mb-3" placeholder="Search...">
 <?php
 
-if (isset($_POST['submit_approval'])) {
-    $eventID = $_POST['event_id'];
-    $adminRemark = $_POST['admin_remark'];
-    $approvalStatus = $_POST['approval_status'];
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_approval'])) {
+        // Ensure $_POST variables are set before accessing them
+        if (isset($_POST['event_id'], $_POST['admin_remark'], $_POST['approval_status'])) {
+            $eventID = $_POST['event_id'];
+            $adminRemark = $_POST['admin_remark'];
+            $approvalStatus = $_POST['approval_status'];
 
-    // Update event status and remarks
-    $updateEventQuery = "UPDATE events SET status = :status, remarks = :remarks WHERE id = :event_id";
-    $updateStmt = $pdo->prepare($updateEventQuery);
-    $updateStmt->execute(['status' => $approvalStatus, 'remarks' => $adminRemark, 'event_id' => $eventID]);
-    echo '<div class="alert alert-success" role="alert">Event submission successful!</div>';
-}
+            // Update event status and remarks
+            $updateEventQuery = "UPDATE events SET status = :status, remarks = :remarks WHERE id = :event_id";
+            $updateStmt = $pdo->prepare($updateEventQuery);
+            $updateStmt->execute(['status' => $approvalStatus, 'remarks' => $adminRemark, 'event_id' => $eventID]);
+            echo '<div class="alert alert-success" role="alert">Event submission successful!</div>';
+        } else {
+            echo '<div class="alert alert-danger" role="alert">Error: Missing form data!</div>';
+        }
+    }
 
     // Withdraw request if withdraw button is clicked
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
@@ -211,47 +201,56 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
     $userStmt->execute(['user_id' => $event['user_id']]);
     $user = $userStmt->fetch(PDO::FETCH_ASSOC);
     ?>
-    <div class="modal fade" id="eventDetailsModal<?= $event['id'] ?>" tabindex="-1" aria-labelledby="eventDetailsModalLabel<?= $event['id'] ?>" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="eventDetailsModalLabel<?= $event['id'] ?>">Event Details</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <!-- Display user details -->
-                    <p><strong>User:</strong> <?= htmlspecialchars($user['username'], ENT_QUOTES, 'UTF-8') ?></p>
-                    <!-- Display event details -->
-                    <p><strong>Title:</strong> <?= htmlspecialchars($event['title'], ENT_QUOTES, 'UTF-8') ?></p>
-                    <p><strong>Description:</strong> <?= htmlspecialchars($event['description'], ENT_QUOTES, 'UTF-8') ?></p>
-                    <p><strong>Facility:</strong> <?= htmlspecialchars($event['facility'], ENT_QUOTES, 'UTF-8') ?></p>
-                    <p><strong>Duration:</strong> <?= htmlspecialchars($event['duration'], ENT_QUOTES, 'UTF-8') ?></p>
-                    <p><strong>Date Requested:</strong> <?= htmlspecialchars($event['date_requested'], ENT_QUOTES, 'UTF-8') ?></p>
-                    <p><strong>Event Start:</strong> <?= htmlspecialchars($event['event_start'], ENT_QUOTES, 'UTF-8') ?></p>
-                    <p><strong>Event End:</strong> <?= htmlspecialchars($event['event_end'], ENT_QUOTES, 'UTF-8') ?></p>
-                    <p><strong>Status:</strong> <?= htmlspecialchars($event['status'], ENT_QUOTES, 'UTF-8') ?></p>
-                    <p><strong>Likes:</strong> <?= htmlspecialchars($event['likes'], ENT_QUOTES, 'UTF-8') ?></p>
-                    <p><strong>Dislikes:</strong> <?= htmlspecialchars($event['dislikes'], ENT_QUOTES, 'UTF-8') ?></p>
-                    <!-- Form for admin's comment and approval/denial -->
-                    <form method="post">
-                        <div class="mb-3">
-                            <label for="adminRemark" class="form-label">Admin's Comment:</label>
-                            <textarea class="form-control" id="adminRemark" name="admin_remark" rows="3"></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="approvalStatus" class="form-label">Approval Status:</label>
-                            <select class="form-select" id="approvalStatus" name="approval_status">
-                                <option value="active">Approve</option>
-                                <option value="denied">Deny</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-primary" name="submit_approval">Submit</button>
-                        <input type="hidden" name="event_id" value="<?= $event['id'] ?>">
-                    </form>
+   <div class="modal fade lowered-modal" id="eventDetailsModal<?= $event['id'] ?>" tabindex="-1" aria-labelledby="eventDetailsModalLabel<?= $event['id'] ?>" aria-hidden="true">
+    <div class="modal-dialog modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="eventDetailsModalLabel<?= $event['id'] ?>">Event Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <!-- Left Column: User and Event Details -->
+                    <div class="col-md-6">
+                        <p><strong>User:</strong> <?= htmlspecialchars($user['username'], ENT_QUOTES, 'UTF-8') ?></p>
+                        <p><strong>Title:</strong> <?= htmlspecialchars($event['title'], ENT_QUOTES, 'UTF-8') ?></p>
+                        <p><strong>Description:</strong> <?= htmlspecialchars($event['description'], ENT_QUOTES, 'UTF-8') ?></p>
+                        <p><strong>Facility:</strong> <?= htmlspecialchars($event['facility'], ENT_QUOTES, 'UTF-8') ?></p>
+                        <p><strong>Duration:</strong> <?= htmlspecialchars($event['duration'], ENT_QUOTES, 'UTF-8') ?></p>
+                        <p><strong>Date Requested:</strong> <?= htmlspecialchars($event['date_requested'], ENT_QUOTES, 'UTF-8') ?></p>
+                        <p><strong>Event Start:</strong> <?= htmlspecialchars($event['event_start'], ENT_QUOTES, 'UTF-8') ?></p>
+                        <p><strong>Event End:</strong> <?= htmlspecialchars($event['event_end'], ENT_QUOTES, 'UTF-8') ?></p>
+                        <p><strong>Status:</strong> <?= htmlspecialchars($event['status'], ENT_QUOTES, 'UTF-8') ?></p>
+                        <p><strong>Likes:</strong> <?= htmlspecialchars($event['likes'], ENT_QUOTES, 'UTF-8') ?></p>
+                        <p><strong>Dislikes:</strong> <?= htmlspecialchars($event['dislikes'], ENT_QUOTES, 'UTF-8') ?></p>
+                    </div>
+                    <!-- Right Column: Admin Interaction -->
+                    <div class="col-md-6">
+                        <form method="post">
+                            <div class="mb-3">
+                                <label for="adminRemark" class="form-label">Admin's Comment:</label>
+                                <textarea class="form-control" id="adminRemark" name="admin_remark" rows="3"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="approvalStatus" class="form-label">Approval Status:</label>
+                                <select class="form-select" id="approvalStatus" name="approval_status">
+                                    <option value="active">Approve</option>
+                                    <option value="denied">Deny</option>
+                                </select>
+                            </div>
+                            <!-- Submit Button -->
+                            <button type="submit" class="btn btn-primary" name="submit_approval">Submit</button>
+                            <input type="hidden" name="event_id" value="<?= $event['id'] ?>">
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+
+
 <?php endforeach; ?>
 
 
@@ -821,6 +820,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
 </script>
 
 <!-- JS.PHP -->
-<?php require_once '../PARTS/js.php'; ?>
+<?php require_once '../PARTS/JS.php'; ?>
 </body>
 </html>
