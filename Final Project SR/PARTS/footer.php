@@ -33,21 +33,21 @@
                 <div class="col-md-2 col-lg-3 col-xl-3 mx-auto mb-5">
                     <h6 class="text-uppercase fw-bold">Team Members</h6>
                     <hr class="mb-4 mt-0 d-inline-block mx-auto" style="width: 60px; background-color: #7c4dff; height: 2px"/>
-                    <p><a href="https://www.facebook.com/MharAndrei" target="_blank" rel="noreferrer noopener" class="text-white text-decoration-none">Mhar Andrei Macapallag</a></p>
+                    <p><a href="https://www.facebook.com/MharAndrei" target="_blank" rel="noreferrer noopener" class="text-white text-decoration-none">Mhar Andrei Macapallag (Lead Dev)</a></p>
                     <p><a href="https://www.facebook.com/keayon.romero" target="_blank" rel="noreferrer noopener" class="text-white text-decoration-none">Keayon Ivan Romero</a></p>
                     <p><a href="https://www.facebook.com/profile.php?id=100009647451125" target="_blank" rel="noreferrer noopener" class="text-white text-decoration-none">Carlo James G. Arat</a></p>
                 </div>
                 <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-5">
                     <h6 class="text-uppercase fw-bold">Contact</h6>
                     <hr class="mb-4 mt-0 d-inline-block mx-auto" style="width: 60px; background-color: #7c4dff; height: 2px"/>
-                    <p><i class="fas fa-envelope mr-3"></i> strawhat424@gmail.com</p>
-                    <p><i class="fas fa-phone mr-3"></i> +63 992-926-7623</p>
+                    <p><i class="fas fa-envelope mr-3"></i>mharandreimacapallag@gmail.com</p>
+                    <p><i class="fas fa-phone mr-3"></i> +63 977 467 6593</p>
                 </div>
             </div>
         </div>
     </section>
     <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
         © 2024 Copyright:
-        <a class="text-white text-decoration-none" href="https://github.com/VoxDroid/FPSR?fbclid=IwZXh0bgNhZW0CMTAAAR3HNhvJ6BIH0bYgrZ4Jsee-s5CjGJ4fYMfjI1XHO2ASBC0He38QZznZ4Nk_aem_AbIHv3cFXtxFxifFnHmegss7rspLrcTwu59dkqQwB_6vH6ffKY1GDCO4DCUTz2y-C0fmYKaJakXE4bstkykk1DPr" target="_blank" rel="noreferrer noopener">MRA</a>
+        <a class="text-white text-decoration-none" href="https://github.com/VoxDroid/FPSR?fbclid=IwZXh0bgNhZW0CMTAAAR3HNhvJ6BIH0bYgrZ4Jsee-s5CjGJ4fYMfjI1XHO2ASBC0He38QZznZ4Nk_aem_AbIHv3cFXtxFxifFnHmegss7rspLrcTwu59dkqQwB_6vH6ffKY1GDCO4DCUTz2y-C0fmYKaJakXE4bstkykk1DPr" target="_blank" rel="noreferrer noopener"><strong>LSPU SCC - MRA</strong></a>
     </div>
 </footer>

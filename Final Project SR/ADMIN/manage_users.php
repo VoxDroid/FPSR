@@ -30,15 +30,57 @@ $stmtUsers->execute();
 
     <!-- CSS.PHP -->
     <?php require_once '../PARTS/CSS.php'; ?>
+
+    <style>
+        .admin-navigation {
+            background-color: #161c27;
+            display: flex;
+            flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+            justify-content: center;
+            padding: 10px 0;
+        }
+
+        .nav-button {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 15px;
+            margin: 5px; /* Adjusted margin for better spacing */
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+            display: inline-flex; /* Ensure buttons are in a row */
+            align-items: center; /* Center content vertically */
+        }
+
+        .nav-button:hover {
+            background-color: #273447;
+        }
+
+        .nav-icon {
+            margin-right: 10px;
+        }
+
+        .active {
+            background-color: #273447;
+        }
+    </style>
 </head>
 <body>
 <!-- Header -->
 <?php require_once '../PARTS/header.php'; ?>
 <!-- End Header -->
 
+<!-- Navigation Buttons Section -->
+<div class="admin-navigation">
+        <a class="nav-button" href="administrator.php"><i class="fas fa-tachometer-alt nav-icon"></i> Dashboard</a>
+        <a class="nav-button active" href="#"><i class="fas fa-users nav-icon"></i> Manage Users</a>
+        <a class="nav-button" href="manage_comments.php"><i class="fas fa-comments nav-icon"></i> Manage Comments</a>
+        <a class="nav-button" href="manage_events.php"><i class="fas fa-calendar-alt nav-icon"></i> Manage Events</a>
+        <a class="nav-button" href="manage_database.php"><i class="fas fa-database nav-icon"></i> Manage Database</a>
+    </div>
+
 <!-- Main Content -->
 <main class="py-5 flex-grow-1">
-<div class="container mt-5">
+<div class="container">
     <?php
 
     // Check for success message
@@ -103,17 +145,17 @@ $stmtUsers->execute();
                 $pdo->commit();
                 $_SESSION['success_message'] = "User deleted successfully.";
                 // Deletion successful, redirect to admin page
-                header("Location: admin_page_settings.php");
+                header("Location: manage_users.php");
                 exit();
             } catch(PDOException $e) {
                 $pdo->rollBack();
                 $_SESSION['error_message'] = "Error: " . $e->getMessage();
-                header("Location: admin_page_settings.php");
+                header("Location: manage_users.php");
                 exit();
             }
         } else {
             $_SESSION['error_message'] = "Cannot delete the default admin account.";
-            header('Location: admin_page_settings.php');
+            header('Location: manage_users.php');
             exit();
         }
     }
@@ -134,11 +176,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_account'])) {
     if (!empty(trim($username))) {
         if (strlen(trim($username)) < 3) {
             $_SESSION['error_message'] = "Username must have at least 3 characters.";
-            header('Location: admin_page_settings.php');
+            header('Location: manage_users.php');
             exit();
         } elseif (!preg_match('/^[a-zA-Z0-9_]{3,}$/', trim($username))) {
             $_SESSION['error_message'] = "Username can only contain letters, numbers, and underscores.";
-            header('Location: admin_page_settings.php');
+            header('Location: manage_users.php');
             exit();
         } else {
             // Check if the username is already taken
@@ -149,7 +191,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_account'])) {
             if ($stmt->rowCount() > 0) {
                 $errors[] = "This username is already taken.";
                 $_SESSION['error_message'] = "This username is already taken.";
-                header('Location: admin_page_settings.php');
+                header('Location: manage_users.php');
                 exit();
             }
         }
@@ -159,7 +201,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_account'])) {
     if (!empty(trim($email))) {
         if (!filter_var(trim($email), FILTER_VALIDATE_EMAIL)) {
             $_SESSION['error_message'] = "Please enter a valid email address.";
-            header('Location: admin_page_settings.php');
+            header('Location: manage_users.php');
             exit();
         } else {
             // Check if the email is already registered
@@ -169,7 +211,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_account'])) {
             $stmt->execute();
             if ($stmt->rowCount() > 0) {
                 $_SESSION['error_message'] = "This email address is already registered";
-                header('Location: admin_page_settings.php');
+                header('Location: manage_users.php');
                 exit();
             }
         }
@@ -197,11 +239,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_account'])) {
         $allowedExtensions = ['jpg', 'jpeg', 'png'];
         if (!in_array($imageFileType, $allowedExtensions)) {
             $_SESSION['error_message'] = "Only JPG, JPEG, and PNG files are allowed.";
-            header('Location: admin_page_settings.php');
+            header('Location: manage_users.php');
             exit();
         } elseif (!move_uploaded_file($_FILES['profile_picture_upload']['tmp_name'], $uploadFile)) {
             $_SESSION['error_message'] = "Error uploading file.";
-            header('Location: admin_page_settings.php');
+            header('Location: manage_users.php');
             exit();
         } else {
             // Resize and crop the image to 200x200 square
@@ -226,7 +268,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_account'])) {
             $stmtProfilePicture->bindParam(':id', $userId);
             if (!$stmtProfilePicture->execute()) {
                 $_SESSION['error_message'] = "Error updating profile picture.";
-                header('Location: admin_page_settings.php');
+                header('Location: manage_users.php');
                 exit();
             }
         }
@@ -249,12 +291,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_account'])) {
             $stmtUpdateProfilePicture->bindParam(':id', $userId);
             if (!$stmtUpdateProfilePicture->execute()) {
                 $_SESSION['error_message'] = "Error updating profile picture.";
-                header('Location: admin_page_settings.php');
+                header('Location: manage_users.php');
                 exit();
             }
         } else {
             $_SESSION['error_message'] = "Error: User data not found.";
-            header('Location: admin_page_settings.php');
+            header('Location: manage_users.php');
             exit();
         }
     }
@@ -283,12 +325,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_account'])) {
         
         if ($stmt->execute()) {
             $_SESSION['success_message'] = "User details updated successfully.";
-            header("Location: admin_page_settings.php");
+            header("Location: manage_users.php");
             exit();
             ob_end_flush();
         } else {
             $_SESSION['error_message'] = "Error updating user details.";
-            header("Location: admin_page_settings.php");
+            header("Location: manage_users.php");
             exit();
             ob_end_flush();
         }
@@ -353,8 +395,9 @@ if ($endPage - $startPage + 1 < $pagesToShow) {
 }
 ?>
     <h2>Manage Users</h2>
+    <hr style="border: none; height: 4px; background-color: #1c2331;">
     <input type="text" id="searchInput" class="form-control mb-3" placeholder="Search...">
-    <table class="table table-striped">
+    <table class="table table-striped table-bordered">
         <thead>
             <tr>
                 <th>ID</th>

@@ -9,6 +9,11 @@
 body {
     transition: padding-top 0.5s ease; /* Adjust duration and timing function as needed */
 }
+.active .nav-link {
+            color: #ffffff; /* Active link text color */
+            background-color: #343a40; /* Active link background color */
+            /* Add any additional styles for active state */
+        }
 </style>
 <script>
 window.addEventListener('load', function() {
@@ -78,8 +83,7 @@ HTML;
 
         if ($isAdmin) {
             echo <<<HTML
-            <li><a class="dropdown-item" href="ADMIN/view_requests.php">View Requests</a></li>
-            <li><a class="dropdown-item" href="ADMIN/admin_page_settings.php">Admin Page Settings</a></li>
+            <li><a class="dropdown-item" href="ADMIN/administrator.php">Admin Page Settings</a></li>
 HTML;
         } else {
             echo <<<HTML
@@ -106,17 +110,17 @@ HTML;
     echo <<<HTML
             </div>
             <div class="row mt-3">
-                <div class="col">
-                    <ul class="nav">
-                        <li class="nav-item">
-                            <a class="nav-link text-light" href="index.php">Events</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light" href="EMS/calendar.php">Calendar</a>
-                        </li>
-                    </ul>
-                </div>
+            <div class="col">
+                <ul class="nav">
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="index.php"><i class="fas fa-calendar-alt"></i> Events</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="EMS/calendar.php"><i class="fas fa-calendar-day"></i> Calendar</a>
+                    </li>
+                </ul>
             </div>
+        </div>
         </div>
     </header>
 HTML;
@@ -162,8 +166,7 @@ HTML;
 
         if ($isAdmin) {
             echo <<<HTML
-            <a class="dropdown-item" href="../ADMIN/view_requests.php">View Requests</a></li>
-                        <li><a class="dropdown-item" href="../ADMIN/admin_page_settings.php">Admin Page Settings</a></li>
+                        <li><a class="dropdown-item" href="../ADMIN/administrator.php">Admin Page Settings</a></li>
             HTML;
                     } else {
                         echo <<<HTML
@@ -193,10 +196,14 @@ HTML;
                             <div class="col">
                                 <ul class="nav">
                                     <li class="nav-item">
-                                        <a class="nav-link text-light" href="../index.php">Events</a>
+                                        <a class="nav-link text-light" href="../index.php">
+                                            <i class="fas fa-calendar-alt"></i> Events
+                                        </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link text-light" href="../EMS/calendar.php">Calendar</a>
+                                        <a class="nav-link text-light" href="../EMS/calendar.php">
+                                            <i class="fas fa-calendar-day"></i> Calendar
+                                        </a>
                                     </li>
                                 </ul>
                             </div>

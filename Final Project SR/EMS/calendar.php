@@ -114,7 +114,7 @@ $today = new DateTime();
 <body>
     <!-- Header -->
     <?php require_once '../PARTS/header.php'; ?>
-    <div class="container mt-5 ml-calendar-demo">
+    <div class="container mt-5 ml-calendar-demo" style="scale: 1.1">
         <div class="ml-calendar">
             <section class="calendar-left">
                 <div class="sidebar">

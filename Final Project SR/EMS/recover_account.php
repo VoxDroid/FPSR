@@ -49,7 +49,7 @@ try {
                 $email->addDynamicTemplateData('username', $user['username']);
                 $email->addDynamicTemplateData('reset_link', 'http://localhost/final%20project%20sr/EMS/recover_now.php?token=' . $token);
 
-                $sendgrid = new \SendGrid('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');
+                $sendgrid = new \SendGrid('');
 
                 try {
                     $response = $sendgrid->send($email);

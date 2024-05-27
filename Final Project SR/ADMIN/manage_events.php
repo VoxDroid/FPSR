@@ -3,8 +3,14 @@
 require_once '../PARTS/background_worker.php';
 require_once '../PARTS/config.php';
 
-// Check if user is logged in and is an admin
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+// Redirect to index.php if user is not logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../index.php");
+    exit();
+}
+
+// Redirect to index.php if user is not an admin
+if ($_SESSION['role'] !== 'admin') {
     header("Location: ../index.php");
     exit();
 }
@@ -19,11 +25,44 @@ $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Requests - Admin Control Panel</title>
+    <title>Manage Requests - Admin Control Panel</title>
     <!-- CSS.PHP -->
     <?php
     require_once '../PARTS/CSS.php';
     ?>
+
+<style>
+        .admin-navigation {
+            background-color: #161c27;
+            display: flex;
+            flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+            justify-content: center;
+            padding: 10px 0;
+        }
+
+        .nav-button {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 15px;
+            margin: 5px; /* Adjusted margin for better spacing */
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+            display: inline-flex; /* Ensure buttons are in a row */
+            align-items: center; /* Center content vertically */
+        }
+
+        .nav-button:hover {
+            background-color: #273447;
+        }
+
+        .nav-icon {
+            margin-right: 10px;
+        }
+
+        .active {
+            background-color: #273447;
+        }
+    </style>
 </head>
 <body>
 
@@ -32,8 +71,19 @@ $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
 require_once '../PARTS/header.php';
 ?>
 
+<!-- Navigation Buttons Section -->
+<div class="admin-navigation">
+        <a class="nav-button" href="administrator.php"><i class="fas fa-tachometer-alt nav-icon"></i> Dashboard</a>
+        <a class="nav-button" href="manage_users.php"><i class="fas fa-users nav-icon"></i> Manage Users</a>
+        <a class="nav-button" href="manage_comments.php"><i class="fas fa-comments nav-icon"></i> Manage Comments</a>
+        <a class="nav-button active" href="#"><i class="fas fa-calendar-alt nav-icon"></i> Manage Events</a>
+        <a class="nav-button" href="manage_database.php"><i class="fas fa-database nav-icon"></i> Manage Database</a>
+    </div>
+
 <!-- Main Content -->
 <div class="container mt-5 flex-grow-1">
+        <h2>Manage Events</h2>
+        <hr style="border: none; height: 4px; background-color: #1c2331;">
 <input type="text" id="searchInput" class="form-control mb-3" placeholder="Search...">
 <?php
 
@@ -163,10 +213,48 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
                             <td><?= htmlspecialchars($event['duration'])?></td>
                             <td><?= htmlspecialchars($event['date_requested']) ?></td>
                             <td>
-                                <a class="btn btn-primary btn-sm mr-1 view-button" href="../EMS/event_details.php?event_id=<?= $event['id'] ?>">View</a>
+                                <button class="btn btn-primary btn-sm mr-1 view-button" data-bs-toggle="modal" data-bs-target="#viewEventModal<?php echo $event['id']; ?>">View</button>
                                 <button class="btn btn-success btn-sm mr-1 approve-button" data-bs-toggle="modal" data-bs-target="#eventDetailsModal<?= $event['id'] ?>">Check</button>
                                 <button type="button" class="btn btn-danger btn-sm delete-button" data-bs-toggle="modal" data-bs-target="#withdrawModal<?= $event['id'] ?>">Delete</button>
 
+                                <!-- View Event Modal -->
+                                <div class="modal fade" id="viewEventModal<?= $event['id']; ?>" tabindex="-1" aria-labelledby="viewEventModalLabel<?= $event['id']; ?>" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="viewEventModalLabel<?= $event['id']; ?>">View Event Details</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <!-- Fetch event details -->
+                                                <?php
+                                                $eventQuery = "SELECT * FROM events WHERE id = :event_id";
+                                                $eventStmt = $pdo->prepare($eventQuery);
+                                                $eventStmt->bindParam(':event_id', $event['id'], PDO::PARAM_INT);
+                                                $eventStmt->execute();
+                                                $eventDetails = $eventStmt->fetch(PDO::FETCH_ASSOC);
+
+                                                // Check if $eventDetails is not false (event found)
+                                                if ($eventDetails !== false) {
+                                                    ?>
+                                                    <p>Title: <?= htmlspecialchars($eventDetails['title']); ?></p>
+                                                    <p>Description: <?= htmlspecialchars($eventDetails['description']); ?></p>
+                                                    <p>Facility: <?= htmlspecialchars($eventDetails['facility']); ?></p>
+                                                    <p>Duration: <?= htmlspecialchars($eventDetails['duration']); ?></p>
+                                                    <p>Date Requested: <?= htmlspecialchars($eventDetails['date_requested']); ?></p>
+                                                    <?php
+                                                } else {
+                                                    echo "<p>No event found with ID {$event['id']}</p>";
+                                                }
+                                                ?>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <a class="btn btn-primary" href="../EMS/event_details.php?event_id=<?= $event['id']; ?>">Go to Event</a>
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                                 <?php
                                 // Deletion Modal
                                 echo '<div class="modal fade" id="withdrawModal' . $event['id'] . '" tabindex="-1" aria-labelledby="withdrawModalLabel' . $event['id'] . '" aria-hidden="true">';
