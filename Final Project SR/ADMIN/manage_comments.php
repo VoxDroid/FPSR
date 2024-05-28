@@ -115,6 +115,7 @@ $comments = fetchComments($pdo, $page, $limit);
 
     <!-- CSS.PHP -->
     <?php require_once '../PARTS/CSS.php'; ?>
+    <?php require '../CSS/pagination_cards.css' ?>
 
     <style>
         .admin-navigation {
@@ -146,6 +147,27 @@ $comments = fetchComments($pdo, $page, $limit);
 
         .active {
             background-color: #273447;
+        }
+        .custom-button-mc {
+            background-color: #161c27;
+            border: none;
+            color: #ffffff;
+            padding: 7px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+        }
+
+        .custom-button-mc:hover {
+            background-color: #273447;
+            border: none;
+            color: #ffffff;
+            padding: 7px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
         }
     </style>
 </head>
@@ -202,7 +224,7 @@ $comments = fetchComments($pdo, $page, $limit);
                             <td><?php echo htmlspecialchars($comment['dislikes']); ?></td>
                             <td><?php echo htmlspecialchars($comment['date_commented']); ?></td>
                             <td>
-                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#viewCommentModal<?php echo $comment['id']; ?>">View</button>
+                                <button class="btn btn-primary custom-button-mc" data-bs-toggle="modal" data-bs-target="#viewCommentModal<?php echo $comment['id']; ?>">View</button>
                                 <!-- Delete Button with Confirmation Modal -->
                                 <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal<?php echo $comment['id']; ?>">Delete</button>
                             </td>
@@ -257,23 +279,19 @@ $comments = fetchComments($pdo, $page, $limit);
         <!-- Pagination -->
         <nav aria-label="Page navigation example" class="mt-3">
             <ul class="pagination justify-content-center">
-                <?php if ($page > 1) : ?>
-                    <li class="page-item">
-                        <a class="page-link" href="?page=<?php echo $page - 1; ?>" tabindex="-1" aria-disabled="true">Previous</a>
+                    <li class="page-item <?php echo $page == 1 ? 'disabled' : ''; ?>">
+                        <a class="page-link custom-page-link" href="?page=<?php echo $page - 1; ?>" tabindex="-1" aria-disabled="true">«</a>
                     </li>
-                <?php endif; ?>
 
                 <?php for ($p = $startPage; $p <= $endPage; $p++) : ?>
                     <li class="page-item <?php echo $p === $page ? 'active' : ''; ?>">
-                        <a class="page-link" href="?page=<?php echo $p; ?>"><?php echo $p; ?></a>
+                        <a class="page-link custom-page-link" href="?page=<?php echo $p; ?>"><?php echo $p; ?></a>
                     </li>
                 <?php endfor; ?>
 
-                <?php if ($page < $totalPages) : ?>
-                    <li class="page-item">
-                        <a class="page-link" href="?page=<?php echo $page + 1; ?>">Next</a>
+                    <li class="page-item <?php echo $page == $totalPages ? 'disabled' : ''; ?>">
+                        <a class="page-link custom-page-link" href="?page=<?php echo $page + 1; ?>">»</a>
                     </li>
-                <?php endif; ?>
             </ul>
         </nav>
         <!-- End Pagination -->

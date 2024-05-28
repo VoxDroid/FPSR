@@ -62,6 +62,15 @@ require '../PARTS/managedb_restore.php';
         .active {
             background-color: #273447;
         }
+        .custom-button-md {
+            background-color: #161c27;
+            border-style: none;
+        }
+        .custom-button-md:hover {
+            background-color: #273447;
+            border-style: none;
+            color:lightcyan;
+        }
     </style>
 </head>
 <body>
@@ -100,7 +109,7 @@ require '../PARTS/managedb_restore.php';
                     <div class="card-body">
                         <h5 class="card-title">Backup Database</h5>
                         <p class="card-text">Create a backup of the database for security purposes.</p>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#backupModal">Backup Now</button>
+                        <button type="button" class="btn btn-primary custom-button-md" data-bs-toggle="modal" data-bs-target="#backupModal">Backup Now</button>
                     </div>
                 </div>
             </div>
@@ -109,7 +118,7 @@ require '../PARTS/managedb_restore.php';
                     <div class="card-body">
                         <h5 class="card-title">Restore Database</h5>
                         <p class="card-text">Restore the database from a previous backup.</p>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#confirmPasswordModal">Restore Now</button>
+                        <button type="button" class="btn btn-primary custom-button-md" data-bs-toggle="modal" data-bs-target="#confirmPasswordModal">Restore Now</button>
                     </div>
                 </div>
             </div>
@@ -118,7 +127,7 @@ require '../PARTS/managedb_restore.php';
                     <div class="card-body">
                         <h5 class="card-title">Export Data (Coming Soon)</h5>
                         <p class="card-text">Export data from selected tables to a file.</p>
-                        <a href="#" class="btn btn-primary">Export Now</a>
+                        <a href="#" class="btn btn-primary custom-button-md">Export Now</a>
                     </div>
                 </div>
             </div>
@@ -127,7 +136,7 @@ require '../PARTS/managedb_restore.php';
                     <div class="card-body">
                         <h5 class="card-title">Import Data (Coming Soon)</h5>
                         <p class="card-text">Import data from a file into the database.</p>
-                        <a href="#" class="btn btn-primary">Import Now</a>
+                        <a href="#" class="btn btn-primary custom-button-md">Import Now</a>
                     </div>
                 </div>
             </div>
@@ -136,7 +145,7 @@ require '../PARTS/managedb_restore.php';
                     <div class="card-body">
                         <h5 class="card-title">Optimize Tables (Coming Soon)</h5>
                         <p class="card-text">Optimize all database tables for better performance.</p>
-                        <a href="#" class="btn btn-primary">Optimize Now</a>
+                        <a href="#" class="btn btn-primary custom-button-md">Optimize Now</a>
                     </div>
                 </div>
             </div>
@@ -145,7 +154,7 @@ require '../PARTS/managedb_restore.php';
                     <div class="card-body">
                         <h5 class="card-title">View Database Structure (Coming Soon)</h5>
                         <p class="card-text">View the structure of the database tables.</p>
-                        <a href="#" class="btn btn-primary">View Now</a>
+                        <a href="#" class="btn btn-primary custom-button-md">View Now</a>
                     </div>
                 </div>
             </div>

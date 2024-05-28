@@ -79,6 +79,7 @@ if (isset($_GET['q'])) {
     <title>Event Search Results</title>
     <!-- CSS.PHP -->
     <?php require_once '../PARTS/CSS.php'; ?>
+    <?php require '../CSS/pagination_cards.css'; ?>
     <style>
         body {
             background-color: #1c2331;
@@ -95,7 +96,7 @@ if (isset($_GET['q'])) {
     <!-- Search Results -->
     <div class="py-5 flex-grow-1" style="background-color: #1c2331">
         <div class="container">
-            <h2 class="text-white">Search Results for "<?php echo htmlspecialchars($searchQuery); ?>"</h2>
+            <h2 class="text-white">Search Results for "<?php echo htmlspecialchars($searchQuery); ?>":</h2>
             <hr style="border: none; height: 4px; background-color: #FFFFFF;">
             <div class="row">
                 <?php if (empty($searchResultsPaginated)): ?>
@@ -145,7 +146,7 @@ if (isset($_GET['q'])) {
                                         </div>
                                     </div>
                                     <!-- View button -->
-                                    <a href="event_details.php?event_id=<?php echo $event['id']; ?>" class="btn btn-primary btn-sm">View Details</a>
+                                    <a href="event_details.php?event_id=<?php echo $event['id']; ?>" class="btn btn-primary btn-sm custom-button-ind">View Details</a>
                                 </div> <!-- .card-body -->
                             </div> <!-- .card -->
                         </div> <!-- .col-md-6 -->
@@ -159,7 +160,7 @@ if (isset($_GET['q'])) {
                         <ul class="pagination justify-content-center">
                             <!-- Previous page link -->
                             <li class="page-item <?php echo ($currentPage == 1 ? 'disabled' : ''); ?>">
-                                <a class="page-link" href="?q=<?php echo urlencode($searchQuery); ?>&page=<?php echo max(1, $currentPage - 1); ?>" aria-label="Previous">
+                                <a class="page-link custom-page-link" href="?q=<?php echo urlencode($searchQuery); ?>&page=<?php echo max(1, $currentPage - 1); ?>" aria-label="Previous">
                                     <span aria-hidden="true">&laquo;</span>
                                     <span class="sr-only">Previous</span>
                                 </a>
@@ -171,12 +172,12 @@ if (isset($_GET['q'])) {
                             for ($i = $startPage; $i <= $endPage; $i++):
                             ?>
                                 <li class="page-item <?php echo ($currentPage == $i ? 'active' : ''); ?>">
-                                    <a class="page-link" href="?q=<?php echo urlencode($searchQuery); ?>&page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                                    <a class="page-link custom-page-link" href="?q=<?php echo urlencode($searchQuery); ?>&page=<?php echo $i; ?>"><?php echo $i; ?></a>
                                 </li>
                             <?php endfor; ?>
                             <!-- Next page link -->
                             <li class="page-item <?php echo ($currentPage == $totalPages ? 'disabled' : ''); ?>">
-                                <a class="page-link" href="?q=<?php echo urlencode($searchQuery); ?>&page=<?php echo min($totalPages, $currentPage + 1); ?>" aria-label="Next">
+                                <a class="page-link custom-page-link" href="?q=<?php echo urlencode($searchQuery); ?>&page=<?php echo min($totalPages, $currentPage + 1); ?>" aria-label="Next">
                                     <span aria-hidden="true">&raquo;</span>
                                     <span class="sr-only">Next</span>
                                 </a>

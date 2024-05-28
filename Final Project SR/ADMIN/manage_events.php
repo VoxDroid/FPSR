@@ -27,9 +27,8 @@ $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Requests - Admin Control Panel</title>
     <!-- CSS.PHP -->
-    <?php
-    require_once '../PARTS/CSS.php';
-    ?>
+    <?php require_once '../PARTS/CSS.php'; ?>
+    <?php require '../CSS/pagination_cards.css' ?>
 
 <style>
         .admin-navigation {
@@ -353,28 +352,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
                 ?>
                 <nav aria-label="Page navigation">
                     <ul class="pagination justify-content-center mt-3">
-                        <?php if ($currentPagePending > 1): ?>
-                            <li class="page-item">
-                                <a class="page-link" href="?page_pending=<?= $currentPagePending - 1 ?>" aria-label="Previous">
+                            <li class="page-item <?php echo $currentPagePending == 1 ? 'disabled' : ''; ?>">
+                                <a class="page-link custom-page-link" href="?page_pending=<?= $currentPagePending - 1 ?>" aria-label="Previous">
                                     <span aria-hidden="true">&laquo;</span>
                                 </a>
                             </li>
-                        <?php endif; ?>
                         <?php
                         $startPagePending = max(1, $currentPagePending - 2);
                         $endPagePending = min($totalPagesPending, $startPagePending + 4);
                         for ($i = $startPagePending; $i <= $endPagePending; $i++): ?>
                             <li class="page-item <?= $currentPagePending == $i ? 'active' : '' ?>">
-                                <a class="page-link" href="?page_pending=<?= $i ?>"><?= $i ?></a>
+                                <a class="page-link custom-page-link" href="?page_pending=<?= $i ?>"><?= $i ?></a>
                             </li>
                         <?php endfor; ?>
-                        <?php if ($currentPagePending < $totalPagesPending): ?>
-                            <li class="page-item">
-                                <a class="page-link" href="?page_pending=<?= $currentPagePending + 1 ?>" aria-label="Next">
+                            <li class="page-item <?php echo $currentPagePending == $totalPagesPending ? 'disabled' : ''; ?>">
+                                <a class="page-link custom-page-link" href="?page_pending=<?= $currentPagePending + 1 ?>" aria-label="Next">
                                     <span aria-hidden="true">&raquo;</span>
                                 </a>
                             </li>
-                        <?php endif; ?>
                     </ul>
                 </nav>
             <?php } else {
@@ -468,28 +463,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
                 ?>
                 <nav aria-label="Page navigation">
                     <ul class="pagination justify-content-center mt-3">
-                        <?php if ($currentPage > 1): ?>
-                            <li class="page-item">
-                                <a class="page-link" href="?page=<?= $currentPage - 1 ?>" aria-label="Previous">
+                            <li class="page-item <?php echo $currentPage == 1 ? 'disabled' : ''; ?>">
+                                <a class="page-link custom-page-link" href="?page=<?= $currentPage - 1 ?>" aria-label="Previous">
                                     <span aria-hidden="true">&laquo;</span>
                                 </a>
                             </li>
-                        <?php endif; ?>
                         <?php
                         $startPage = max(1, $currentPage - 2);
                         $endPage = min($totalPages, $startPage + 4);
                         for ($i = $startPage; $i <= $endPage; $i++): ?>
                             <li class="page-item <?= $currentPage == $i ? 'active' : '' ?>">
-                                <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                                <a class="page-link custom-page-link" href="?page=<?= $i ?>"><?= $i ?></a>
                             </li>
                         <?php endfor; ?>
-                        <?php if ($currentPage < $totalPages): ?>
-                            <li class="page-item">
-                                <a class="page-link" href="?page=<?= $currentPage + 1 ?>" aria-label="Next">
+                            <li class="page-item <?php echo $currentPage == $totalPages ? 'disabled' : ''; ?>">
+                                <a class="page-link custom-page-link" href="?page=<?= $currentPage + 1 ?>" aria-label="Next">
                                     <span aria-hidden="true">&raquo;</span>
                                 </a>
                             </li>
-                        <?php endif; ?>
                     </ul>
                 </nav>
             <?php } else {
@@ -583,28 +574,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
             ?>
             <nav aria-label="Page navigation">
                 <ul class="pagination justify-content-center mt-3">
-                    <?php if ($currentPageApproved > 1): ?>
-                        <li class="page-item">
-                            <a class="page-link" href="?page_approved=<?= $currentPageApproved - 1 ?>" aria-label="Previous">
+                        <li class="page-item <?php echo $currentPageApproved == 1 ? 'disabled' : ''; ?>">
+                            <a class="page-link custom-page-link" href="?page_approved=<?= $currentPageApproved - 1 ?>" aria-label="Previous">
                                 <span aria-hidden="true">&laquo;</span>
                             </a>
                         </li>
-                    <?php endif; ?>
                     <?php
                     $startPageApproved = max(1, $currentPageApproved - 2);
                     $endPageApproved = min($totalPagesApproved, $startPageApproved + 4);
                     for ($i = $startPageApproved; $i <= $endPageApproved; $i++): ?>
                         <li class="page-item <?= $currentPageApproved == $i ? 'active' : '' ?>">
-                            <a class="page-link" href="?page_approved=<?= $i ?>"><?= $i ?></a>
+                            <a class="page-link custom-page-link" href="?page_approved=<?= $i ?>"><?= $i ?></a>
                         </li>
                     <?php endfor; ?>
-                    <?php if ($currentPageApproved < $totalPagesApproved): ?>
-                        <li class="page-item">
-                            <a class="page-link" href="?page_approved=<?= $currentPageApproved + 1 ?>" aria-label="Next">
+                        <li class="page-item <?php echo $currentPageApproved == $totalPagesApproved ? 'disabled' : ''; ?>">
+                            <a class="page-link custom-page-link" href="?page_approved=<?= $currentPageApproved + 1 ?>" aria-label="Next">
                                 <span aria-hidden="true">&raquo;</span>
                             </a>
                         </li>
-                    <?php endif; ?>
                 </ul>
             </nav>
         <?php } else {
@@ -697,28 +684,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
             ?>
             <nav aria-label="Page navigation">
                 <ul class="pagination justify-content-center mt-3">
-                    <?php if ($currentPageCompleted > 1): ?>
-                        <li class="page-item">
-                            <a class="page-link" href="?page_completed=<?= $currentPageCompleted - 1 ?>" aria-label="Previous">
+                        <li class="page-item <?php echo $currentPageCompleted == 1 ? 'disabled' : ''; ?>">
+                            <a class="page-link custom-page-link" href="?page_completed=<?= $currentPageCompleted - 1 ?>" aria-label="Previous">
                                 <span aria-hidden="true">&laquo;</span>
                             </a>
                         </li>
-                    <?php endif; ?>
                     <?php
                     $startPageCompleted = max(1, $currentPageCompleted - 2);
                     $endPageCompleted = min($totalPagesCompleted, $startPageCompleted + 4);
                     for ($i = $startPageCompleted; $i <= $endPageCompleted; $i++): ?>
                         <li class="page-item <?= $currentPageCompleted == $i ? 'active' : '' ?>">
-                            <a class="page-link" href="?page_completed=<?= $i ?>"><?= $i ?></a>
+                            <a class="page-link custom-page-link" href="?page_completed=<?= $i ?>"><?= $i ?></a>
                         </li>
                     <?php endfor; ?>
-                    <?php if ($currentPageCompleted < $totalPagesCompleted): ?>
-                        <li class="page-item">
-                            <a class="page-link" href="?page_completed=<?= $currentPageCompleted + 1 ?>" aria-label="Next">
+                        <li class="page-item <?php echo $currentPageCompleted == $totalPagesCompleted ? 'disabled' : ''; ?>">
+                            <a class="page-link custom-page-link" href="?page_completed=<?= $currentPageCompleted + 1 ?>" aria-label="Next">
                                 <span aria-hidden="true">&raquo;</span>
                             </a>
                         </li>
-                    <?php endif; ?>
                 </ul>
             </nav>
         <?php } else {
@@ -812,28 +795,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
             ?>
             <nav aria-label="Page navigation">
                 <ul class="pagination justify-content-center mt-3">
-                    <?php if ($currentPageDenied > 1): ?>
-                        <li class="page-item">
-                            <a class="page-link" href="?page_denied=<?= $currentPageDenied - 1 ?>" aria-label="Previous">
+                        <li class="page-item <?php echo $currentPageDenied == 1 ? 'disabled' : ''; ?>">
+                            <a class="page-link custom-page-link" href="?page_denied=<?= $currentPageDenied - 1 ?>" aria-label="Previous">
                                 <span aria-hidden="true">&laquo;</span>
                             </a>
                         </li>
-                    <?php endif; ?>
                     <?php
                     $startPageDenied = max(1, $currentPageDenied - 2);
                     $endPageDenied = min($totalPagesDenied, $startPageDenied + 4);
                     for ($i = $startPageDenied; $i <= $endPageDenied; $i++): ?>
                         <li class="page-item <?= $currentPageDenied == $i ? 'active' : '' ?>">
-                            <a class="page-link" href="?page_denied=<?= $i ?>"><?= $i ?></a>
+                            <a class="page-link custom-page-link" href="?page_denied=<?= $i ?>"><?= $i ?></a>
                         </li>
                     <?php endfor; ?>
-                    <?php if ($currentPageDenied < $totalPagesDenied): ?>
-                        <li class="page-item">
-                            <a class="page-link" href="?page_denied=<?= $currentPageDenied + 1 ?>" aria-label="Next">
+                        <li class="page-item <?php echo $currentPageDenied == $totalPagesDenied ? 'disabled' : ''; ?>">
+                            <a class="page-link custom-page-link" href="?page_denied=<?= $currentPageDenied + 1 ?>" aria-label="Next">
                                 <span aria-hidden="true">&raquo;</span>
                             </a>
                         </li>
-                    <?php endif; ?>
                 </ul>
             </nav>
         <?php } else {

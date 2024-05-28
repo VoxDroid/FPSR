@@ -74,36 +74,9 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
 .like-dislike img {
     margin-right: 5px;
 }
-
-.carousel-control-prev-icon,
-.carousel-control-next-icon {
-    background-color: rgba(0, 0, 0, 0.5);
-    border-radius: 50%;
-    padding: 10px;
-}
-
-.carousel-control-prev,
-.carousel-control-next {
-    width: auto;
-}
-
-.carousel-indicators {
-    bottom: -30px;
-}
-
-.carousel-indicators li {
-    background-color: #ccc;
-    border: none;
-    margin: 0 3px;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-}
-.carousel-indicators .active {
-    background-color: #007bff;
-}
-
 </style>
+
+<?php require 'CSS/pagination_cards.css'; ?>
 
 <!-- Event Header Styling -->
 <style>
@@ -145,13 +118,86 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
     .custom-heading.blue-background:hover {
         color: #c0c0c0; /* Change text color on hover */
     }
-
-    /* Define the animation */
-    @keyframes moveLeftRight {
-        0% { transform: translateX(0); }
-        50% { transform: translateX(10px); } /* Move 10px to the right */
-        100% { transform: translateX(0); }
+    .custom-heading:hover {
+        scale: 1.02;
+        transition: scale 0.3s;
     }
+
+    /* Carousel Controls */
+.carousel-control-prev,
+.carousel-control-next {
+    color: #fff; /* Text color */
+    background-color: rgba(23, 34, 47, 0.8); /* Background color with opacity */
+    width: 50px; /* Control width */
+    height: 50px; /* Control height */
+    border: 2px solid rgba(200, 200, 255, 0.5); /* Lightish dark navy border */
+    border-radius: 50%; /* Rounded shape */
+    font-size: 24px; /* Font size */
+    line-height: 50px; /* Vertical alignment of text */
+    text-align: center; /* Center align text */
+    position: absolute; /* Positioning */
+    top: 50%; /* Center vertically */
+    transform: translateY(-50%); /* Adjust vertical position */
+    cursor: pointer; /* Cursor style */
+    transition: background-color 0.3s ease, transform 0.3s ease, border-color 0.3s ease; /* Smooth transition */
+    z-index: 10; /* Ensure controls are above the carousel */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Enhanced shadow for depth */
+}
+
+.carousel-control-prev {
+    left: -110px; /* Position left control */
+}
+
+.carousel-control-next {
+    right: -110px; /* Position right control */
+}
+
+.carousel-control-prev:hover,
+.carousel-control-next:hover {
+    background-color: rgba(30, 46, 62, 0.8); /* Darker background on hover */
+    transform: translateY(-50%) scale(1.1); /* Slightly enlarge on hover */
+    border-color: rgba(200, 200, 255, 0.7); /* Darken border on hover */
+}
+
+.carousel-indicators{
+    bottom: -50px;
+}
+/* Carousel Indicators */
+.carousel-indicators li {
+    position: relative;
+    bottom: -20px; /* Adjust positioning */
+    background-color: rgba(170, 178, 189, 0.7); /* Indicator background color with opacity */
+    border: 2px solid rgba(200, 200, 255, 0.5); /* Lightish dark navy border */
+    border-radius: 50%; /* Rounded shape */
+    width: 12px; /* Indicator width */
+    height: 12px; /* Indicator height */
+    margin: 0 5px; /* Spacing between indicators */
+    cursor: pointer; /* Cursor style */
+    list-style: none; /* Remove list style */
+    transition: background-color 0.3s ease, border-color 0.3s ease; /* Smooth transition */
+}
+
+.carousel-indicators li.active {
+    background-color: rgba(39, 52, 71, 0.8); /* Active indicator color with opacity */
+    border-color: rgba(200, 200, 255, 0.7); /* Darken border on active */
+}
+
+/* Carousel Control Icons */
+.carousel-control-next-icon,
+.carousel-control-prev-icon {
+    width: 20px; /* Icon width */
+    height: 20px; /* Icon height */
+}
+
+/* Additional Styling for Control Icons */
+.carousel-control-prev-icon::before,
+.carousel-control-next-icon::before {
+    font-size: 20px; /* Icon font size */
+    color: #fff; /* Icon color */
+}
+
+
+
 </style>
 
 <!-- End Header -->
@@ -236,7 +282,7 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
                         echo '</div>';
                         echo '</div>';
                         // View button
-                        echo '<a href="EMS/event_details.php?event_id=' . $event['id'] . '" class="btn btn-primary btn-sm">View Details</a>';
+                        echo '<a href="EMS/event_details.php?event_id=' . $event['id'] . '" class="btn btn-primary btn-sm custom-button-ind">View Details</a>';
                         echo '</div>'; // .card-body
                         echo '</div>'; // .card
                         echo '</div>'; // .carousel-item
@@ -260,11 +306,11 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
                     }
                     ?>
                 </ol>
-                <a class="carousel-control-prev" href="#ongoingEventsCarousel" role="button" data-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <a class="carousel-control-prev custom-carousel-control" href="#ongoingEventsCarousel" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon custom-carousel-control" aria-hidden="true"></span>
                 </a>
-                <a class="carousel-control-next" href="#ongoingEventsCarousel" role="button" data-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <a class="carousel-control-next custom-carousel-control" href="#ongoingEventsCarousel" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon custom-carousel-control" aria-hidden="true"></span>
                 </a>
             <?php endif; ?>
         </div>
@@ -340,7 +386,7 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
                         echo '</div>';
                         echo '</div>';
                         // View button
-                        echo '<a href="EMS/event_details.php?event_id=' . $event['id'] . '" class="btn btn-primary btn-sm">View Details</a>';
+                        echo '<a href="EMS/event_details.php?event_id=' . $event['id'] . '" class="btn btn-primary btn-sm custom-button-ind">View Details</a>';
                         echo '</div>'; // .card-body
                         echo '</div>'; // .card
                         echo '</div>'; // .carousel-item
@@ -454,7 +500,7 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
                     echo '</div>';
                     echo '</div>';
                     // View button
-                    echo '<a href="EMS/event_details.php?event_id=' . $event['id'] . '" class="btn btn-primary btn-sm">View Details</a>';
+                    echo '<a href="EMS/event_details.php?event_id=' . $event['id'] . '" class="btn btn-primary btn-sm custom-button-ind">View Details</a>';
                     echo '</div>'; // .card-body
                     echo '</div>'; // .card
                     echo '</div>'; // .col-md-6
@@ -471,16 +517,16 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
                 echo '<nav aria-label="Page navigation example">';
                 echo '<ul class="pagination justify-content-center">';
                 echo '<li class="page-item ' . ($pendingCurrentPage == 1 ? 'disabled' : '') . '">';
-                echo '<a class="page-link" href="?pending_page=' . max(1, $pendingCurrentPage - 1) . '" aria-label="Previous">';
+                echo '<a class="page-link custom-page-link" href="?pending_page=' . max(1, $pendingCurrentPage - 1) . '" aria-label="Previous">';
                 echo '<span aria-hidden="true">&laquo;</span>';
                 echo '<span class="sr-only">Previous</span>';
                 echo '</a>';
                 echo '</li>';
                 for ($i = 1; $i <= $pendingTotalPages; $i++) {
-                    echo '<li class="page-item ' . ($pendingCurrentPage == $i ? 'active' : '') . '"><a class="page-link" href="?pending_page=' . $i . '">' . $i . '</a></li>';
+                    echo '<li class="page-item ' . ($pendingCurrentPage == $i ? 'active' : '') . '"><a class="page-link custom-page-link" href="?pending_page=' . $i . '">' . $i . '</a></li>';
                 }
                 echo '<li class="page-item ' . ($pendingCurrentPage == $pendingTotalPages ? 'disabled' : '') . '">';
-                echo '<a class="page-link" href="?pending_page=' . min($pendingTotalPages, $pendingCurrentPage + 1) . '" aria-label="Next">';
+                echo '<a class="page-link custom-page-link" href="?pending_page=' . min($pendingTotalPages, $pendingCurrentPage + 1) . '" aria-label="Next">';
                 echo '<span aria-hidden="true">&raquo;</span>';
                 echo '<span class="sr-only">Next</span>';
                 echo '</a>';
@@ -573,7 +619,7 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
                     echo '</div>';
                     echo '</div>';
                     // View button
-                    echo '<a href="EMS/event_details.php?event_id=' . $event['id'] . '" class="btn btn-primary btn-sm">View Details</a>';
+                    echo '<a href="EMS/event_details.php?event_id=' . $event['id'] . '" class="btn btn-primary btn-sm custom-button-ind">View Details</a>';
                     echo '</div>'; // .card-body
                     echo '</div>'; // .card
                     echo '</div>'; // .col-md-6
@@ -590,16 +636,16 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
                 echo '<nav aria-label="Page navigation example">';
                 echo '<ul class="pagination justify-content-center">';
                 echo '<li class="page-item ' . ($archiveCurrentPage == 1 ? 'disabled' : '') . '">';
-                echo '<a class="page-link" href="?archive_page=' . max(1, $archiveCurrentPage - 1) . '" aria-label="Previous">';
+                echo '<a class="page-link custom-page-link" href="?archive_page=' . max(1, $archiveCurrentPage - 1) . '" aria-label="Previous">';
                 echo '<span aria-hidden="true">&laquo;</span>';
                 echo '<span class="sr-only">Previous</span>';
                 echo '</a>';
                 echo '</li>';
                 for ($i = 1; $i <= $archiveTotalPages; $i++) {
-                    echo '<li class="page-item ' . ($archiveCurrentPage == $i ? 'active' : '') . '"><a class="page-link" href="?archive_page=' . $i . '">' . $i . '</a></li>';
+                    echo '<li class="page-item ' . ($archiveCurrentPage == $i ? 'active' : '') . '"><a class="page-link custom-page-link" href="?archive_page=' . $i . '">' . $i . '</a></li>';
                 }
                 echo '<li class="page-item ' . ($archiveCurrentPage == $archiveTotalPages ? 'disabled' : '') . '">';
-                echo '<a class="page-link" href="?archive_page=' . min($archiveTotalPages, $archiveCurrentPage + 1) . '" aria-label="Next">';
+                echo '<a class="page-link custom-page-link" href="?archive_page=' . min($archiveTotalPages, $archiveCurrentPage + 1) . '" aria-label="Next">';
                 echo '<span aria-hidden="true">&raquo;</span>';
                 echo '<span class="sr-only">Next</span>';
                 echo '</a>';

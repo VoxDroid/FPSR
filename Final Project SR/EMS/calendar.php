@@ -114,6 +114,7 @@ $today = new DateTime();
 <body>
     <!-- Header -->
     <?php require_once '../PARTS/header.php'; ?>
+    <div class="container-fluid">
     <div class="container mt-5 ml-calendar-demo" style="scale: 1.1">
         <div class="ml-calendar">
             <section class="calendar-left">
@@ -230,7 +231,7 @@ $today = new DateTime();
             <div class="clear"></div>
         </div>
     </div>
-
+    </div>
     <!-- Footer -->
     <?php require_once '../PARTS/footer.php'; ?>
 

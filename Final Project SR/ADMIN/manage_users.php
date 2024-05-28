@@ -19,6 +19,7 @@ $queryUsers = "SELECT * FROM users";
 $stmtUsers = $pdo->prepare($queryUsers);
 $stmtUsers->execute();
 // Process form submission
+
 ?>
 
 <!DOCTYPE html>
@@ -30,6 +31,7 @@ $stmtUsers->execute();
 
     <!-- CSS.PHP -->
     <?php require_once '../PARTS/CSS.php'; ?>
+    <?php require '../CSS/pagination_cards.css' ?>
 
     <style>
         .admin-navigation {
@@ -61,6 +63,27 @@ $stmtUsers->execute();
 
         .active {
             background-color: #273447;
+        }
+        .custom-button-mu {
+            background-color: #161c27;
+            border: none;
+            color: #ffffff;
+            padding: 7px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+        }
+
+        .custom-button-mu:hover {
+            background-color: #273447;
+            border: none;
+            color: #ffffff;
+            padding: 7px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
         }
     </style>
 </head>
@@ -397,7 +420,7 @@ if ($endPage - $startPage + 1 < $pagesToShow) {
     <h2>Manage Users</h2>
     <hr style="border: none; height: 4px; background-color: #1c2331;">
     <input type="text" id="searchInput" class="form-control mb-3" placeholder="Search...">
-    <table class="table table-striped table-bordered">
+    <table class="table table-striped table-bordered mb-3">
         <thead>
             <tr>
                 <th>ID</th>
@@ -415,7 +438,7 @@ if ($endPage - $startPage + 1 < $pagesToShow) {
         <td><?php echo htmlspecialchars($user['email']); ?></td>
         <td><?php echo htmlspecialchars($user['role']); ?></td>
         <td>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#viewUserModal<?php echo $user['id']; ?>">View</button>
+            <button class="btn btn-primary custom-button-mu" data-bs-toggle="modal" data-bs-target="#viewUserModal<?php echo $user['id']; ?>" >View</button>
             <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#manageUserModal<?php echo $user['id']; ?>">Manage</button>
         </td>
     </tr>
@@ -507,8 +530,22 @@ if ($endPage - $startPage + 1 < $pagesToShow) {
         }
     });
 </script>
+                        <?php
+                        if (!isset($_SESSION['user_id'])) {
+                            header("Location: ../index.php");
+                            exit();
+                        }
 
-                        <div class="mb-3">
+                        // Check if user is logged in
+                        $loggedIn = isset($_SESSION['user_id']);
+                        $username = $loggedIn ? $_SESSION['username'] : '';
+
+                        // Check if user is an admin
+                        $isAdmin = isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
+                        $isIdOne = $_SESSION['user_id'] === 1;
+                        ?>
+                        <?php if ($isAdmin && $user['id'] != 1 && $user['role'] != 'admin' && $_SESSION['user_id'] != $user['id']): ?>
+                            <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
                             <input type="text" class="form-control" id="username" name="username" value="<?php echo htmlspecialchars($user['username']); ?>" required>
                         </div>
@@ -516,7 +553,6 @@ if ($endPage - $startPage + 1 < $pagesToShow) {
                             <label for="email" class="form-label">Email</label>
                             <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>">                                    
                         </div>
-                        <?php if ($user['id'] != 1): ?>
                         <div class="mb-3">
                             <label for="role" class="form-label">Role</label>
                             <select class="form-control" id="role" name="role" required>
@@ -531,8 +567,50 @@ if ($endPage - $startPage + 1 < $pagesToShow) {
                                 <option value="0" <?php echo !$user['is_active'] ? 'selected' : ''; ?>>Suspended</option>
                             </select>
                         </div>
+                        <?php elseif ($isIdOne && $user['id'] != 1 && $_SESSION['user_id'] != $user['id']): ?>
+                            <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" value="<?php echo htmlspecialchars($user['username']); ?>" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>">                                    
+                        </div>
+                            <div class="mb-3">
+                            <label for="role" class="form-label">Role</label>
+                            <select class="form-control" id="role" name="role" required>
+                                <option value="user" <?php echo $user['role'] == 'user' ? 'selected' : ''; ?>>User</option>
+                                <option value="admin" <?php echo $user['role'] == 'admin' ? 'selected' : ''; ?>>Admin</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="is_active" class="form-label">Status</label>
+                            <select class="form-control" id="is_active" name="is_active" required>
+                                <option value="1" <?php echo $user['is_active'] ? 'selected' : ''; ?>>Active</option>
+                                <option value="0" <?php echo !$user['is_active'] ? 'selected' : ''; ?>>Suspended</option>
+                            </select>
+                        </div>
                         <?php else: ?>
+                            <?php if ($isIdOne): ?>
                         <!-- Disable the role and status fields for the admin user -->
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" value="<?php echo htmlspecialchars($user['username']); ?>">
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>">                                    
+                        </div>
+                        <?php elseif ($isAdmin): ?>
+                            <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" value="<?php echo htmlspecialchars($user['username']); ?>" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" disabled>                                    
+                        </div>
+                        <?php endif; ?>
                         <div class="mb-3">
                             <label for="role" class="form-label">Role</label>
                             <select class="form-control" id="role" name="role" disabled>
@@ -550,7 +628,7 @@ if ($endPage - $startPage + 1 < $pagesToShow) {
                         <?php endif; ?>
                         <div class="mb-3">
                             <button type="submit" class="btn btn-primary" name="update_account">Save Changes</button>
-                            <?php if ($user['id'] != 1): ?>
+                            <?php if ($isIdOne && $user['id'] != 1 && $_SESSION['user_id'] != $user['id']): ?>
                                 <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#deleteConfirmationModal<?php echo $user['id']; ?>">Delete Account</button>
                             <?php endif; ?>
                         </div>
@@ -597,19 +675,19 @@ if ($endPage - $startPage + 1 < $pagesToShow) {
     <ul class="pagination justify-content-center">
         <!-- Previous Page Link -->
         <li class="page-item <?php echo $page == 1 ? 'disabled' : ''; ?>">
-            <a class="page-link mt-3" href="?page=<?php echo $page - 1; ?>" tabindex="-1" aria-disabled="true">Previous</a>
+            <a class="page-link custom-page-link" href="?page=<?php echo $page - 1; ?>" tabindex="-1" aria-disabled="true">«</a>
         </li>
 
         <!-- Page Links -->
         <?php for ($p = $startPage; $p <= $endPage; $p++): ?>
             <li class="page-item <?php echo $p == $page ? 'active' : ''; ?>">
-                <a class="page-link mt-3" href="?page=<?php echo $p; ?>"><?php echo $p; ?></a>
+                <a class="page-link custom-page-link" href="?page=<?php echo $p; ?>"><?php echo $p; ?></a>
             </li>
         <?php endfor; ?>
 
         <!-- Next Page Link -->
         <li class="page-item <?php echo $page == $totalPages ? 'disabled' : ''; ?>">
-            <a class="page-link mt-3" href="?page=<?php echo $page + 1; ?>">Next</a>
+            <a class="page-link custom-page-link" href="?page=<?php echo $page + 1; ?>">»</a>
         </li>
     </ul>
 </nav>

@@ -1,0 +1,68 @@
+<style>
+.custom-button-ind {
+    background-color: #161c27;
+    border: none;
+    color: #ffffff;
+    padding: 7px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+}
+
+.custom-button-ind:hover {
+    background-color: #273447;
+    border: none;
+    color: #ffffff;
+    padding: 7px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    scale: 1.1;
+    transition: scale 0.3s;
+}
+.custom-page-link {
+background-color: #161c27;
+border: none;
+color: #ffffff;
+padding: 7px 20px;
+text-align: center;
+text-decoration: none;
+display: inline-block;
+font-size: 16px;
+}
+
+.custom-page-link:hover {
+background-color: #273447;
+border: none;
+color: #ffffff;
+padding: 7px 20px;
+text-align: center;
+text-decoration: none;
+display: inline-block;
+font-size: 16px;
+}
+
+.active>.custom-page-link {
+background-color: #2a3244;
+border: none;
+color: #ffffff;
+padding: 10px 20px 10px;
+text-align: center;
+text-decoration: none;
+display: inline-block;
+font-size: 16px;
+}
+
+.disabled>.custom-page-link { 
+background-color: #72839e;
+border: none;
+color: #ffffff;
+padding: 7px 20px;
+text-align: center;
+text-decoration: none;
+display: inline-block;
+font-size: 16px;
+}
+</style>

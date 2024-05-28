@@ -207,6 +207,25 @@ if (!empty($errors)) {
             transform: translateY(-50%);
             cursor: pointer;
         }
+        .submit-btn {
+            background-color: #161c27;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .submit-btn:hover {
+            background-color: #0d1117;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: scale 00.3s;
+            scale: 1.05;
+        }
     </style>
 </head>
 <body>
@@ -274,7 +293,7 @@ if (!empty($errors)) {
             </div>
             <input type="hidden" name="update_account" value="1">
             <!-- Button to trigger modal -->
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#confirmModal">Save Changes</button>
+            <button type="button" class="btn btn-primary submit-btn" data-bs-toggle="modal" data-bs-target="#confirmModal">Save Changes</button>
 
             <!-- Save Changes Confirmation Modal -->
             <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
@@ -289,7 +308,7 @@ if (!empty($errors)) {
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary" id="confirmSaveButton">Save Changes</button>
+                            <button type="submit" class="btn btn-primary submit-btn" id="confirmSaveButton">Save Changes</button>
                         </div>
                     </div>
                 </div>

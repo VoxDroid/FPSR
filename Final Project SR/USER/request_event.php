@@ -119,6 +119,27 @@ try {
     <title>Request Event</title>
     <!-- CSS.PHP -->
     <?php require_once '../PARTS/CSS.php'; ?>
+    <style>
+        .submit-btn {
+            background-color: #161c27;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .submit-btn:hover {
+            background-color: #0d1117;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: scale 00.3s;
+            scale: 1.05;
+        }
+    </style>
 </head>
 <body>
 <!-- Header -->
@@ -137,6 +158,7 @@ try {
     }
     ?>
     <h2>Request Event</h2>
+    <hr style="border: none; height: 4px; background-color: #1c2331;">
     <!-- Event request form -->
     <form action="request_event.php" method="POST" id="eventForm">
         <div class="form-group">
@@ -163,7 +185,7 @@ try {
             <label for="duration">Duration (in hours)</label>
             <input type="number" class="form-control" id="duration" name="duration" min="1" readonly>
         </div>
-        <button type="button" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#confirmModal">Submit</button>
+        <button type="button" class="btn btn-primary mt-3 submit-btn" data-bs-toggle="modal" data-bs-target="#confirmModal">Submit</button>
 
         <!-- Confirmation Modal -->
         <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">

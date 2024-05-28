@@ -37,6 +37,8 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
 
     <!-- CSS.PHP -->
     <?php require_once '../PARTS/CSS.php'; ?>
+
+    <?php require '../CSS/pagination_cards.css' ?>
     <style>
         body {
             background-color: #1c2331;
@@ -120,7 +122,7 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
                     echo '</div>';
                     echo '</div>';
                     // View button
-                    echo '<a href="event_details.php?event_id=' . $event['id'] . '" class="btn btn-primary btn-sm">View Details</a>';
+                    echo '<a href="event_details.php?event_id=' . $event['id'] . '" class="btn btn-primary btn-sm custom-button-ind">View Details</a>';
                     echo '</div>'; // .card-body
                     echo '</div>'; // .card
                     echo '</div>'; // .col-md-6
@@ -137,16 +139,16 @@ $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1; // Curr
                 echo '<nav aria-label="Page navigation example">';
                 echo '<ul class="pagination justify-content-center">';
                 echo '<li class="page-item ' . ($pendingCurrentPage == 1 ? 'disabled' : '') . '">';
-                echo '<a class="page-link" href="?pending_page=' . max(1, $pendingCurrentPage - 1) . '" aria-label="Previous">';
+                echo '<a class="page-link custom-page-link" href="?pending_page=' . max(1, $pendingCurrentPage - 1) . '" aria-label="Previous">';
                 echo '<span aria-hidden="true">&laquo;</span>';
                 echo '<span class="sr-only">Previous</span>';
                 echo '</a>';
                 echo '</li>';
                 for ($i = 1; $i <= $pendingTotalPages; $i++) {
-                    echo '<li class="page-item ' . ($pendingCurrentPage == $i ? 'active' : '') . '"><a class="page-link" href="?pending_page=' . $i . '">' . $i . '</a></li>';
+                    echo '<li class="page-item ' . ($pendingCurrentPage == $i ? 'active' : '') . '"><a class="page-link custom-page-link" href="?pending_page=' . $i . '">' . $i . '</a></li>';
                 }
                 echo '<li class="page-item ' . ($pendingCurrentPage == $pendingTotalPages ? 'disabled' : '') . '">';
-                echo '<a class="page-link" href="?pending_page=' . min($pendingTotalPages, $pendingCurrentPage + 1) . '" aria-label="Next">';
+                echo '<a class="page-link custom-page-link" href="?pending_page=' . min($pendingTotalPages, $pendingCurrentPage + 1) . '" aria-label="Next">';
                 echo '<span aria-hidden="true">&raquo;</span>';
                 echo '<span class="sr-only">Next</span>';
                 echo '</a>';
