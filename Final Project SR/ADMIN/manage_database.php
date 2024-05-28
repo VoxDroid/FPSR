@@ -85,9 +85,11 @@ require '../PARTS/managedb_restore.php';
         echo "<div class='alert alert-success'>{$_SESSION['success_message']}</div>";
         unset($_SESSION['success_message']); // Clear message after displaying
         }
-        if (isset($_SESSION['error_messages'])) {
-        echo "<div class='alert alert-danger'>{$_SESSION['error_messages']}</div>";
-        unset($_SESSION['error_messages']); // Clear message after displaying
+        if (isset($_SESSION['error_messages']) && !empty($_SESSION['error_messages'])) {
+            foreach ($_SESSION['error_messages'] as $errorMessage) {
+                echo "<div class='alert alert-danger'>$errorMessage</div>";
+            }
+            unset($_SESSION['error_messages']); // Clear error messages after displaying
         }
         ?>
         <h2 class="mb-4">Manage Database</h2>
@@ -107,7 +109,7 @@ require '../PARTS/managedb_restore.php';
                     <div class="card-body">
                         <h5 class="card-title">Restore Database</h5>
                         <p class="card-text">Restore the database from a previous backup.</p>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#restoreModal">Restore Now</button>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#confirmPasswordModal">Restore Now</button>
                     </div>
                 </div>
             </div>
@@ -153,7 +155,7 @@ require '../PARTS/managedb_restore.php';
 
     <!-- Backup Modal -->
     <div class="modal fade" id="backupModal" tabindex="-1" aria-labelledby="backupModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="backupModalLabel">Confirm Database Backup</h5>
@@ -181,36 +183,145 @@ require '../PARTS/managedb_restore.php';
     </div>
     <!-- End Backup Modal -->
 
-    <!-- Restore Modal -->
-<div class="modal fade" id="restoreModal" tabindex="-1" aria-labelledby="restoreModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+
+    <!-- Restore Modal Step 1: Confirm Password -->
+<div class="modal fade" id="confirmPasswordModal" tabindex="-1" aria-labelledby="confirmPasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="restoreModalLabel">Confirm Database Restore</h5>
+                <h5 class="modal-title" id="confirmPasswordModalLabel">Confirm Password</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="POST" enctype="multipart/form-data">
+            <form id="restoreFormStep2" method="POST">
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="backupFile" class="form-label">Backup File</label>
-                        <input type="file" class="form-control" id="backupFile" name="backup_file" required>
+                        <label for="userPassword" class="form-label"><strong>Enter Your Account Password:</strong></label>
+                        <input type="password" class="form-control" id="userPassword" name="user_password" required>
+                        <ul class="mt-3">
+                        <li><strong>Note:</strong></li>
+                        <p>Enter your account password. It will be used to granting you the permissions to restore your database later.</p>
+                        </ul>
                     </div>
-                    <?php if (!empty($restoreMessage)) echo $restoreMessage; ?>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" name="restore_database" class="btn btn-primary">Restore Now</button>
+                    <button type="submit" name="confirm_password" class="btn btn-primary" data-bs-target="#confirmPasswordModal" data-bs-toggle="modal">Next</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-<!-- End Restore Modal -->
+
+<!-- Restore Modal Step 2: Final Confirmation -->
+<div class="modal fade" id="finalConfirmModal" tabindex="-1" aria-labelledby="finalConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="finalConfirmModalLabel">Final Confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="restoreFormStep3" method="POST" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <p><strong>Warning:</strong> Proceeding with the database restore will initiate a process that may have significant implications for your application's data integrity and availability.</p>
+
+                    <p>Restoring the database involves overwriting all current data with the contents of the selected backup file. This action cannot be undone easily and may result in:</p>
+
+                    <ul>
+                        <li><strong>Data Loss:</strong> Any changes made since the backup was created will be lost.</li>
+                        <li><strong>Downtime:</strong> During the restore process, your application may be temporarily unavailable to users.</li>
+                        <li><strong>System Impact:</strong> Depending on the size of your database and server resources, the restore process could affect overall system performance.</li>
+                    </ul>
+
+                    <p>Before proceeding, please ensure:</p>
+
+                    <ul>
+                        <li><strong>Backup Verification:</strong> The selected backup file is correct and up-to-date.</li>
+                        <li><strong>Current State Consideration:</strong> Understand the current state of your application and the impact a restore will have.</li>
+                        <li><strong>Permissions:</strong> You have the necessary administrative privileges and authority to perform this action.</li>
+                    </ul>
+
+                    <p><strong>Proceed with caution:</strong> Ensure that you have followed all necessary protocols and considered the implications of restoring the database. If unsure, consult with your team or IT support before continuing.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" name="final_restore_database">Next</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Restore Modal Step 3: Final Confirmation -->
+<div class="modal fade" id="reallyFinalRestoreModal" tabindex="-1" aria-labelledby="finalRestoreModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="finalRestoreModalLabel">Choose the backup file:</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="restoreFormStep4" method="POST" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="backupFile" class="form-label">Backup File</label>
+                            <input type="file" class="form-control" id="backupFile" name="backup_file" required>
+                        </div>
+                        <?php if (!empty($restoreMessage)) echo $restoreMessage; ?>
+                        
+                    <p>Please type <strong>RESTORE</strong> to confirm.</p>
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="finalConfirmInput" name="final_confirm" required>
+                    </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger" name="final_restore_database">Restore now</button>
+                    </div>
+                </form>
+        </div>
+    </div>
+</div>
 
     <!-- Footer -->
     <?php require_once '../PARTS/footer.php'; ?>
 
     <!-- JS.PHP -->
     <?php require_once '../PARTS/JS.php'; ?>
+    <script>
+    $(document).ready(function() {
+
+        // Show final confirm modal on successful password confirmation
+        $('#restoreFormStep2').submit(function(event) {
+            event.preventDefault(); // Prevent form submission
+
+            userPassword = $('#userPassword').val();
+            $('#confirmPasswordModal').modal('hide'); // Hide Confirm Password modal
+            $('#finalConfirmModal').modal('show'); // Show Final Confirmation modal
+        });
+
+        // Show final confirm modal on successful password confirmation
+        $('#restoreFormStep3').submit(function(event) {
+            event.preventDefault(); // Prevent form submission
+            $('#finalConfirmModal').modal('hide');
+            $('#reallyFinalRestoreModal').modal('show'); // Show Final Confirmation modal
+        });
+
+        // Validate final restore input before submitting
+        $('#restoreFormStep4').submit(function(event) {
+            var finalConfirmInput = $('#finalConfirmInput').val().trim();
+            if (finalConfirmInput.toUpperCase() !== 'RESTORE') {
+                alert('Please type "RESTORE" to confirm.'); // Show alert for incorrect input
+                return false; // Prevent form submission
+            }
+            $('<input />').attr('type', 'hidden')
+                      .attr('name', 'user_password')
+                      .attr('value', $('#userPassword').val())
+                      .appendTo('#restoreFormStep4');
+            
+                      
+            return true; // Allow form submission
+        });
+    });
+</script>
 </body>
 </html>
