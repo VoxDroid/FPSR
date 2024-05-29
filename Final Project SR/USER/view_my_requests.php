@@ -58,6 +58,7 @@ $stmtOngoingEvents->execute(['userID' => $userID]);
 
     <!-- CSS.PHP -->
     <?php require_once '../PARTS/CSS.php'; ?>
+    <?php require '../CSS/pagination_cards.css'; ?>
 </head>
 <body>
 <!-- Header -->
@@ -112,6 +113,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
     <div class="container">
 <!-- Ongoing Events -->
 <h2>Ongoing Events</h2>
+    <hr style="border: none; height: 4px; background-color: #1c2331;">
 <div class="row">
     <?php
     // Ongoing Events Pagination
@@ -145,7 +147,7 @@ if ($stmtOngoingEvents->rowCount() > 0) {
         echo '<h5 class="card-title">' . htmlspecialchars($event['title'], ENT_QUOTES, 'UTF-8') . '</h5>';
         echo '<p class="card-text">' . htmlspecialchars($event['description'], ENT_QUOTES, 'UTF-8') . '</p>';
         echo '<p class="card-text">Date: ' . htmlspecialchars($event['date_requested'], ENT_QUOTES, 'UTF-8') . '</p>';
-        echo '<a href="../EMS/event_details.php?event_id=' . htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') . '" class="btn btn-primary mt-3">View</a>';
+        echo '<a href="../EMS/event_details.php?event_id=' . htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') . '" class="btn btn-primary custom-button-ind mt-3">View</a>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -164,7 +166,7 @@ if ($ongoingTotalPages > 1) {
     // Previous button
     $prevPageOngoing = $currentPageOngoing - 1;
     echo '<li class="page-item ' . ($currentPageOngoing == 1 ? 'disabled' : '') . '">';
-    echo '<a class="page-link" href="?page_ongoing=' . $prevPageOngoing . '" aria-label="Previous">';
+    echo '<a class="page-link custom-page-link" href="?page_ongoing=' . $prevPageOngoing . '" aria-label="Previous">';
     echo '<span aria-hidden="true">&laquo;</span>';
     echo '<span class="sr-only">Previous</span>';
     echo '</a>';
@@ -173,14 +175,14 @@ if ($ongoingTotalPages > 1) {
     // Page numbers
     for ($i = 1; $i <= $ongoingTotalPages; $i++) {
         echo '<li class="page-item ' . ($currentPageOngoing == $i ? 'active' : '') . '">';
-        echo '<a class="page-link" href="?page_ongoing=' . $i . '">' . $i . '</a>';
+        echo '<a class="page-link custom-page-link" href="?page_ongoing=' . $i . '">' . $i . '</a>';
         echo '</li>';
     }
     
     // Next button
     $nextPageOngoing = $currentPageOngoing + 1;
     echo '<li class="page-item ' . ($currentPageOngoing == $ongoingTotalPages ? 'disabled' : '') . '">';
-    echo '<a class="page-link" href="?page_ongoing=' . $nextPageOngoing . '" aria-label="Next">';
+    echo '<a class="page-link custom-page-link" href="?page_ongoing=' . $nextPageOngoing . '" aria-label="Next">';
     echo '<span aria-hidden="true">&raquo;</span>';
     echo '<span class="sr-only">Next</span>';
     echo '</a>';
@@ -195,6 +197,7 @@ if ($ongoingTotalPages > 1) {
 </div>
 
 <h2>Approved Events</h2>
+    <hr style="border: none; height: 4px; background-color: #1c2331;">
 <div class="row">
     <?php
     // Approved Events Pagination
@@ -223,7 +226,7 @@ if ($ongoingTotalPages > 1) {
             echo '<h5 class="card-title">' . htmlspecialchars($event['title'], ENT_QUOTES, 'UTF-8') . '</h5>';
             echo '<p class="card-text">' . htmlspecialchars($event['description'], ENT_QUOTES, 'UTF-8') . '</p>';
             echo '<p class="card-text">Date: ' . htmlspecialchars($event['date_requested'], ENT_QUOTES, 'UTF-8') . '</p>';
-            echo '<a href="../EMS/event_details.php?event_id=' . htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') . '" class="btn btn-primary mt-3">View</a>';
+            echo '<a href="../EMS/event_details.php?event_id=' . htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') . '" class="btn btn-primary mt-3 custom-button-ind">View</a>';
             echo '</div>';
             echo '</div>';
             echo '</div>';
@@ -242,7 +245,7 @@ if ($ongoingTotalPages > 1) {
         // Previous button
         $prevPageApproved = $currentPageApproved - 1;
         echo '<li class="page-item ' . ($currentPageApproved == 1 ? 'disabled' : '') . '">';
-        echo '<a class="page-link" href="?page_approved=' . $prevPageApproved . '" aria-label="Previous">';
+        echo '<a class="page-link custom-page-link" href="?page_approved=' . $prevPageApproved . '" aria-label="Previous">';
         echo '<span aria-hidden="true">&laquo;</span>';
         echo '<span class="sr-only">Previous</span>';
         echo '</a>';
@@ -251,14 +254,14 @@ if ($ongoingTotalPages > 1) {
         // Page numbers
         for ($i = 1; $i <= $approvedTotalPages; $i++) {
             echo '<li class="page-item ' . ($currentPageApproved == $i ? 'active' : '') . '">';
-            echo '<a class="page-link" href="?page_approved=' . $i . '">' . $i . '</a>';
+            echo '<a class="page-link custom-page-link" href="?page_approved=' . $i . '">' . $i . '</a>';
             echo '</li>';
         }
         
         // Next button
         $nextPageApproved = $currentPageApproved + 1;
         echo '<li class="page-item ' . ($currentPageApproved == $approvedTotalPages ? 'disabled' : '') . '">';
-        echo '<a class="page-link" href="?page_approved=' . $nextPageApproved . '" aria-label="Next">';
+        echo '<a class="page-link custom-page-link" href="?page_approved=' . $nextPageApproved . '" aria-label="Next">';
         echo '<span aria-hidden="true">&raquo;</span>';
         echo '<span class="sr-only">Next</span>';
         echo '</a>';
@@ -274,6 +277,7 @@ if ($ongoingTotalPages > 1) {
 
 <!-- Pending Events -->
 <h2>Pending Events</h2>
+    <hr style="border: none; height: 4px; background-color: #1c2331;">
 <div class="row">
     <?php
     // Pending Events Pagination
@@ -302,7 +306,7 @@ if ($ongoingTotalPages > 1) {
             echo '<h5 class="card-title">' . htmlspecialchars($event['title'], ENT_QUOTES, 'UTF-8') . '</h5>';
             echo '<p class="card-text">' . htmlspecialchars($event['description'], ENT_QUOTES, 'UTF-8') . '</p>';
             echo '<p class="card-text">Date: ' . htmlspecialchars($event['date_requested'], ENT_QUOTES, 'UTF-8') . '</p>';
-            echo '<a href="../EMS/event_details.php?event_id=' . htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') . '" class="btn btn-primary mt-3 me-2">View</a>';
+            echo '<a href="../EMS/event_details.php?event_id=' . htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') . '" class="btn btn-primary mt-3 me-2 custom-button-ind">View</a>';
             echo '<button type="button" class="btn btn-danger mt-3" data-bs-toggle="modal" data-bs-target="#withdrawModal' . htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8'). '">Withdraw Request</button>';
             echo '</div>';
             echo '</div>';
@@ -345,7 +349,7 @@ if ($ongoingTotalPages > 1) {
         // Previous button
         $prevPagePending = $currentPagePending - 1;
         echo '<li class="page-item ' . ($currentPagePending == 1 ? 'disabled' : '') . '">';
-        echo '<a class="page-link" href="?page_pending=' . $prevPagePending . '" aria-label="Previous">';
+        echo '<a class="page-link custom-page-link" href="?page_pending=' . $prevPagePending . '" aria-label="Previous">';
         echo '<span aria-hidden="true">&laquo;</span>';
         echo '<span class="sr-only">Previous</span>';
         echo '</a>';
@@ -354,14 +358,14 @@ if ($ongoingTotalPages > 1) {
         // Page numbers
         for ($i = 1; $i <= $pendingTotalPages; $i++) {
             echo '<li class="page-item ' . ($currentPagePending == $i ? 'active' : '') . '">';
-            echo '<a class="page-link" href="?page_pending=' . $i . '">' . $i . '</a>';
+            echo '<a class="page-link custom-page-link" href="?page_pending=' . $i . '">' . $i . '</a>';
             echo '</li>';
         }
         
         // Next button
         $nextPagePending = $currentPagePending + 1;
         echo '<li class="page-item ' . ($currentPagePending == $pendingTotalPages ? 'disabled' : '') . '">';
-        echo '<a class="page-link" href="?page_pending=' . $nextPagePending . '" aria-label="Next">';
+        echo '<a class="page-link custom-page-link" href="?page_pending=' . $nextPagePending . '" aria-label="Next">';
         echo '<span aria-hidden="true">&raquo;</span>';
         echo '<span class="sr-only">Next</span>';
         echo '</a>';
@@ -375,6 +379,7 @@ if ($ongoingTotalPages > 1) {
 </div>
 
 <h2>Completed Events</h2>
+    <hr style="border: none; height: 4px; background-color: #1c2331;">
 <div class="row">
     <?php
     // Completed Events Pagination
@@ -403,7 +408,7 @@ if ($ongoingTotalPages > 1) {
             echo '<h5 class="card-title">' . htmlspecialchars($event['title'], ENT_QUOTES, 'UTF-8') . '</h5>';
             echo '<p class="card-text">' . htmlspecialchars($event['description'], ENT_QUOTES, 'UTF-8') . '</p>';
             echo '<p class="card-text">Date: ' . htmlspecialchars($event['date_requested'], ENT_QUOTES, 'UTF-8') . '</p>';
-            echo '<a href="../EMS/event_details.php?event_id=' . htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') . '" class="btn btn-primary mt-3">View</a>';
+            echo '<a href="../EMS/event_details.php?event_id=' . htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') . '" class="btn btn-primary mt-3 custom-button-ind">View</a>';
             echo '</div>';
             echo '</div>';
             echo '</div>';
@@ -422,7 +427,7 @@ if ($ongoingTotalPages > 1) {
         // Previous button
         $prevPageCompleted = $currentPageCompleted - 1;
         echo '<li class="page-item ' . ($currentPageCompleted == 1 ? 'disabled' : '') . '">';
-        echo '<a class="page-link" href="?page_completed=' . $prevPageCompleted . '" aria-label="Previous">';
+        echo '<a class="page-link custom-page-link" href="?page_completed=' . $prevPageCompleted . '" aria-label="Previous">';
         echo '<span aria-hidden="true">&laquo;</span>';
         echo '<span class="sr-only">Previous</span>';
         echo '</a>';
@@ -431,14 +436,14 @@ if ($ongoingTotalPages > 1) {
         // Page numbers
         for ($i = 1; $i <= $completedTotalPages; $i++) {
             echo '<li class="page-item ' . ($currentPageCompleted == $i ? 'active' : '') . '">';
-            echo '<a class="page-link" href="?page_completed=' . $i . '">' . $i . '</a>';
+            echo '<a class="page-link custom-page-link" href="?page_completed=' . $i . '">' . $i . '</a>';
             echo '</li>';
         }
         
         // Next button
         $nextPageCompleted = $currentPageCompleted + 1;
         echo '<li class="page-item ' . ($currentPageCompleted == $completedTotalPages ? 'disabled' : '') . '">';
-        echo '<a class="page-link" href="?page_completed=' . $nextPageCompleted . '" aria-label="Next">';
+        echo '<a class="page-link custom-page-link" href="?page_completed=' . $nextPageCompleted . '" aria-label="Next">';
         echo '<span aria-hidden="true">&raquo;</span>';
         echo '<span class="sr-only">Next</span>';
         echo '</a>';
@@ -452,6 +457,7 @@ if ($ongoingTotalPages > 1) {
 </div>
 
 <h2>Denied Events</h2>
+    <hr style="border: none; height: 4px; background-color: #1c2331;">
 <div class="row">
     <?php
     // Denied Events Pagination
@@ -480,7 +486,7 @@ if ($ongoingTotalPages > 1) {
             echo '<h5 class="card-title">' . htmlspecialchars($event['title'], ENT_QUOTES, 'UTF-8') . '</h5>';
             echo '<p class="card-text">' . htmlspecialchars($event['description'], ENT_QUOTES, 'UTF-8') . '</p>';
             echo '<p class="card-text">Date: ' . htmlspecialchars($event['date_requested'], ENT_QUOTES, 'UTF-8') . '</p>';
-            echo '<a href="../EMS/event_details.php?event_id=' . htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') . '" class="btn btn-primary mt-3">View</a>';
+            echo '<a href="../EMS/event_details.php?event_id=' . htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') . '" class="btn btn-primary custom-button-ind mt-3">View</a>';
             echo '</div>';
             echo '</div>';
             echo '</div>';
@@ -499,7 +505,7 @@ if ($ongoingTotalPages > 1) {
         // Previous button
         $prevPageDenied = $currentPageDenied - 1;
         echo '<li class="page-item ' . ($currentPageDenied == 1 ? 'disabled' : '') . '">';
-        echo '<a class="page-link" href="?page_denied=' . $prevPageDenied . '" aria-label="Previous">';
+        echo '<a class="page-link custom-page-link" href="?page_denied=' . $prevPageDenied . '" aria-label="Previous">';
         echo '<span aria-hidden="true">&laquo;</span>';
         echo '<span class="sr-only">Previous</span>';
         echo '</a>';
@@ -508,14 +514,14 @@ if ($ongoingTotalPages > 1) {
         // Page numbers
         for ($i = 1; $i <= $deniedTotalPages; $i++) {
             echo '<li class="page-item ' . ($currentPageDenied == $i ? 'active' : '') . '">';
-            echo '<a class="page-link" href="?page_denied=' . $i . '">' . $i . '</a>';
+            echo '<a class="page-link custom-page-link" href="?page_denied=' . $i . '">' . $i . '</a>';
             echo '</li>';
         }
         
         // Next button
         $nextPageDenied = $currentPageDenied + 1;
         echo '<li class="page-item ' . ($currentPageDenied == $deniedTotalPages ? 'disabled' : '') . '">';
-        echo '<a class="page-link" href="?page_denied=' . $nextPageDenied . '" aria-label="Next">';
+        echo '<a class="page-link custom-page-link" href="?page_denied=' . $nextPageDenied . '" aria-label="Next">';
         echo '<span aria-hidden="true">&raquo;</span>';
         echo '<span class="sr-only">Next</span>';
         echo '</a>';

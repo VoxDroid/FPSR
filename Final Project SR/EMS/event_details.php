@@ -69,6 +69,7 @@ try {
     <!-- CSS.PHP -->
     <?php
     require_once '../PARTS/CSS.php';
+    require '../CSS/pagination_cards.css';
     ?>
 </head>
 <body>
@@ -106,7 +107,7 @@ try {
                 if ($eventDetails) {
                     echo '<div class="card mb-4">';
                     echo '<div class="card-header text-white" style="background-color: #161c27;">';
-                    echo '<h5 class="card-title">Event Details</h5>';
+                    echo '<h4 class="card-title p-2">Event Details</h4>';
                     echo '</div>';
                     echo '<div class="card-body">';
                     
@@ -168,18 +169,18 @@ try {
                         echo '<form method="post" style="display: inline-block; margin-right: 10px;">'; // Style added here
                         echo '<input type="hidden" name="event_id" value="' . $event_id . '">';
                         if ($voteType === 'like') {
-                            echo '<button type="submit" name="unlike" class="btn btn-success ' . $likeClass . '" style="width: 120px;">Unlike</button>'; // Fixed width added here
+                            echo '<button type="submit" name="unlike" class="btn btn-success custom-button-like ' . $likeClass . '" style="width: 130px;">Unlike</button>'; // Fixed width added here
                         } else {
-                            echo '<button type="submit" name="like" class="btn btn-success ' . $likeClass . '" style="width: 120px;">Like</button>'; // Fixed width added here
+                            echo '<button type="submit" name="like" class="btn btn-success custom-button-like ' . $likeClass . '" style="width: 130px;">Like</button>'; // Fixed width added here
                         }
                         echo '</form>';
 
                         echo '<form method="post" style="display: inline-block;">'; // Style added here
                         echo '<input type="hidden" name="event_id" value="' . $event_id . '">';
                         if ($voteType === 'dislike') {
-                            echo '<button type="submit" name="undislike" class="btn btn-danger ' . $dislikeClass . '" style="width: 120px;">Undislike</button>'; // Fixed width added here
+                            echo '<button type="submit" name="undislike" class="btn btn-danger custom-button-dislike ' . $dislikeClass . '" style="width: 130px;">Undislike</button>'; // Fixed width added here
                         } else {
-                            echo '<button type="submit" name="dislike" class="btn btn-danger ' . $dislikeClass . '" style="width: 120px;">Dislike</button>'; // Fixed width added here
+                            echo '<button type="submit" name="dislike" class="btn btn-danger custom-button-dislike' . $dislikeClass . '" style="width: 130px;">Dislike</button>'; // Fixed width added here
                         }
                         echo '</form>';
                         echo '</div>';
@@ -288,6 +289,7 @@ try {
 <!-- Comment Section -->
 <div class="container mt-5">
     <h5>Comments</h5>
+    <hr style="border: none; height: 4px; background-color: #1c2331;">
     <?php
     if(!isset($_SESSION['user_id'])) {
         echo '<p class="alert alert-warning">Please log in to post a comment.</p>';
@@ -301,10 +303,10 @@ try {
         ?>
             <form method="post">
                 <div class="mb-3">
-                    <label for="comment" class="form-label">Your Comment</label>
+                    <label for="comment" class="form-label">Your comment:</label>
                     <textarea class="form-control" id="comment" name="comment" rows="3" required></textarea>
                 </div>
-                <button type="submit" name="submit_comment" class="btn btn-primary">Post Comment</button>
+                <button type="submit" name="submit_comment" class="btn btn-primary custom-button-ind">Post Comment</button>
             </form>
         <?php } else { ?>
             <p class="alert alert-warning">You have reached the maximum comment limit per hour.</p>
@@ -352,12 +354,14 @@ try {
                 // Display edit form
                 echo '<form id="edit_comment_form" method="post">';
                 echo '<div class="mb-3">';
+                echo '<hr style="border: none; height: 4px; background-color: #1c2331;">';
                 echo '<label for="edited_comment" class="form-label">Edit Your Comment</label>';
                 echo '<textarea class="form-control" id="edited_comment" name="edited_comment" rows="3" required>' . $edit_comment['comment'] . '</textarea>';
                 echo '</div>';
                 echo '<div class="mb-3">';
-                echo '<button type="submit" name="submit_edit_comment" class="btn btn-primary me-3">Submit</button>';
+                echo '<button type="submit" name="submit_edit_comment" class="btn btn-primary me-3 custom-button-ind">Submit</button>';
                 echo '<button type="button" class="btn btn-secondary" id="cancel_edit">Cancel</button>';
+                echo '<hr style="border: none; height: 4px; background-color: #1c2331;">';
                 echo '<input type="hidden" name="edit_comment_id" value="' . $edit_comment_id . '">';
                 echo '</div>';
                 echo '</form>';
@@ -523,24 +527,24 @@ try {
             // Like button
             echo '<form method="post" style="display: inline-block;">';
             echo '<input type="hidden" name="comment_id" value="' . $comment['id'] . '">';
-            echo '<button type="submit" name="like_comment" class="btn btn-outline-primary me-2">Like (' . $comment['likes'] . ')</button>';
+            echo '<button type="submit" name="like_comment" class="btn btn-outline-primary me-2 custom-button-like">Like (' . $comment['likes'] . ')</button>';
             echo '</form>';
 
             // Dislike button
             echo '<form method="post" style="display: inline-block;">';
             echo '<input type="hidden" name="comment_id" value="' . $comment['id'] . '">';
-            echo '<button type="submit" name="dislike_comment" class="btn btn-outline-danger">Dislike (' . $comment['dislikes'] . ')</button>';
+            echo '<button type="submit" name="dislike_comment" class="btn btn-outline-danger custom-button-dislike">Dislike (' . $comment['dislikes'] . ')</button>';
             echo '</form>';
 
             // Edit and delete buttons
             if(isset($_SESSION['user_id']) && $comment['user_id'] === $_SESSION['user_id']) {
                 echo '<div class="ms-auto">';
                 echo '<form method="post" style="display: inline-block;">';
-                echo '<button type="button" class="btn btn-outline-danger delete-comment-btn me-2" data-comment-id="' . $comment['id'] . '">Delete</button>';
+                echo '<button type="button" class="btn btn-outline-danger delete-comment-btn me-2 custom-button-delete" data-comment-id="' . $comment['id'] . '">Delete</button>';
                 echo '<input type="hidden" name="comment_id" value="' . $comment['id'] . '">';
                 echo '</form>';
                 echo '<form method="post" style="display: inline-block;">';
-                echo '<button type="submit" name="edit_comment" class="btn btn-outline-secondary">Edit</button>';
+                echo '<button type="submit" name="edit_comment" class="btn btn-outline-secondary custom-button-purple">Edit</button>';
                 echo '<input type="hidden" name="comment_id" value="' . $comment['id'] . '">';
                 echo '</form>';
                 echo '</div>';
@@ -559,13 +563,13 @@ try {
     <nav aria-label="Page navigation example">
         <ul class="pagination justify-content-center">
             <li class="page-item <?php echo ($current_page == 1) ? 'disabled' : ''; ?>">
-                <a class="page-link" href="?event_id=<?php echo $event_id; ?>&page=<?php echo ($current_page - 1); ?>" tabindex="-1" aria-disabled="true">Previous</a>
+                <a class="page-link custom-page-link" href="?event_id=<?php echo $event_id; ?>&page=<?php echo ($current_page - 1); ?>" tabindex="-1" aria-disabled="true">«</a>
             </li>
             <?php for($i = 1; $i <= $total_pages; $i++): ?>
-                <li class="page-item <?php echo ($current_page == $i) ? 'active' : ''; ?>"><a class="page-link" href="?event_id=<?php echo $event_id; ?>&page=<?php echo $i; ?>"><?php echo $i; ?></a></li>
+                <li class="page-item <?php echo ($current_page == $i) ? 'active' : ''; ?>"><a class="page-link custom-page-link" href="?event_id=<?php echo $event_id; ?>&page=<?php echo $i; ?>"><?php echo $i; ?></a></li>
             <?php endfor; ?>
             <li class="page-item <?php echo ($current_page == $total_pages) ? 'disabled' : ''; ?>">
-                <a class="page-link" href="?event_id=<?php echo $event_id; ?>&page=<?php echo ($current_page + 1); ?>">Next</a>
+                <a class="page-link custom-page-link" href="?event_id=<?php echo $event_id; ?>&page=<?php echo ($current_page + 1); ?>">»</a>
             </li>
         </ul>
     </nav>

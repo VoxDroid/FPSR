@@ -85,6 +85,16 @@ $stmtUsers->execute();
             display: inline-block;
             font-size: 16px;
         }
+        .table-title {
+    background-color: #161c27;
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: bold;
+    padding: 15px;
+    margin: 0;
+    border-top-left-radius: 5px; /* Adjusted to have rounded corners on the top-left */
+    border-top-right-radius: 5px; 
+}
     </style>
 </head>
 <body>
@@ -420,6 +430,8 @@ if ($endPage - $startPage + 1 < $pagesToShow) {
     <h2>Manage Users</h2>
     <hr style="border: none; height: 4px; background-color: #1c2331;">
     <input type="text" id="searchInput" class="form-control mb-3" placeholder="Search...">
+    
+    <div class="table-title" >Users</div>
     <table class="table table-striped table-bordered mb-3">
         <thead>
             <tr>
@@ -439,7 +451,7 @@ if ($endPage - $startPage + 1 < $pagesToShow) {
         <td><?php echo htmlspecialchars($user['role']); ?></td>
         <td>
             <button class="btn btn-primary custom-button-mu" data-bs-toggle="modal" data-bs-target="#viewUserModal<?php echo $user['id']; ?>" >View</button>
-            <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#manageUserModal<?php echo $user['id']; ?>">Manage</button>
+            <button class="btn btn-secondary custom-button-purple" data-bs-toggle="modal" data-bs-target="#manageUserModal<?php echo $user['id']; ?>">Manage</button>
         </td>
     </tr>
 

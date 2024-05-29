@@ -169,6 +169,16 @@ $comments = fetchComments($pdo, $page, $limit);
             display: inline-block;
             font-size: 16px;
         }
+        .table-title {
+    background-color: #161c27;
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: bold;
+    padding: 15px;
+    margin: 0;
+    border-top-left-radius: 5px; /* Adjusted to have rounded corners on the top-left */
+    border-top-right-radius: 5px; 
+}
     </style>
 </head>
 <body>
@@ -202,6 +212,8 @@ $comments = fetchComments($pdo, $page, $limit);
         <hr style="border: none; height: 4px; background-color: #1c2331;">
         <input type="text" id="searchInput" class="form-control mb-3" placeholder="Search...">
         <div class="table-responsive">
+            
+    <div class="table-title" >Comments</div>
             <table class="table table-striped table-bordered">
                 <thead>
                     <tr>
@@ -226,7 +238,7 @@ $comments = fetchComments($pdo, $page, $limit);
                             <td>
                                 <button class="btn btn-primary custom-button-mc" data-bs-toggle="modal" data-bs-target="#viewCommentModal<?php echo $comment['id']; ?>">View</button>
                                 <!-- Delete Button with Confirmation Modal -->
-                                <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal<?php echo $comment['id']; ?>">Delete</button>
+                                <button class="btn btn-secondary custom-button-delete" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal<?php echo $comment['id']; ?>">Delete</button>
                             </td>
                         </tr>
                         <!-- View Comment Modal -->

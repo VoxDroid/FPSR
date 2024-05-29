@@ -61,6 +61,17 @@ $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
         .active {
             background-color: #273447;
         }
+
+        .table-title {
+    background-color: #161c27;
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: bold;
+    padding: 15px;
+    margin: 0;
+    border-top-left-radius: 5px; /* Adjusted to have rounded corners on the top-left */
+    border-top-right-radius: 5px; 
+}
     </style>
 </head>
 <body>
@@ -212,9 +223,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
                             <td><?= htmlspecialchars($event['duration'])?></td>
                             <td><?= htmlspecialchars($event['date_requested']) ?></td>
                             <td>
-                                <button class="btn btn-primary btn-sm mr-1 view-button" data-bs-toggle="modal" data-bs-target="#viewEventModal<?php echo $event['id']; ?>">View</button>
-                                <button class="btn btn-success btn-sm mr-1 approve-button" data-bs-toggle="modal" data-bs-target="#eventDetailsModal<?= $event['id'] ?>">Check</button>
-                                <button type="button" class="btn btn-danger btn-sm delete-button" data-bs-toggle="modal" data-bs-target="#withdrawModal<?= $event['id'] ?>">Delete</button>
+                                <button class="btn btn-primary btn-sm mr-1 view-button custom-button-ind" data-bs-toggle="modal" data-bs-target="#viewEventModal<?php echo $event['id']; ?>">View</button>
+                                <button class="btn btn-success btn-sm mr-1 approve-button custom-button-purple" data-bs-toggle="modal" data-bs-target="#eventDetailsModal<?= $event['id'] ?>">Check</button>
+                                <button type="button" class="btn btn-danger btn-sm delete-button custom-button-delete" data-bs-toggle="modal" data-bs-target="#withdrawModal<?= $event['id'] ?>">Delete</button>
 
                                 <!-- View Event Modal -->
                                 <div class="modal fade" id="viewEventModal<?= $event['id']; ?>" tabindex="-1" aria-labelledby="viewEventModalLabel<?= $event['id']; ?>" aria-hidden="true">
@@ -449,8 +460,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
                                 <td><?= htmlspecialchars($event['duration'])?></td>
                                 <td><?= htmlspecialchars($event['date_requested']) ?></td>
                                 <td>
-                                    <a class="btn btn-primary btn-sm mr-1 view-button" href="../EMS/event_details.php?event_id=<?= $event['id'] ?>">View</a>
-                                    <button class="btn btn-danger btn-sm delete-button">Delete</button>
+                                    <a class="btn btn-primary btn-sm mr-1 view-button custom-button-ind" href="../EMS/event_details.php?event_id=<?= $event['id'] ?>">View</a>
+                                    <button class="btn btn-danger btn-sm delete-button custom-button-delete">Delete</button>
                                     <!-- No action buttons for ongoing events -->
                                 </td>
                             </tr>
@@ -560,8 +571,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
                             <td><?= htmlspecialchars($event['duration'])?></td>
                             <td><?= htmlspecialchars($event['date_requested']) ?></td>
                         <td>
-                            <a class="btn btn-primary btn-sm mr-1 view-button" href="../EMS/event_details.php?event_id=<?= $event['id'] ?>">View</a>
-                            <button class="btn btn-danger btn-sm delete-button">Delete</button>
+                            <a class="btn btn-primary btn-sm mr-1 view-button custom-button-ind" href="../EMS/event_details.php?event_id=<?= $event['id'] ?>">View</a>
+                            <button class="btn btn-danger btn-sm delete-button custom-button-delete">Delete</button>
                             <!-- No action buttons for approved events -->
                         </td>
                     </tr>
@@ -671,8 +682,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
                             <td><?= htmlspecialchars($event['duration'])?></td>
                             <td><?= htmlspecialchars($event['date_requested']) ?></td>
                         <td>
-                            <a class="btn btn-primary btn-sm mr-1 view-button" href="../EMS/event_details.php?event_id=<?= $event['id'] ?>">View</a>
-                            <button class="btn btn-danger btn-sm delete-button">Delete</button>
+                            <a class="btn btn-primary btn-sm mr-1 view-button custom-button-ind" href="../EMS/event_details.php?event_id=<?= $event['id'] ?>">View</a>
+                            <button class="btn btn-danger btn-sm delete-button custom-button-delete">Delete</button>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -782,8 +793,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['withdraw'])) {
                             <td><?= htmlspecialchars($event['duration'])?></td>
                             <td><?= htmlspecialchars($event['date_requested']) ?></td>
                         <td>
-                            <a class="btn btn-primary btn-sm mr-1 view-button" href="../EMS/event_details.php?event_id=<?= $event['id'] ?>">View</a>
-                            <button class="btn btn-danger btn-sm delete-button">Delete</button>
+                            <a class="btn btn-primary btn-sm mr-1 view-button custom-button-ind" href="../EMS/event_details.php?event_id=<?= $event['id'] ?>">View</a>
+                            <button class="btn btn-danger btn-sm delete-button custom-button-delete">Delete</button>
                         </td>
                     </tr>
                 <?php endforeach; ?>
